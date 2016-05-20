@@ -1,0 +1,19 @@
+{
+  "name": "triples-entry",
+  "version": "0.0.0",
+  "description": "Tool for entering sparql triples of Kenchreai archaelogical data",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --watch --reporter nyan"
+  },
+  "author": "Blaise Gratton, Sebastian Heath",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "jquery": "^2.2.3",
+    "stardog": "^0.3.1"
+  }
+}
