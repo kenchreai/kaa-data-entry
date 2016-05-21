@@ -17,4 +17,4 @@
       });
     });
   });
-})(jQuery, DbService);
+})(jQuery, DbService, UrlService);
