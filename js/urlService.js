@@ -7,6 +7,10 @@
         return url.replace(baseUrl, '');
       }
 
+      function getHash() {
+        return window.location.hash.slice(1);
+      }
+
       function getResourceFromHash() {
         return baseUrl + window.location.hash.slice(1);
       }
@@ -16,6 +20,7 @@
           return baseUrl;
         },
         shortenUrl: shortenUrl,
+        getHash: getHash,
         getResourceFromHash: getResourceFromHash
       };
     };

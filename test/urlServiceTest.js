@@ -32,8 +32,8 @@ describe('Importing the module', function() {
 
 });
 
-describe('Parsing the URL hash', function(){
 
+describe('Parsing the URL hash', function(){
 
   var urlService = UrlService('http://kenchreai.org/kaa/');
 
