@@ -24,7 +24,7 @@
 
       function getDetail(detailUrl, cb) {
         var options = Object.assign({}, dbConfig);
-        options.query = 'select ?p ?o where { <' + detailUrl + '> ?p ?o }';
+        options.query = 'select ?p ?o ?label where { <' + detailUrl + '> ?p ?o . optional { graph <urn:kenchreai:schema> { ?p rdfs:label ?label } } }';
         conn.query(options, function(response) {
           cb(response);
         });

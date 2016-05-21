@@ -16,9 +16,12 @@
       var results = response.results.bindings;
       results.forEach(function(result) {
         var descriptors = [];
-        for (var key in result) {
-          descriptors.push(result[key].value);
+        try {
+          descriptors.push(result.label.value);
+        } catch(e) {
+          descriptors.push(result.p.value);
         }
+        descriptors.push(result.o.value);
         var elem = $('<tr><td>' + descriptors[0] + '</td><td>' + descriptors[1] + '</td></tr>');
         attributeList.append(elem);
       });
@@ -31,11 +34,10 @@
       if (key && value) {
         var elem = $('<tr><td>' + key + '</td><td>' + value + '</td></tr>');
         attributeList.append(elem);
-        newData.append({ key: key, value: value });
+        newData.push({ key: key, value: value });
         $('input[name="key"]').val('');
         $('input[name="value"]').val('');
       }
     }
-
   });
 })(jQuery, DbService, UrlService);

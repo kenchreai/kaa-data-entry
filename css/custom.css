@@ -29,6 +29,12 @@ form input, .button {
   margin-bottom: 0;
 }
 
+table { width: 100%; }
+
+td {
+  max-width: 50%;
+}
+
 thead > tr > td > h6 {
   text-transform: uppercase;
   font-size: 1.4rem;
@@ -37,7 +43,7 @@ thead > tr > td > h6 {
 }
 
 .key-value-input {
-  width: 40%;
+  width: 38%;
   margin-right: 9%;
 }
 
@@ -54,5 +60,5 @@ thead > tr > td > h6 {
   position: absolute;
   font-size: 74px;
   padding: 0 6px;
-  right: -1%;
+  right: 0%;
 }
