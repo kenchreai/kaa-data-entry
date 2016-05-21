@@ -11,9 +11,25 @@
   <body>
     <section class="container">
       <section>
-        <h1 class="section-heading">Details For </h1>
-        <section class="container">
-          <ul id="results-list"></ul>
+        <h1 class="section-heading" id="resource-title"></h1>
+        <section>
+          <table id="attribute-list">
+            <thead>
+              <tr>
+                <td><h6>Descriptor</h6></td>
+                <td><h6>Value</h6></td>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          <form id="key-value-pairs">
+            <section>
+              <input class="key-value-input" name="key" type="text" placeholder="Add descriptor">
+              <input class="key-value-input" name="value" type="text" placeholder="Add value">
+              <button id="add-btn" class="button button-primary">+</button>
+            </section>
+          </form>
         </section>
       </section>
     </section>
