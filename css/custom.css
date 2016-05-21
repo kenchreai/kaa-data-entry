@@ -1,4 +1,30 @@
+@font-face {
+  font-family: 'Raleway';
+  src: url('Raleway-Light.ttf') format('truetype'), url('Raleway-Medium.ttf') format('truetype'), url('Raleway-Bold.ttf') format('truetype');
+}
+
 .section-heading {
   text-align: center;
   margin-top: .5em;
+}
+
+#results-list {
+  width: 28em;
+  margin: auto;
+}
+
+#results-list > li {
+  margin-left: 9%;
+}
+
+form {
+  width: 307px;
+  margin: auto;
+  padding: 20px 30px;
+  border-radius: 4px;
+  border: 1px solid lightgrey;
+}
+
+form input, .button {
+  margin-bottom: 0;
 }
