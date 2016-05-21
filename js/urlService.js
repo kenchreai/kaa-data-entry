@@ -1,13 +1,14 @@
 ;(function() {
   var UrlService = (function() {
-    return function(baseUrl) {
+    return function(baseUrl, window) {
 
       function setHash(url) {
-        return url.replace(baseUrl, '');
+        var shortUrl = url.replace(baseUrl, '');
+        window.location.hash = shortUrl;
       }
 
-      function getWindowHash(url) {
-        return baseUrl + url.slice(1);
+      function getHash() {
+        return baseUrl + window.location.hash.slice(1);
       }
 
       return {
@@ -15,7 +16,7 @@
           return baseUrl;
         },
         setHash: setHash,
-        getWindowHash: getWindowHash
+        getHash: getHash
       };
     };
   })();
