@@ -1,13 +1,13 @@
-;(function() {
-  var UrlService = (function() {
-    return function(baseUrl, window) {
+;(function(window) {
+  if (!window) window = this.window;
+  var UrlService = (function(window) {
+    return function(baseUrl) {
 
-      function setHash(url) {
-        var shortUrl = url.replace(baseUrl, '');
-        window.location.hash = shortUrl;
+      function shortenUrl(url) {
+        return url.replace(baseUrl, '');
       }
 
-      function getHash() {
+      function getResourceFromHash() {
         return baseUrl + window.location.hash.slice(1);
       }
 
@@ -15,11 +15,11 @@
         get baseUrl() {
           return baseUrl;
         },
-        setHash: setHash,
-        getHash: getHash
+        shortenUrl: shortenUrl,
+        getResourceFromHash: getResourceFromHash
       };
     };
-  })();
+  });
 
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
     module.exports = UrlService;

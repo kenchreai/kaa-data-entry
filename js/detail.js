@@ -2,10 +2,10 @@
   $(document).ready(function() {
 
     var dbService = DbService('http://kenchreai.org/kaa/');
-    var detailUrl = window.location.hash.slice(1);
+    var urlService = UrlService(window)('http://kenchreai.org/kaa/');
     var resultsList = $('#results-list');
 
-    dbService.getDetail(detailUrl, function(response) {
+    dbService.getDetail(urlService.getResourceFromHash(), function(response) {
       var results = response.results.bindings;
       results.forEach(function(result) {
         var descriptors = [];

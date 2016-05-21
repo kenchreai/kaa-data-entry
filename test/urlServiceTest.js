@@ -1,9 +1,22 @@
 'use strict';
 
 var assert = require('chai').assert;
+
+// bunch of setup to mock window object
 var MockBrowser = require('mock-browser').mocks.MockBrowser;
 var mock = new MockBrowser();
-var UrlService = require('./../js/urlService.js');
+var AbstractBrowser = require('mock-browser').delegates.AbstractBrowser;
+var opts = {};
+if (typeof window === 'object') {
+  opts.window = window;
+} else {
+  opts.window =  MockBrowser.createWindow();
+}
+var browser = new AbstractBrowser(opts);
+var window = browser.getWindow();
+
+//pass window object to service
+var UrlService = require('./../js/urlService.js')(window);
 
 
 describe('Importing the module', function() {
@@ -21,32 +34,17 @@ describe('Importing the module', function() {
 
 describe('Parsing the URL hash', function(){
 
-  var AbstractBrowser = require('mock-browser').delegates.AbstractBrowser;
 
-  // configure in some factory
-  var opts = {};
-  
-  if (typeof window === 'object') {
-    // assign the browser window if it exists
-    opts.window = window;
-  } else {
-    // create a mock window object for testing
-    opts.window =  MockBrowser.createWindow();
-  }
-  
-  var browser = new AbstractBrowser(opts);
-  var window = browser.getWindow();
-
-  var urlService = UrlService('http://kenchreai.org/kaa/', window);
+  var urlService = UrlService('http://kenchreai.org/kaa/');
 
   it('should remove the base string when setting the hash', function() {
-    urlService.setHash('http://kenchreai.org/kaa/threpsiades/kth0001');
-    assert.equal('#threpsiades/kth0001', window.location.hash);
+    var shortUrl = urlService.shortenUrl('http://kenchreai.org/kaa/threpsiades/kth0001');
+    assert.equal('threpsiades/kth0001', shortUrl);
   });
 
   it('should inject the base string into requests based from the hash', function() {
-    urlService.setHash('http://kenchreai.org/kaa/threpsiades/kth0681');
-    var url = urlService.getHash();
-    assert.equal('http://kenchreai.org/kaa/threpsiades/kth0681', url);
+    window.location.hash = '#threpsiades/kth0681';
+    var resourceUrl = urlService.getResourceFromHash();
+    assert.equal('http://kenchreai.org/kaa/threpsiades/kth0681', resourceUrl);
   }); 
 });

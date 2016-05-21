@@ -2,6 +2,7 @@
   $(document).ready(function() {
 
     var dbService = DbService('http://kenchreai.org/kaa/');
+    var urlService = UrlService(window)('http://kenchreai.org/kaa/');
     var resultsList = $('#results-list');
 
     var cachedObj = location.hash ? location.hash.slice(1) : null;
@@ -34,7 +35,9 @@
         for (var key in result) {
           descriptors.push(result[key].value);
         }
-        var elem = $('<li><a href="/detail/#' + descriptors.join(' ') + '">' + descriptors.join(' ') + '</a></li>');
+        var elem = $('<li><a href="/detail/#' +  urlService.shortenUrl(descriptors.join()) + '">' + 
+                        descriptors.join(' ') + '</a></li>');
+
         resultsList.append(elem);
       });
       var encodedResults = JSON.stringify(results);
