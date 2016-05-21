@@ -10,25 +10,30 @@
   </head>
   <body>
     <section class="container">
-      <section>
-        <h1 class="section-heading">Kenchreai Data Editor</h1>
-        <form id="entity-search-form">
-          <section class="row">
-            <input type="text" placeholder="KAA entity..." id="entity-field">
-            <button id="search" class="button button-primary">Search</button>
+      <section id="view">
+        <section>
+          <h1 class="section-heading">Kenchreai Data Editor</h1>
+          <form id="entity-search-form">
+            <section class="row">
+              <input type="text" placeholder="KAA entity..." id="entity-field">
+              <button id="search" class="button button-primary">Search</button>
+            </section>
+          </form>
+        </section>
+        <section>
+          <h2 class="section-heading">Results</h2>
+          <section class="container">
+            <ul id="results-list"></ul>
           </section>
-        </form>
-      </section>
-      <section>
-        <h2 class="section-heading">Results</h2>
-        <section class="container">
-          <ul id="results-list"></ul>
         </section>
       </section>
     </section>
+    <p id="spinner-target"></p>
     <script src="node_modules/lodash/dist/lodash.js" type="text/javascript"></script>
     <script src="node_modules/jquery/dist/jquery.js" type="text/javascript"></script>
     <script src="node_modules/stardog/js/stardog.js" type="text/javascript"></script>
+    <script src="node_modules/spin/dist/spin.min.js" type="text/javascript"></script>
+    <script src="js/spinnerService.js" type="text/javascript"></script>
     <script src="js/dbService.js" type="text/javascript"></script>
     <script src="js/urlService.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>

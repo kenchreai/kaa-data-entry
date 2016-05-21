@@ -62,3 +62,8 @@ thead > tr > td > h6 {
   padding: 0 6px;
   right: 0%;
 }
+
+#spinner-target {
+  position: relative;
+  left: 50%;
+}

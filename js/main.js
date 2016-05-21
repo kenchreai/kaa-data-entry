@@ -45,5 +45,10 @@
       location.hash = 'cats';
     }
 
+    $('#load-view').click(function(e) {
+      e.preventDefault();
+      $('#view').load('/detail/index.html', function() {});
+    });
+
   });
 })(jQuery, DbService, UrlService);

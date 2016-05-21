@@ -2,6 +2,8 @@
   var DbService = (function() {
     return function(baseUrl) { 
       
+      var spinner = SpinnerService();
+
       var conn = new Stardog.Connection();
       conn.setEndpoint("http://kenchreai.org:5820/");
       conn.setReasoning(false);
@@ -12,6 +14,7 @@
       };
 
       function query(params, cb) {
+        spinner.start();
         var options = Object.assign({}, dbConfig);
         //options.query = 'describe <http://kenchreai.org/kaa/test/test01>';
         //options.query = 'select ?p ?o where { <http://kenchreai.org/kaa/harbor/ke1221> ?p ?o }';
@@ -19,14 +22,17 @@
         //options.query = 'select ?s ?p where { ?s a kaaont:inventory-number . ?s kaaont:is-logical-part-of+/kaa:' + params.entity + ' } order by ?s';
         conn.query(options, function(response) {
           cb(response);
+          spinner.stop();
         });
       }
 
       function getDetail(detailUrl, cb) {
+        spinner.start()
         var options = Object.assign({}, dbConfig);
         options.query = 'select ?p ?o ?label where { <' + detailUrl + '> ?p ?o . optional { graph <urn:kenchreai:schema> { ?p rdfs:label ?label } } }';
         conn.query(options, function(response) {
           cb(response);
+          spinner.stop();
         });
       }
 
@@ -41,4 +47,4 @@
     module.exports = DbService;
   else
     window.DbService = DbService;
-})();
+})(SpinnerService);

@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "jquery": "^2.2.3",
+    "spin": "0.0.1",
     "stardog": "^0.3.1"
   }
 }
