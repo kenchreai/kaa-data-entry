@@ -49,5 +49,11 @@
         $('input[name="value"]').val('');
       }
     }
+
+    loadDetail();
+
+    $(window).on('hashchange', function() {
+      loadDetail();
+    });
   });
 })(jQuery, DbService, UrlService);
