@@ -8,26 +8,37 @@
     var cachedObj = location.hash ? location.hash.slice(1) : null;
 
     if (cachedObj) {
+      loadCachedObj(cachedObj);
+    }
+
+    $('#search').on('click', function(e) {
+      loadResults();
+    });
+
+    function loadCachedObj(cachedObj) {
       var response = JSON.parse(sessionStorage.getItem(cachedObj));
       if (response) {
         printResults(response);
       }
     }
 
-    $('#search').on('click', function(e) {
-      var entity = $('#entity-field').val()
+    function loadResults(entity) {
+      if (!entity)
+        var entity = $('#entity-field').val()
       $('#no-results').remove();
       $('#results-list').children().remove();
+
       dbService.query({ entity: entity }, function(response) {
         var results = response.results.bindings;
         if (results.length === 0) {
-          $('#results-list').append($('<p id="no-results">No results found for query "' + params.entity + '".</p>'));
+          $('#results-list').append($('<p id="no-results">No results found for query "' +
+                                        params.entity + '".</p>'));
         } else {
           printResults(results);
         }
       });
       e.preventDefault();
-    });
+    }
 
     function printResults(results) {
       results.forEach(function(result) {
@@ -45,10 +56,12 @@
       location.hash = 'cats';
     }
 
-    $('#load-view').click(function(e) {
-      e.preventDefault();
-      $('#view').load('/detail/index.html', function() {});
+    $(window).on('hashchange', function() {
+      cachedObj = location.hash ? location.hash.slice(1) : null;
+      if (cachedObj)
+        loadCachedObj(cachedObj);
+      else
+        $('#results-list').children().remove();
     });
-
   });
 })(jQuery, DbService, UrlService);
