@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var UrlService = require('./../urlService.js');
+var UrlService = require('./../js/urlService.js');
 
 describe('Importing the module', function() {
 
@@ -16,24 +16,18 @@ describe('Importing the module', function() {
 
 });
 
-describe('Building URLs', function(){
+describe('Parsing the URL hash', function(){
 
-  describe('issuing GET requests', function() {
+  var urlService = UrlService('http://kenchreai.org/kaa/');
 
-    it('constructs them properly (1)');
-    
-    it('constructs them properly (2)');
-
-    it('constructs them properly (3)');
+  it('should remove the base string when setting the hash', function() {
+    var windowHash = urlService.setHash('http://kenchreai.org/kaa/threpsiades/kth0001');
+    assert.equal('threpsiades/kth0001', windowHash);
   });
 
-
-  describe('issuing POST requests', function() {
-
-    it('constructs them properly (1)');
-    
-    it('constructs them properly (2)');
-
-    it('constructs them properly (3)');
-  });
+  it('should inject the base string into requests based from the hash', function() {
+    var windowHash = '#' + urlService.setHash('http://kenchreai.org/kaa/threpsiades/kth0681');
+    var fullHash = urlService.getWindowHash(windowHash);
+    assert.equal('http://kenchreai.org/kaa/threpsiades/kth0681', fullHash);
+  }); 
 });
