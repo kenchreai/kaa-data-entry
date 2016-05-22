@@ -48,4 +48,4 @@
     module.exports = SpinnerService;
   else
     window.SpinnerService = SpinnerService;
-})(jQuery);
+})();

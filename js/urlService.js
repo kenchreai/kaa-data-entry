@@ -7,12 +7,14 @@
         return url.replace(baseUrl, '');
       }
 
-      function getHash() {
-        return window.location.hash.slice(1);
+      function getHash(view) {
+        if (!view) view = '';
+        return window.location.hash.slice(view.length + 1);
       }
 
-      function getResourceFromHash() {
-        return baseUrl + window.location.hash.slice(1);
+      function getResourceFromHash(view) {
+        if (!view) view = '';
+        return baseUrl + window.location.hash.slice(view.length + 1);
       }
 
       return {

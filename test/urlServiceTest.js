@@ -42,6 +42,18 @@ describe('Parsing the URL hash', function(){
     assert.equal('threpsiades/kth0001', shortUrl);
   });
 
+  it('should return the resource without an octothorpe', function() {
+    window.location.hash = 'omgMyAwesomeHash';
+    assert.equal('#omgMyAwesomeHash', window.location.hash);
+    assert.equal('omgMyAwesomeHash', urlService.getHash());
+  });
+
+  it('should remove any routing prefix passed in', function() {
+    window.location.hash = '#/detail/threpsiades/kth0008';
+    var resource = urlService.getHash('/detail/');
+    assert.equal('threpsiades/kth0008', resource);
+  });
+
   it('should inject the base string into requests based from the hash', function() {
     window.location.hash = '#threpsiades/kth0681';
     var resourceUrl = urlService.getResourceFromHash();
