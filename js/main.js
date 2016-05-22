@@ -12,17 +12,19 @@
     }
 
     $('#search').on('click', function(e) {
-      loadResults();
+      loadResults(e);
     });
 
     function loadCachedObj(cachedObj) {
       var response = JSON.parse(sessionStorage.getItem(cachedObj));
       if (response) {
         printResults(response);
+      } else {
+        sessionStorage.removeItem(cachedObj);
       }
     }
 
-    function loadResults(entity) {
+    function loadResults(e, entity) {
       if (!entity)
         var entity = $('#entity-field').val()
       $('#no-results').remove();
@@ -34,13 +36,13 @@
           $('#results-list').append($('<p id="no-results">No results found for query "' +
                                         params.entity + '".</p>'));
         } else {
-          printResults(results);
+          printResults(results, entity);
         }
       });
       e.preventDefault();
     }
 
-    function printResults(results) {
+    function printResults(results, entity) {
       results.forEach(function(result) {
         var descriptors = [];
         for (var key in result) {
@@ -52,12 +54,15 @@
         resultsList.append(elem);
       });
       var encodedResults = JSON.stringify(results);
-      sessionStorage.setItem('cats', encodedResults);
-      location.hash = 'cats';
+      if (entity) {
+        sessionStorage.setItem(entity, encodedResults);
+        location.hash = entity;
+      }
     }
 
     $(window).on('hashchange', function() {
       cachedObj = location.hash ? location.hash.slice(1) : null;
+      $('#entity-field').val(cachedObj);
       if (cachedObj)
         loadCachedObj(cachedObj);
       else
