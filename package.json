@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha --watch --reporter nyan",
-    "preinstall": "cd public && npm install"
+    "postinstall": "cd public && npm install"
   },
   "engines": {
     "node": "4.1.1"
