@@ -2,7 +2,7 @@
   "name": "triples-entry",
   "version": "0.0.0",
   "description": "Tool for entering sparql triples of Kenchreai archaelogical data",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha --watch --reporter nyan"
   },
@@ -14,8 +14,11 @@
     "mock-browser": "^0.92.12"
   },
   "dependencies": {
-    "jquery": "^2.2.3",
-    "spin": "0.0.1",
+    "body-parser": "^1.15.1",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "http": "0.0.0",
+    "path": "^0.12.7",
     "stardog": "^0.3.1"
   }
 }
