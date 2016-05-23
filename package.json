@@ -4,7 +4,8 @@
   "description": "Tool for entering sparql triples of Kenchreai archaelogical data",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --watch --reporter nyan"
+    "test": "mocha --watch --reporter nyan",
+    "preinstall": "cd public && npm install"
   },
   "engines": {
     "node": "4.1.1"
