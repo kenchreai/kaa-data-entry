@@ -49,6 +49,14 @@ app.get('/api/descriptors', function(req, res) {
   });
 });
 
+app.get('node_modules/jquery/dist/jquery.js', function(req, res) {
+  res.sendFile(path.join(__dirname + '/public/node_modules/jquery/dist/jquery.js'));
+});
+
+app.get('node_modules/spin/dist/spin.min.js', function(req, res) {
+  res.sendFile(path.join(__dirname + '/public/node_modules/spin/dist/spin.min.js'));
+});
+
 app.get(function(req, res) {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
