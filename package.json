@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha --watch --reporter nyan"
   },
+  "engines": {
+    "node": "4.1.1"
+  },
   "author": "Blaise Gratton, Sebastian Heath",
   "license": "MIT",
   "devDependencies": {
