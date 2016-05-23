@@ -1,0 +1,15 @@
+{
+  "name": "public",
+  "version": "0.0.0",
+  "description": "Lib modules for public directory",
+  "main": "index.html",
+  "scripts": {
+    "test": ""
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^2.2.4",
+    "spin": "0.0.1"
+  }
+}

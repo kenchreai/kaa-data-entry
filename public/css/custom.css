@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'Raleway';
+  src: url('Raleway-Light.ttf') format('truetype'), url('Raleway-Medium.ttf') format('truetype'), url('Raleway-Bold.ttf') format('truetype');
+}
+
+.section-heading {
+  text-align: center;
+  margin-top: .5em;
+}
+
+#results-list {
+  width: 28em;
+  margin: auto;
+}
+
+#results-list > li {
+  margin-left: 9%;
+}
+
+#entity-search-form {
+  width: 307px;
+  margin: auto;
+  padding: 20px 30px;
+  border-radius: 4px;
+  border: 1px solid lightgrey;
+}
+
+form input, .button {
+  margin-bottom: 0;
+}
+
+table { width: 100%; }
+
+td {
+  max-width: 50%;
+}
+
+thead > tr > td > h6 {
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  letter-spacing: .2rem;
+  font-weight: 600;
+}
+
+.key-value-input {
+  width: 38%;
+}
+
+.key-value-input:nth-child(1) {
+  margin-right: 11%;
+}
+
+#key-value-pairs {
+  display: table;
+  width: 100%;
+  min-width: 675px;
+}
+
+#key-value-pairs section {
+  display: table-row;
+}
+
+#add-btn {
+  position: absolute;
+  font-size: 74px;
+  padding: 0 6px;
+  right: 0%;
+}
+
+#spinner-target {
+  position: relative;
+  left: 50%;
+}
