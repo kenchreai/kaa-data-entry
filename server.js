@@ -7,11 +7,13 @@ var http = require('http').Server(app);
 var path = require('path');
 var env = require('dotenv').config();
 var DbService = require('./dbService.js');
-
 var username = process.env.KENCHREAI_USER;
 var password = process.env.KENCHREAI_PASSWORD;
 var dbService = DbService('http://kenchreai.org/kaa/', username, password);
 var port = process.env.PORT || 3000;
+
+
+/***************** configure middleware ***************/
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -52,6 +54,7 @@ app.get('/api/descriptors', function(req, res) {
 app.get('*', function(req, res) {
   res.sendFile('/index.html');
 });
+
 
 /******************************************************/
 

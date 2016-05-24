@@ -25,8 +25,7 @@
 
         function loadResults(e, entity) {
           e.preventDefault();
-          if (!entity)
-            var entity = $('#entity-field').val()
+          if (!entity) var entity = $('#entity-field').val()
           $('#no-results').remove();
           $('#results-list').children().remove();
           dbService.query({ entity: entity }, function(response) {
