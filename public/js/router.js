@@ -4,7 +4,10 @@
     var spinnerService = SpinnerService();
     var urlService = UrlService(window)('http://kenchreai.org/kaa/');
     var dbService = DbService(spinnerService);
+
     var descriptors;
+    var dataTypes = [];
+    var objectTypes = [];
 
     var constants = {
       descriptors: function(cb) {
@@ -14,14 +17,26 @@
               return descriptor.label;
             });
             descriptors = _descriptors;
+            splitDescriptors();
             cb(descriptors);
           });
-        } else {
-          cb(descriptors);
-        }
-      }
+        } else
+            cb(descriptors);
+      },
+      dataTypes: dataTypes,
+      objectTypes: objectTypes
     };
 
+    function splitDescriptors() {
+      descriptors.forEach(function(desc) {
+        try {
+          desc.range.value;
+          dataTypes.push(desc);
+        } catch(e) {
+          objectTypes.push(desc);
+        }
+      });
+    }
     
     function loadDetailPage(hash) {
       $('#view').load('templates/detail.html', function() {
@@ -44,9 +59,8 @@
       var hash = location.hash ? location.hash.slice(1) : null;
       if (hash && hash.indexOf('/detail/') >= 0) {
         loadDetailPage(hash);
-      } else {
-        loadListView();
-      }
+      } else
+          loadListView();
     }
 
     route();
