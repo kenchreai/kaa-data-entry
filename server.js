@@ -51,6 +51,13 @@ app.get('/api/descriptors', function(req, res) {
   });
 });
 
+app.put('/api/updatedetail', function(req, res) {
+  var resource = req.body;
+  dbService.updateDetail(resource, function(response) {
+    res.send(response);
+  });
+});
+
 app.get('*', function(req, res) {
   res.sendFile('/index.html');
 });

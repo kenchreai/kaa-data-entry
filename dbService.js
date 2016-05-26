@@ -16,7 +16,11 @@
         var options = Object.assign({}, dbConfig);
         //options.query = 'describe <http://kenchreai.org/kaa/test/test01>';
         //options.query = 'select ?p ?o where { <http://kenchreai.org/kaa/harbor/ke1221> ?p ?o }';
-        options.query = 'select ?s ?p where { ?s a kaaont:inventory-number . ?s kaaont:is-logical-part-of <' + baseUrl + 'kth/inventoried-objects> } order by ?s';
+        options.query = 'select ?s ?p where { ' +
+                          '?s a kaaont:inventory-number . ' +
+                          '?s kaaont:is-logical-part-of ' +
+                          '<' + baseUrl + 'kth/inventoried-objects> ' +
+                        '} order by ?s';
         //options.query = 'select ?s ?p where { ?s a kaaont:inventory-number . ?s kaaont:is-logical-part-of+/kaa:' + params.entity + ' } order by ?s';
         conn.query(options, function(response) {
           cb(response);
@@ -25,9 +29,14 @@
 
       function getDetail(detailUrl, cb) {
         var options = Object.assign({}, dbConfig);
-        options.query = 'select ?p ?o ?label where { <' +
-                        detailUrl + '> ?p ?o . optional {' +
-                        'graph <urn:kenchreai:schema> { ?p rdfs:label ?label } } }';
+        options.query = 'select ?p ?o ?label where { ' +
+                          '<' + detailUrl + '> ?p ?o . ' +
+                          'optional {' +
+                            'graph <urn:kenchreai:schema> { ' +
+                              '?p rdfs:label ?label ' +
+                            '} ' +
+                          '} ' +
+                        '}';
         conn.query(options, function(response) {
           cb(response);
         });
@@ -50,10 +59,25 @@
         });
       }
 
+      function updateDetail(re, cb) {
+        var options = Object.assign({}, dbConfig);
+        options.query = 'delete { ' +
+                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
+                        '} insert {' +
+                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.newObject + ' ' +
+                        '} where { ' +
+                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
+                        '}';
+        conn.query(options, function(response) {
+          cb(response);
+        });
+      }
+
       return {
         query: query,
         getDetail: getDetail,
-        getDescriptors: getDescriptors
+        getDescriptors: getDescriptors,
+        updateDetail: updateDetail
       };
     };
   })();
