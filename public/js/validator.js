@@ -15,6 +15,10 @@
         return parseFloat(input) >= 0;
       }
 
+      function bool(input) {
+        return input.toLowerCase() === 'true' || input.toLowerCase() === 'false';
+      }
+
       function validate(type, input) {
         if (!input) return false;
 
@@ -27,6 +31,9 @@
             break;
           case 'float':
             return float(input);
+            break;
+          case 'bool':
+            return bool(input);
             break;
           default:
             return false;
