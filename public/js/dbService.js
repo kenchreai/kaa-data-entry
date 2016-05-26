@@ -4,7 +4,7 @@
 
       function query(params, cb) {
         spinnerService.start();
-        $.post('/api/query', params).done(function(response) {
+        $.get('/api/entitylist?domain=' + params).done(function(response) {
           spinnerService.stop();
           cb(response);
         });
@@ -12,7 +12,7 @@
 
       function getDetail(resource, cb) {
         spinnerService.start();
-        $.post('/api/getdetail', { resource: resource }).done(function(response) {
+        $.get('/api/entities?resourceName=' + resource).done(function(response) {
           spinnerService.stop();
           cb(response);
         });

@@ -30,30 +30,41 @@ app.use(express.static(__dirname + '/public'));
 
 /*****************      routes     ********************/
 
-app.post('/api/query', function(req, res) {
-  var params = req.body;
-  dbService.query(params, function(response) {
+app.get('/api/entitylist', function(req, res) {
+  dbService.query(req.query.domain, function(response) {
     res.send(response);
   });
 });
 
-app.post('/api/getdetail', function(req, res) {
-  var resource = req.body.resource;
-  console.log(resource);
-  dbService.getDetail(resource, function(response) {
+app.get('/api/entities', function(req, res) {
+  dbService.getDetail(req.query.resourceName, function(response) {
+    res.send(response);
+  });
+});
+
+app.post('/api/entities/:resourceName', function(req, res) {
+  var properties = req.body;
+  dbService.insert(req.params.resourceName, properties, function(response) {
+    res.send(response);
+  });
+});
+
+app.put('/api/entities/:resourceName', function(req, res) {
+  var properties = req.body;
+  dbService.updateDetail(req.params.resourceName, properties, function(response) {
+    res.send(response);
+  });
+});
+
+app.delete('/api/entities/:resourceName', function(req, res) {
+  var properties = req.body;
+  dbService.deleteDetail(req.params.resourceName, properties, function(response) {
     res.send(response);
   });
 });
 
 app.get('/api/descriptors', function(req, res) {
   dbService.getDescriptors(function(response) {
-    res.send(response);
-  });
-});
-
-app.put('/api/updatedetail', function(req, res) {
-  var resource = req.body;
-  dbService.updateDetail(resource, function(response) {
     res.send(response);
   });
 });

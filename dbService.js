@@ -30,7 +30,7 @@
       function getDetail(detailUrl, cb) {
         var options = Object.assign({}, dbConfig);
         options.query = 'select ?p ?o ?label where { ' +
-                          '<' + detailUrl + '> ?p ?o . ' +
+                          '<' + baseUrl + detailUrl + '> ?p ?o . ' +
                           'optional {' +
                             'graph <urn:kenchreai:schema> { ' +
                               '?p rdfs:label ?label ' +
@@ -59,14 +59,34 @@
         });
       }
 
+      function insert(re, cb) {
+        var options = Object.assign({}, dbConfig);
+        options.query = 'insert data { ' +
+                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.object + ' ' +
+                        '}';
+        conn.query(options, function(response) {
+          cb(response);
+        });
+      }
+
       function updateDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
         options.query = 'delete { ' +
-                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
+                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
                         '} insert {' +
-                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.newObject + ' ' +
+                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.newObject + ' ' +
                         '} where { ' +
-                          '<http://kenchreai.org/kaa/' + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
+                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
+                        '}';
+        conn.query(options, function(response) {
+          cb(response);
+        });
+      }
+
+      function deleteDetail(re, cb) {
+        var options = Object.assign({}, dbConfig);
+        options.query = 'delete data { ' +
+                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.object + ' ' +
                         '}';
         conn.query(options, function(response) {
           cb(response);
@@ -77,7 +97,9 @@
         query: query,
         getDetail: getDetail,
         getDescriptors: getDescriptors,
-        updateDetail: updateDetail
+        insert: insert,
+        updateDetail: updateDetail,
+        deleteDetail: deleteDetail
       };
     };
   })();

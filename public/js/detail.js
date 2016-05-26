@@ -45,7 +45,7 @@
         });
         
         function loadDetail() {
-          dbService.getDetail(urlService.getResourceFromHash('/detail/'), function(response) {
+          dbService.getDetail(resourceTitle, function(response) {
             attributeList.children().remove();
             var results = response.results.bindings;
             results.forEach(function(result) {
