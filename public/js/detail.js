@@ -57,8 +57,28 @@
               }
               descriptors.push(result.o.value);
               var elem = $('<tr><td>' + descriptors[0] + 
-                           '</td><td>' + descriptors[1] + '</td></tr>');
+                           '</td><td class="object-value"><p>' + descriptors[1] + '</p>' +
+                           '<button class="button button-remove">X</button></td></tr>');
               attributeList.append(elem);
+            });
+
+            $('td.object-value').hover(function() {
+              $(this).addClass('hover');
+            }, function() {
+              $(this).removeClass('hover');
+            });
+
+            $('.button-remove').on('click', function(e) {
+              var row = $(this).parent().parent();
+              var key = $(row.children()[0]).text();
+              var value = $($(this).siblings()[0]).text();
+              if (confirm('Delete this attribute?')) {
+                dbService.deleteAttribute(resourceTitle,
+                                          { key: key, value: value },
+                                          function(response) {
+                                            debugger
+                });
+              }
             });
           });
         }
@@ -66,14 +86,26 @@
         function addEntry(e) {
           e.preventDefault();
           var key = $('select[name="key"]').val();
+          var descriptor = getFullDescription(key);
           var value = $('input[name="value"]').val();
           if (key && value) {
-            var elem = $('<tr><td>' + key + '</td><td>' + value + '</td></tr>');
-            attributeList.append(elem);
-            newData.push({ key: key, value: value });
-            $('input[name="key"]').val('');
-            $('input[name="value"]').val('');
+            dbService.insert(resourceTitle, { key: descriptor, val: value }, function(response) {
+              var elem = $('<tr><td>' + key + '</td><td class="object-value">' + value + '</td></tr>');
+              attributeList.append(elem);
+              newData.push({ key: key, value: value });
+              $('input[name="key"]').val('');
+              $('input[name="value"]').val('');
+            });
           }
+        }
+
+        function getFullDescription(key) {
+          var descriptor;
+          descriptors.forEach(function(desc) {
+            if (desc.label.value === key)
+              descriptor = desc;
+          });
+          return descriptor.s.value;
         }
 
         loadDetail();

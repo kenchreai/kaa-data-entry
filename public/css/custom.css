@@ -29,12 +29,6 @@ form input, .button {
   margin-bottom: 0;
 }
 
-table { width: 100%; }
-
-td {
-  max-width: 50%;
-}
-
 thead > tr > td > h6 {
   text-transform: uppercase;
   font-size: 1.4rem;
@@ -70,4 +64,35 @@ thead > tr > td > h6 {
 #spinner-target {
   position: relative;
   left: 50%;
+}
+
+.object-value > * {
+  display: inline-block;
+}
+
+.object-value p {
+  margin-bottom: 0;
+}
+
+.button-remove {
+  display: none;
+  padding: 0 12px;
+  font-size: 13px;
+  height: 24px;
+  line-height: 24px;
+  float: right;
+  margin-right: 10px;
+}
+
+.hover.object-value {
+  background: #f6f6f6;
+}
+
+.hover .button-remove {
+  display: inherit;
+}
+
+.button-remove:hover {
+  color: darkred;
+  border: 1px solid darkred;
 }

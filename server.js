@@ -42,9 +42,13 @@ app.get('/api/entities', function(req, res) {
   });
 });
 
-app.post('/api/entities/:resourceName', function(req, res) {
-  var properties = req.body;
-  dbService.insert(req.params.resourceName, properties, function(response) {
+app.post('/api/entities/', function(req, res) {
+  var resource = {
+    subject: req.query.resourceName,
+    predicate: req.body.key,
+    object: req.body.val
+  };
+  dbService.insert(resource, function(response) {
     res.send(response);
   });
 });
@@ -56,9 +60,13 @@ app.put('/api/entities/:resourceName', function(req, res) {
   });
 });
 
-app.delete('/api/entities/:resourceName', function(req, res) {
-  var properties = req.body;
-  dbService.deleteDetail(req.params.resourceName, properties, function(response) {
+app.delete('/api/entities/', function(req, res) {
+  var triple = {
+    subject: req.params.resourceName,
+    predicate: req.body.key,
+    object: req.body.value
+  };
+  dbService.deleteDetail(triple, function(response) {
     res.send(response);
   });
 });
