@@ -65,6 +65,7 @@ describe('Passing in strings to be evaluates', function() {
       assert.isTrue(val.validate('float', '0.8'));
       assert.isTrue(val.validate('float', '1234.5678'));
       assert.isFalse(val.validate('float', 'oienwtf.5678'));
+      assert.isTrue(val.validate('float', '1.'));
     });
 
     it('should also accept standard integers', function() {
