@@ -102,7 +102,7 @@ table {
 }
 
 input[type="text"].valid {
-  border: 1px solid green;
+  border: 1px solid #33bd26;
 }
 
 input[type="text"].invalid {

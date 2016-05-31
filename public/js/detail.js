@@ -5,7 +5,6 @@
 
         var attributeList = $('#attribute-list tbody');
         var resourceTitle = urlService.getHash('/detail/');
-        var newData = [];
 
         $('#add-btn').click(addEntry);
         $('#resource-title').text('Details for ' + resourceTitle);
@@ -68,17 +67,13 @@
           var select = $('select[name="key"]');
           var input = $('input[name="value"]');
           if (input.hasClass('invalid')) return;
-
-          var key = select.val();
-          var value = input.val();
-          var label = getDescriptorLabel(key);
+          var key = select.val(), value = input.val(), label = getDescriptorLabel(key);
 
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
               var elem = $('<tr><td>' + label + '</td><td class="object-value">' + value + '</td></tr>');
               attributeList.append(elem);
-              newData.push({ key: key, value: value });
-              input.val('');
+              input.val('').removeClass('invalid').removeClass('valid');
             });
           }
         }

@@ -67,17 +67,13 @@
         };
       };
 
-      function validate(type, val) {
-        return validator.validate(type, val);
-      }
-
       return {
         getDescriptors: getDescriptors,
         dataTypes: dataTypes,
         objectTypes: objectTypes,
         getType: getType,
         debounce: debounce,
-        validate: validate
+        validate: function(type, val) { return validator.validate(type, val); }
       };
     };
   })();
