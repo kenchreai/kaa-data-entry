@@ -14,7 +14,7 @@
         var dropDown = $('#key-value-pairs select');
         var descriptors = [];
 
-        constants.descriptors(function(response) {
+        constants.getDescriptors(function(response) {
           descriptors = response;
           response.forEach(function(descriptor) {
             dropDown.append($('<option value="' + descriptor.s.value +
@@ -23,25 +23,8 @@
         });
 
         dropDown.on('change', function(e) {
-          var label = e.target.value;
-          var descriptor, type, typeValue;
-          constants.dataTypes.filter(function(desc) {
-            if (desc.label.value === label) {
-              descriptor = desc;
-              type = 'data';
-            }
-          });
-          constants.objectTypes.filter(function(desc) {
-            if (desc.label.value === label) {
-              descriptor = desc;
-              type = 'object';
-              typeValue = 'uri';
-            }
-          });
-          if (type === 'data') {
-            typeValue = descriptor.range.value.slice(descriptor.range.value.indexOf('#') + 1);
-          }
-          $('input[name="value"]').attr('field-type', typeValue);
+          var type = constants.getType(e.target.value);
+          $('input[name="value"]').attr('field-type', type);
         });
         
         function loadDetail() {
@@ -72,9 +55,11 @@
               var row = $(this).parent().parent();
               var key = getFullUri($(row.children()[0]).text());
               var value = $($(this).siblings()[0]).text();
+              var type = constants.getType(key);
               if (confirm('Delete this attribute?')) {
                 dbService.deleteAttribute(resourceTitle,
                                           { key: key, value: value },
+                                          type,
                                           function(response) {
                   row.remove();
                 });

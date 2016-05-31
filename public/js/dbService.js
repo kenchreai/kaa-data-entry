@@ -1,7 +1,7 @@
 ;(function() {
   var DbService = (function() {
 
-    jQuery.each( ["put", "delete"], function(i, method) {
+    jQuery.each(["put", "delete"], function(i, method) {
       jQuery[method] = function(url, data, callback, type) {
         if (jQuery.isFunction(data)) {
           type = type || callback;
@@ -21,6 +21,10 @@
 
     return function(spinnerService, converter) {
 
+      function getValueFieldType() {
+        return $('input[name="value"]').attr('field-type');
+      }
+
       function query(params, cb) {
         spinnerService.start();
         $.get('/api/entitylist?domain=' + params.entity).done(function(response) {
@@ -39,14 +43,18 @@
 
       function insert(resource, properties, cb) {
         spinnerService.start();
+        var type = getValueFieldType();
+        properties.val = converter.type(type, properties.val);
         $.post('/api/entities?resourceName=' + resource, properties).done(function(response) {
           spinnerService.stop();
           cb(response);
         });
       }
 
-      function deleteAttribute(resource, properties, cb) {
+      function deleteAttribute(resource, properties, type, cb) {
         spinnerService.start();
+        debugger
+        properties.value = converter.type(type, properties.value);
         $.delete('/api/entities?resourceName=' + resource, properties).done(function(response) {
           spinnerService.stop();
           cb(response);
