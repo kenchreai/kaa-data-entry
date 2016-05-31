@@ -63,7 +63,7 @@
       function insert(re, cb) {
         var options = Object.assign({}, dbConfig);
         options.query = 'insert data { ' +
-                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.object + ' ' +
+                          '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
         conn.query(options, function(response) {
           cb(response);
@@ -87,7 +87,7 @@
       function deleteDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
         options.query = 'delete data { ' +
-                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.object + ' ' +
+                          '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
         conn.query(options, function(response) {
           cb(response);

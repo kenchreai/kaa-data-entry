@@ -48,6 +48,7 @@ app.post('/api/entities/', function(req, res) {
     predicate: req.body.key,
     object: req.body.val
   };
+  console.log(resource);
   dbService.insert(resource, function(response) {
     res.send(response);
   });
@@ -62,10 +63,11 @@ app.put('/api/entities/:resourceName', function(req, res) {
 
 app.delete('/api/entities/', function(req, res) {
   var triple = {
-    subject: req.params.resourceName,
+    subject: req.query.resourceName,
     predicate: req.body.key,
     object: req.body.value
   };
+  console.log(triple);
   dbService.deleteDetail(triple, function(response) {
     res.send(response);
   });

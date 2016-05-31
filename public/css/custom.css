@@ -74,6 +74,10 @@ thead > tr > td > h6 {
   margin-bottom: 0;
 }
 
+table {
+  width: 100%;
+}
+
 .button-remove {
   display: none;
   padding: 0 12px;
@@ -93,6 +97,6 @@ thead > tr > td > h6 {
 }
 
 .button-remove:hover {
-  color: darkred;
-  border: 1px solid darkred;
+  color: red;
+  border: 1px solid red;
 }

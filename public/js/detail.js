@@ -17,7 +17,7 @@
         constants.descriptors(function(response) {
           descriptors = response;
           response.forEach(function(descriptor) {
-            dropDown.append($('<option value="' + descriptor.label.value +
+            dropDown.append($('<option value="' + descriptor.s.value +
                               '">' + descriptor.label.value + '</option>'));
           });
         });
@@ -70,13 +70,13 @@
 
             $('.button-remove').on('click', function(e) {
               var row = $(this).parent().parent();
-              var key = $(row.children()[0]).text();
+              var key = getFullUri($(row.children()[0]).text());
               var value = $($(this).siblings()[0]).text();
               if (confirm('Delete this attribute?')) {
                 dbService.deleteAttribute(resourceTitle,
                                           { key: key, value: value },
                                           function(response) {
-                                            debugger
+                  row.remove();
                 });
               }
             });
@@ -86,11 +86,11 @@
         function addEntry(e) {
           e.preventDefault();
           var key = $('select[name="key"]').val();
-          var descriptor = getFullDescription(key);
+          var label = getDescriptorLabel(key);
           var value = $('input[name="value"]').val();
           if (key && value) {
-            dbService.insert(resourceTitle, { key: descriptor, val: value }, function(response) {
-              var elem = $('<tr><td>' + key + '</td><td class="object-value">' + value + '</td></tr>');
+            dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
+              var elem = $('<tr><td>' + label + '</td><td class="object-value">' + value + '</td></tr>');
               attributeList.append(elem);
               newData.push({ key: key, value: value });
               $('input[name="key"]').val('');
@@ -99,11 +99,18 @@
           }
         }
 
-        function getFullDescription(key) {
+        function getDescriptorLabel(uri) {
           var descriptor;
           descriptors.forEach(function(desc) {
-            if (desc.label.value === key)
-              descriptor = desc;
+            if (desc.s.value === uri) descriptor = desc;
+          });
+          return descriptor.label.value;
+        }
+
+        function getFullUri(label) {
+          var descriptor;
+          descriptors.forEach(function(desc) {
+            if (desc.label.value === label) descriptor = desc;
           });
           return descriptor.s.value;
         }
