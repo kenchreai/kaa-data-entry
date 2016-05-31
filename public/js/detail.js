@@ -1,6 +1,6 @@
 ;(function() {
   var DetailPage = (function() {
-    return function(urlService, dbService, constants) {
+    return function(urlService, dbService, utils) {
       $(document).ready(function() {
 
         var attributeList = $('#attribute-list tbody');
@@ -14,7 +14,7 @@
         var dropDown = $('#key-value-pairs select');
         var descriptors = [];
 
-        constants.getDescriptors(function(response) {
+        utils.getDescriptors(function(response) {
           descriptors = response;
           response.forEach(function(descriptor) {
             dropDown.append($('<option value="' + descriptor.s.value +

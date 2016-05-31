@@ -1,12 +1,12 @@
 ;(function() {
   $(document).ready(function() {
+
     var spinnerService = SpinnerService();
+    var validator = Validator();
     var urlService = UrlService(window)('http://kenchreai.org/kaa/');
     var typeConverter = TypeService();
     var dbService = DbService(spinnerService, typeConverter);
-    var utils = Utils(dbService);
-
-    
+    var utils = Utils(dbService, validator);
     
     function loadDetailPage(hash) {
       $('#view').load('templates/detail.html', function() {
