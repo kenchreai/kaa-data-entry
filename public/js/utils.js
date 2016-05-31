@@ -1,6 +1,6 @@
 ;(function() {
   var Utils = (function() {
-    return function(dbService) { 
+    return function(dbService, validator) {
 
       function getDescriptors(cb) {
         if (descriptors === undefined) {
@@ -31,32 +31,53 @@
       }
 
       function getType(label) {
-          var descriptor, type, typeValue;
-          dataTypes.filter(function(desc) {
-            if (desc.s.value === label) {
-              descriptor = desc;
-              type = 'data';
-            }
-          });
-          objectTypes.filter(function(desc) {
-            if (desc.s.value === label) {
-              descriptor = desc;
-              type = 'object';
-              typeValue = 'uri';
-            }
-          });
-
-          if (type === 'data') {
-            typeValue = descriptor.range.value.slice(descriptor.range.value.indexOf('#') + 1);
+        var descriptor, type, typeValue;
+        dataTypes.filter(function(desc) {
+          if (desc.s.value === label) {
+            descriptor = desc;
+            type = 'data';
           }
-          return typeValue;
+        });
+        objectTypes.filter(function(desc) {
+          if (desc.s.value === label) {
+            descriptor = desc;
+            type = 'object';
+            typeValue = 'uri';
+          }
+        });
+
+        if (type === 'data') {
+          typeValue = descriptor.range.value.slice(descriptor.range.value.indexOf('#') + 1);
         }
+        return typeValue;
+      }
+
+      function debounce(func, wait, immediate) {
+        var timeout;
+        return function() {
+          var context = this, args = arguments;
+          var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+          var callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      };
+
+      function validate(type, val) {
+        return validator.validate(type, val);
+      }
 
       return {
         getDescriptors: getDescriptors,
         dataTypes: dataTypes,
         objectTypes: objectTypes,
-        getType: getType
+        getType: getType,
+        debounce: debounce,
+        validate: validate
       };
     };
   })();

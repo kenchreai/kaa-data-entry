@@ -100,3 +100,11 @@ table {
   color: red;
   border: 1px solid red;
 }
+
+input[type="text"].valid {
+  border: 1px solid green;
+}
+
+input[type="text"].invalid {
+  border: 1px solid red;
+}

@@ -23,10 +23,11 @@
         });
 
         dropDown.on('change', function(e) {
-          var type = constants.getType(e.target.value);
+          var type = utils.getType(e.target.value);
           $('input[name="value"]').attr('field-type', type);
+          validate();
         });
-        
+
         function loadDetail() {
           dbService.getDetail(resourceTitle, function(response) {
             attributeList.children().remove();
@@ -64,19 +65,50 @@
 
         function addEntry(e) {
           e.preventDefault();
-          var key = $('select[name="key"]').val();
+          var select = $('select[name="key"]');
+          var input = $('input[name="value"]');
+          if (input.hasClass('invalid')) return;
+
+          var key = select.val();
+          var value = input.val();
           var label = getDescriptorLabel(key);
-          var value = $('input[name="value"]').val();
+
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
               var elem = $('<tr><td>' + label + '</td><td class="object-value">' + value + '</td></tr>');
               attributeList.append(elem);
               newData.push({ key: key, value: value });
-              $('input[name="key"]').val('');
-              $('input[name="value"]').val('');
+              input.val('');
             });
           }
         }
+
+        var validate = utils.debounce(function(e) {
+          var type, val, elem;
+          try {
+            type = e.target.attributes['field-type'].nodeValue;
+            val = e.target.value;
+            elem = $(this);
+          } catch(e) {
+            elem = $('input[name="value"]');
+            type = elem.attr('field-type');
+            val = elem.val();
+          }
+          var valid = utils.validate(type, val);
+          if (!!valid) {
+            elem.addClass('valid');
+            elem.removeClass('invalid');
+          } else {
+            elem.addClass('invalid');
+            elem.removeClass('valid');
+          }
+          if (!val) {
+            elem.removeClass('valid');
+            elem.removeClass('invalid');
+          }
+        }, 250, true);
+
+        $('input[name="value"]').on('keyup', validate);
 
         function getDescriptorLabel(uri) {
           var descriptor;
