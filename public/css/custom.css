@@ -88,11 +88,11 @@ table {
   margin-right: 10px;
 }
 
-.hover.object-value {
+.object-value:hover {
   background: #f6f6f6;
 }
 
-.hover .button-remove {
+.object-value:hover .button-remove {
   display: inherit;
 }
 

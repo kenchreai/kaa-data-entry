@@ -45,17 +45,11 @@
               attributeList.append(elem);
             });
 
-            $('td.object-value').hover(function() {
-              $(this).addClass('hover');
-            }, function() {
-              $(this).removeClass('hover');
-            });
-
             $('.button-remove').on('click', function(e) {
               var row = $(this).parent().parent();
               var key = getFullUri($(row.children()[0]).text());
               var value = $($(this).siblings()[0]).text();
-              var type = constants.getType(key);
+              var type = utils.getType(key);
               if (confirm('Delete this attribute?')) {
                 dbService.deleteAttribute(resourceTitle,
                                           { key: key, value: value },
