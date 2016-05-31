@@ -15,7 +15,7 @@
         'integer': function(val) {
           return val;
         },
-        'bool': function(val) {
+        'boolean': function(val) {
           return val.toLowerCase();
         }
       };

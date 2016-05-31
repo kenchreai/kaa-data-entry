@@ -23,13 +23,13 @@ describe('Ensuring types are properly rendered for a db query', function() {
   describe('Booleans:', function() {
 
     it('should not put quotes around them', function() {
-      assert.equal('true', typeService.type('bool', 'true'));
-      assert.equal('false', typeService.type('bool', 'false'));
+      assert.equal('true', typeService.type('boolean', 'true'));
+      assert.equal('false', typeService.type('boolean', 'false'));
     });
 
     it('should convert to lowercase if necessary', function() {
-      assert.equal('true', typeService.type('bool', 'TruE'));
-      assert.equal('false', typeService.type('bool', 'FALSe'));
+      assert.equal('true', typeService.type('boolean', 'TruE'));
+      assert.equal('false', typeService.type('boolean', 'FALSe'));
     });
 
   });

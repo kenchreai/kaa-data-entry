@@ -53,7 +53,6 @@
 
       function deleteAttribute(resource, properties, type, cb) {
         spinnerService.start();
-        debugger
         properties.value = converter.type(type, properties.value);
         $.delete('/api/entities?resourceName=' + resource, properties).done(function(response) {
           spinnerService.stop();

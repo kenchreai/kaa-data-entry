@@ -32,7 +32,7 @@
           case 'float':
             return float(input);
             break;
-          case 'bool':
+          case 'boolean':
             return bool(input);
             break;
           default:

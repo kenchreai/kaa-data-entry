@@ -84,16 +84,16 @@ describe('Passing in strings to be evaluates', function() {
   describe('Validating booleans', function() {
 
     it('should only accept the strings "true" or "false"', function() {
-      assert.isFalse(val.validate('bool', 'hello'));
-      assert.isTrue(val.validate('bool', 'true'));
-      assert.isFalse(val.validate('bool', false));
-      assert.isTrue(val.validate('bool', 'false'));
+      assert.isFalse(val.validate('boolean', 'hello'));
+      assert.isTrue(val.validate('boolean', 'true'));
+      assert.isFalse(val.validate('boolean', false));
+      assert.isTrue(val.validate('boolean', 'false'));
     });
 
     it('should maybe also allow capitalized versions', function() {
-      assert.isTrue(val.validate('bool', 'True'));
-      assert.isTrue(val.validate('bool', 'False'));
-      assert.isFalse(val.validate('bool', 'Truth'));
+      assert.isTrue(val.validate('boolean', 'True'));
+      assert.isTrue(val.validate('boolean', 'False'));
+      assert.isFalse(val.validate('boolean', 'Truth'));
     });
 
   });
