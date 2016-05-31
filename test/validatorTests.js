@@ -65,6 +65,7 @@ describe('Passing in strings to be evaluates', function() {
       assert.isTrue(val.validate('float', '0.8'));
       assert.isTrue(val.validate('float', '1234.5678'));
       assert.isFalse(val.validate('float', 'oienwtf.5678'));
+      assert.isTrue(val.validate('float', '1.'));
     });
 
     it('should also accept standard integers', function() {
@@ -82,7 +83,18 @@ describe('Passing in strings to be evaluates', function() {
 
   describe('Validating booleans', function() {
 
-    it('should');
+    it('should only accept the strings "true" or "false"', function() {
+      assert.isFalse(val.validate('bool', 'hello'));
+      assert.isTrue(val.validate('bool', 'true'));
+      assert.isFalse(val.validate('bool', false));
+      assert.isTrue(val.validate('bool', 'false'));
+    });
+
+    it('should maybe also allow capitalized versions', function() {
+      assert.isTrue(val.validate('bool', 'True'));
+      assert.isTrue(val.validate('bool', 'False'));
+      assert.isFalse(val.validate('bool', 'Truth'));
+    });
 
   });
 

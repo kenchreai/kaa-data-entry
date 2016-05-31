@@ -3,7 +3,8 @@
 
     var spinnerService = SpinnerService();
     var urlService = UrlService(window)('http://kenchreai.org/kaa/');
-    var dbService = DbService(spinnerService);
+    var typeConverter = TypeService();
+    var dbService = DbService(spinnerService, typeConverter);
 
     var descriptors;
     var dataTypes = [];

@@ -19,7 +19,7 @@
       };
     });
 
-    return function(spinnerService) {
+    return function(spinnerService, converter) {
 
       function query(params, cb) {
         spinnerService.start();
