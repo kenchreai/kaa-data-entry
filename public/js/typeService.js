@@ -17,11 +17,18 @@
         },
         'boolean': function(val) {
           return val.toLowerCase();
+        },
+        'uri': function(val) {
+          return '<' + val + '>';
         }
       };
 
       function type(type, value) {
-        return convertType[type](value);
+        try {
+          return convertType[type](value);
+        } catch(e) {
+          return convertType['uri'](value);
+        }
       }
 
       return {

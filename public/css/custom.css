@@ -73,6 +73,7 @@ thead > tr > td > h6 {
 #spinner-target {
   position: relative;
   left: 50%;
+  top: 50%;
 }
 
 .object-value > * {
