@@ -15,7 +15,7 @@
         $('#add-btn').click(addEntry);
         $('#resource-title').text('Details for ' + resourceTitle);
         $('title').text('Details - ' + resourceTitle);
-        input.on('keyup', validate);
+        input.bind('input', function() { validate(); });
 
         utils.getDescriptors(function(response) {
           descriptors = response;
@@ -30,12 +30,13 @@
           var type = utils.getType(e.target.value);
           input.attr('field-type', type);
           validate();
+          handleTypeahead(type);
         });
 
         function loadDetail() {
           utils.getAllUris(function(response) {
             uris = response;
-            loadTypeahead();
+            handleTypeahead();
           });
 
           dbService.getDetail(resourceTitle, function(response) {
@@ -61,11 +62,12 @@
               var value = $($(this).siblings()[0]).text();
               var type = utils.getType(key);
               if (confirm('Delete this attribute?')) {
-                dbService.deleteAttribute(resourceTitle,
-                                          { key: key, value: value },
-                                          type,
-                                          function(response) {
-                  row.remove();
+                dbService.deleteAttribute(
+                  resourceTitle,
+                  { key: key, value: value },
+                  type,
+                  function(response) {
+                    row.remove();
                 });
               }
             });
@@ -87,27 +89,20 @@
         }
 
         var validate = utils.debounce(function(e) {
-          var type, val, elem;
-          try {
-            type = e.target.attributes['field-type'].nodeValue;
-            val = e.target.value;
-            elem = $(this);
-          } catch(e) {
-            elem = $('input[name="value"]');
-            type = elem.attr('field-type');
-            val = elem.val();
-          }
+          type = input.attr('field-type');
+          val = input.val();
           var valid = utils.validate(type, val);
+          if (!!typeahead) valid = uris.indexOf(val) !== -1;
           if (!!valid) {
-            elem.addClass('valid');
-            elem.removeClass('invalid');
+            input.addClass('valid');
+            input.removeClass('invalid');
           } else {
-            elem.addClass('invalid');
-            elem.removeClass('valid');
+            input.addClass('invalid');
+            input.removeClass('valid');
           }
           if (!val) {
-            elem.removeClass('valid');
-            elem.removeClass('invalid');
+            input.removeClass('valid');
+            input.removeClass('invalid');
           }
         }, 250, true);
 
@@ -127,8 +122,19 @@
           return descriptor.s.value;
         }
 
-        function loadTypeahead() {
-          typeahead = new Awesomplete(document.querySelector('#typeahead'), { list: uris });
+        function handleTypeahead(type) {
+          if (!type) var type = input.attr('field-type');
+          if (['string', 'integer', 'float', 'boolean'].indexOf(type) == -1 && typeahead === null) {
+            var options = {
+              list: uris,
+              maxItems: 25
+            };
+            typeahead = new Awesomplete(document.querySelector('#typeahead'), options);
+            input.on('awesomplete-selectcomplete', validate);
+          } else {
+            typeahead = null;
+            $('ul[hidden]').remove();
+          }
         }
 
         loadDetail();
