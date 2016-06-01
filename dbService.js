@@ -27,6 +27,14 @@
         });
       }
 
+      function getAllUris(cb) {
+        var options = Object.assign({}, dbConfig);
+        options.query = 'select distinct ?s where { ?s ?p ?o filter isURI(?s) }';
+        conn.query(options, function(response) {
+          cb(response);
+        });
+      }
+
       function getDetail(detailUrl, cb) {
         var options = Object.assign({}, dbConfig);
         options.query = 'select ?p ?o ?label where { ' +
@@ -95,6 +103,7 @@
 
       return {
         query: query,
+        getAllUris: getAllUris,
         getDetail: getDetail,
         getDescriptors: getDescriptors,
         insert: insert,

@@ -36,6 +36,12 @@ app.get('/api/entitylist', function(req, res) {
   });
 });
 
+app.get('/api/uris', function(req, res) {
+  dbService.getAllUris(function(response) {
+    res.send(response);
+  });
+});
+
 app.get('/api/entities', function(req, res) {
   dbService.getDetail(req.query.resourceName, function(response) {
     res.send(response);
