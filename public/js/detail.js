@@ -19,6 +19,7 @@
             dropDown.append($('<option value="' + descriptor.s.value +
                               '">' + descriptor.label.value + '</option>'));
           });
+          $('input[name="value"]').attr('field-type', utils.getType(dropDown.val()));
         });
 
         dropDown.on('change', function(e) {

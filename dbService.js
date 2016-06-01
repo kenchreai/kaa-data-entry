@@ -13,7 +13,6 @@
       };
 
       function query(domain, cb) {
-        console.log(domain);
         var options = Object.assign({}, dbConfig);
         //options.query = 'describe <http://kenchreai.org/kaa/test/test01>';
         //options.query = 'select ?p ?o where { <http://kenchreai.org/kaa/harbor/ke1221> ?p ?o }';
@@ -54,7 +53,7 @@
                             'OPTIONAL { ?s rdfs:range ?range . }' +
                             'FILTER ( ?type = owl:ObjectProperty || ?type = owl:DatatypeProperty )' +
                           '}' +
-                        '}';
+                        '} ORDER BY ?label';
         conn.query(options, function(response) {
           cb(response);
         });
