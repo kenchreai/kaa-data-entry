@@ -1,1 +1,8 @@
 .env
+src/js/src.js
+src/js/src.min.js
+*.map
+public/css/*.css
+public/css/*.map
+public/js/*.js
+public/js/*.map
