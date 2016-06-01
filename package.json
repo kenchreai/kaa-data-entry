@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha --watch --reporter nyan",
-    "postinstall": "cd public && npm install"
+    "postinstall": "cd public && npm install && cd ../ && gulp build"
   },
   "engines": {
     "node": "4.1.1"

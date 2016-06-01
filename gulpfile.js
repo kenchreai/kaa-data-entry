@@ -72,12 +72,13 @@ gulp.task('concatMinifiedScripts', function(done) {
       .pipe(jsConcat('app.min.js'))
       .pipe(maps.write('./'))
       .pipe(gulp.dest('public/js/'));
+    done();
   });
 });
 
 gulp.task('watchFiles', function() {
-  gulp.watch(['src/styles/sass/*.scss', 'src/styles/sass/partials/*.scss'], ['minifyCss']);
-  gulp.watch(['src/js/app/**/*.js'], ['concatScripts', 'concatMinifiedScripts']);
+  gulp.watch(['src/css/*.css'], ['minifyCss']);
+  gulp.watch(['src/js/*.js'], ['concatMinifiedScripts']);
 });
 
 gulp.task('clean', function() {
@@ -94,10 +95,11 @@ gulp.task('serve', function(done) {
 });
 
 gulp.task('build', function(done) {
-
   runSequence(
     'clean',
+    'concatSourceScripts',
     'minifyScripts',
+    'concatMinifiedScripts',
     'minifyCss',
     function() {
       done();

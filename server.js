@@ -84,7 +84,7 @@ app.get('/api/descriptors', function(req, res) {
 });
 
 app.get('*', function(req, res) {
-  res.sendFile('/index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 
