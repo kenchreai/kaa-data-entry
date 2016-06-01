@@ -36,8 +36,8 @@ thead > tr > td > h6 {
   font-weight: 600;
 }
 
-.key-value-input {
-  width: 38%;
+#key-value-wrapper {
+  width: 90%;
 }
 
 .key-value-input:nth-child(1) {
@@ -50,8 +50,16 @@ thead > tr > td > h6 {
   min-width: 675px;
 }
 
-#key-value-pairs section {
-  display: table-row;
+#input-wrapper {
+  display: inline;
+  position: absolute;
+  left: 49%;
+  width: 40%;
+  min-width: 266px;
+}
+
+#input-wrapper * {
+  width: 100%;
 }
 
 #add-btn {
@@ -59,6 +67,7 @@ thead > tr > td > h6 {
   font-size: 74px;
   padding: 0 6px;
   right: 0%;
+  bottom: 40px;
 }
 
 #spinner-target {

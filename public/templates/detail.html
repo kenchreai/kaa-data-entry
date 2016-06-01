@@ -13,8 +13,12 @@
     </table>
     <form id="key-value-pairs">
       <section>
-        <select class="key-value-input" name="key"></select>
-        <input class="key-value-input" name="value" type="text" placeholder="Value...">
+        <section id="key-value-wrapper">
+          <select class="key-value-input" name="key"></select>
+          <div id="input-wrapper">
+            <input class="key-value-input" id="typeahead" name="value" type="text" placeholder="Value...">
+          </div>
+        </section>
         <button id="add-btn" class="button button-primary">+</button>
       </section>
     </form>
