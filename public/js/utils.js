@@ -2,6 +2,11 @@
   var Utils = (function() {
     return function(dbService, validator) {
 
+      var descriptors;
+      var uris;
+      var dataTypes = [];
+      var objectTypes = []
+
       function getDescriptors(cb) {
         if (descriptors === undefined) {
           dbService.getDescriptors(function(response) {
@@ -14,11 +19,19 @@
           });
         } else cb(descriptors);
       }
-      
-      var descriptors;
-      var dataTypes = [];
-      var objectTypes = []
 
+      function getAllUris(cb) {
+        if (uris === undefined) {
+          dbService.getAllUris(function(response) {
+            var _uris = response.results.bindings.map(function(uri) {
+              return uri.s.value;
+            });
+            uris = _uris;
+            cb(uris);
+          });
+        } else cb(uris);
+      }
+      
       function splitDescriptors() {
         descriptors.forEach(function(desc) {
           try {
@@ -69,6 +82,7 @@
 
       return {
         getDescriptors: getDescriptors,
+        getAllUris: getAllUris,
         dataTypes: dataTypes,
         objectTypes: objectTypes,
         getType: getType,

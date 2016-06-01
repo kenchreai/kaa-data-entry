@@ -33,6 +33,12 @@
         });
       }
 
+      function getAllUris(cb) {
+        $.get('/api/uris').done(function(response) {
+          cb(response);
+        });
+      }
+
       function getDetail(resource, cb) {
         spinnerService.start();
         $.get('/api/entities?resourceName=' + resource).done(function(response) {
@@ -45,6 +51,7 @@
         spinnerService.start();
         var type = getValueFieldType();
         properties.val = converter.type(type, properties.val);
+        debugger
         $.post('/api/entities?resourceName=' + resource, properties).done(function(response) {
           spinnerService.stop();
           cb(response);
@@ -68,6 +75,7 @@
 
       return {
         query: query,
+        getAllUris: getAllUris,
         getDetail: getDetail,
         insert: insert,
         getDescriptors: getDescriptors,

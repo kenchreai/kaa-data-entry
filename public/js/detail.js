@@ -5,13 +5,17 @@
 
         var attributeList = $('#attribute-list tbody');
         var resourceTitle = urlService.getHash('/detail/');
+        var descriptors = [];
+        var uris = [];
+        var typeahead = null;
+        var dropDown = $('#key-value-pairs select');
+        var input = $('input[name="value"]');
+        var select = $('select[name="key"]');
 
         $('#add-btn').click(addEntry);
         $('#resource-title').text('Details for ' + resourceTitle);
         $('title').text('Details - ' + resourceTitle);
-
-        var dropDown = $('#key-value-pairs select');
-        var descriptors = [];
+        input.on('keyup', validate);
 
         utils.getDescriptors(function(response) {
           descriptors = response;
@@ -19,16 +23,21 @@
             dropDown.append($('<option value="' + descriptor.s.value +
                               '">' + descriptor.label.value + '</option>'));
           });
-          $('input[name="value"]').attr('field-type', utils.getType(dropDown.val()));
+          input.attr('field-type', utils.getType(dropDown.val()));
         });
 
         dropDown.on('change', function(e) {
           var type = utils.getType(e.target.value);
-          $('input[name="value"]').attr('field-type', type);
+          input.attr('field-type', type);
           validate();
         });
 
         function loadDetail() {
+          utils.getAllUris(function(response) {
+            uris = response;
+            loadTypeahead();
+          });
+
           dbService.getDetail(resourceTitle, function(response) {
             attributeList.children().remove();
             var results = response.results.bindings;
@@ -65,8 +74,6 @@
 
         function addEntry(e) {
           e.preventDefault();
-          var select = $('select[name="key"]');
-          var input = $('input[name="value"]');
           if (input.hasClass('invalid')) return;
           var key = select.val(), value = input.val(), label = getDescriptorLabel(key);
 
@@ -104,8 +111,6 @@
           }
         }, 250, true);
 
-        $('input[name="value"]').on('keyup', validate);
-
         function getDescriptorLabel(uri) {
           var descriptor;
           descriptors.forEach(function(desc) {
@@ -120,6 +125,10 @@
             if (desc.label.value === label) descriptor = desc;
           });
           return descriptor.s.value;
+        }
+
+        function loadTypeahead() {
+          typeahead = new Awesomplete(document.querySelector('#typeahead'), { list: uris });
         }
 
         loadDetail();
