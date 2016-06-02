@@ -19,6 +19,13 @@
       };
     });
 
+    $.ajaxSetup({
+      beforeSend: function(request) {
+        var token = localStorage.getItem('access-token');
+        request.setRequestHeader("x-access-token", token);
+      }
+    });
+
     return function(spinnerService, converter) {
 
       function getValueFieldType() {

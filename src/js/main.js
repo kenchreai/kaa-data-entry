@@ -33,8 +33,7 @@
             if (results.length === 0) {
               $('#results-list').append($('<p id="no-results">No results found for query "' +
                                             entity + '".</p>'));
-            } else 
-              printResults(results, entity);
+            } else printResults(results, entity);
           });
         }
 
