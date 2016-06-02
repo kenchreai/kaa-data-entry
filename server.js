@@ -29,7 +29,6 @@ db.once('open', function() {
     password: String,
     isAdmin: Boolean
   });
-
   User = mongoose.model('User', userSchema);
 });
 
@@ -47,9 +46,11 @@ app.use(function(req, res, next) {
 
 app.use(express.static(__dirname + '/public'));
 
-function validateToken(token) {
-  jwt.verify(token, key, function(err, decoded) {
-    console.log(decoded);
+function validateToken(req, res, adminOnly, func) {
+  jwt.verify(req.get('x-access-token'), key, function(err, decoded) {
+    if (!decoded.isAdmin && adminOnly)
+      res.status(403).send('Unauthorized to modify this resource');
+    else func();
   });
 }
 
@@ -62,13 +63,55 @@ app.post('/api/users', function(req, res) {
     if (err) res.send('error');
     if (users.length != 0) {
       res.status(404).send('Username already taken');
-      return;
+    } else {
+      var hashedPassword = bcrypt.hashSync(password, 15);
+      var user = new User({ username: username, password: hashedPassword, isAdmin: false });
+      user.save(function(err, user) {
+        if (err) res.send(err);
+        res.send(user);
+      });
     }
-    var hashedPassword = bcrypt.hashSync(password, 15);
-    var user = new User({ username: username, password: hashedPassword, isAdmin: false });
-    user.save(function(err, user) {
-      if (err) res.send(err);
-      res.send(user);
+  });
+});
+
+app.get('/api/users', function(req, res) {
+  User.find(function(err, users) {
+    res.send(users);
+  });
+});
+
+app.post('/api/users/password', function(req, res) {
+  validateToken(req, res, false, function() {
+    var username = jwt.verify(req.get('x-access-token')).username;
+    User.find({ username: username }, function(err, users) {
+      var user = users[0];
+      user.password = bcrypt.hashSync('arstarstarst', 15);
+      user.save(function(err, user) {
+        res.send(user);
+      });
+    });
+  });
+});
+
+app.post('/api/admins/:username', function(req, res) {
+  validateToken(req, res, true, function() {
+    User.find({ username: req.params.username }, function(err, users) {
+      var user = users[0];
+      user.isAdmin = true;
+      user.save(function(err, user) {
+        if (err) res.send('Error updating admin')
+        else res.send('Updated admin');
+      });
+    });
+  });
+});
+
+app.delete('/api/users', function(req, res) {
+  validateToken(req, res, true, function() {
+    User.find({ _id: req.query.id }, function(err, users) {
+      users[0].remove(function(err) {
+        res.send('User deleted');
+      });
     });
   });
 });
@@ -77,24 +120,18 @@ app.post('/api/token', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
   User.find({ username: username }, function(err, users) {
-    if (users.length !== 1) {
-      res.status(400).send('Username or password do not match');
-      return;
-    }
-
+    var taken = users.length > 0;
     var user = users[0];
-
-    if (err || !bcrypt.compareSync(password, user.password)) {
+    if (err || taken || !bcrypt.compareSync(password, user.password)) {
       res.status(400).send('Username or password do not match');
-      return;
+    } else {
+      var token = jwt.sign({
+        isAdmin: user.isAdmin,
+        username: user.username,
+        iat: Date.now()
+      }, key);
+      res.send(token);
     }
-
-    var token = jwt.sign({
-      isAdmin: user.isAdmin,
-      iat: Date.now()
-    }, key);
-
-    res.send(token);
   });
 });
 
@@ -117,31 +154,37 @@ app.get('/api/entities', function(req, res) {
 });
 
 app.post('/api/entities/', function(req, res) {
-  var resource = {
-    subject: req.query.resourceName,
-    predicate: req.body.key,
-    object: req.body.val
-  };
-  dbService.insert(resource, function(response) {
-    res.send(response);
+  validateToken(req, res, true, function() {
+    var resource = {
+      subject: req.query.resourceName,
+      predicate: req.body.key,
+      object: req.body.val
+    };
+    dbService.insert(resource, function(response) {
+      res.send(response);
+    });
   });
 });
 
 app.put('/api/entities/:resourceName', function(req, res) {
-  var properties = req.body;
-  dbService.updateDetail(req.params.resourceName, properties, function(response) {
-    res.send(response);
+  validateToken(req, res, true, function() {
+    var properties = req.body;
+    dbService.updateDetail(req.params.resourceName, properties, function(response) {
+      res.send(response);
+    });
   });
 });
 
 app.delete('/api/entities/', function(req, res) {
-  var triple = {
-    subject: req.query.resourceName,
-    predicate: req.body.key,
-    object: req.body.value
-  };
-  dbService.deleteDetail(triple, function(response) {
-    res.send(response);
+  validateToken(req, res, true, function() {
+    var triple = {
+      subject: req.query.resourceName,
+      predicate: req.body.key,
+      object: req.body.value
+    };
+    dbService.deleteDetail(triple, function(response) {
+      res.send(response);
+    });
   });
 });
 
