@@ -85,10 +85,14 @@ app.post('/api/users/password', function(req, res) {
     var username = jwt.verify(req.get('x-access-token')).username;
     User.find({ username: username }, function(err, users) {
       var user = users[0];
-      user.password = bcrypt.hashSync('arstarstarst', 15);
-      user.save(function(err, user) {
-        res.send(user);
-      });
+      var oldPassword = req.body.oldPassword;
+      var newPassword = req.body.newPassword;
+      if (bcrypt.hashSync(oldPassword, user.password)) {
+        user.password = bcrypt.hashSync(newPassword, 15);
+        user.save(function(err, user) {
+          res.send('Password updated');
+        });
+      } else res.status(400).send('Updating password failed');
     });
   });
 });
