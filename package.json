@@ -18,6 +18,7 @@
     "mock-browser": "^0.92.12"
   },
   "dependencies": {
+    "bcrypt": "^0.8.6",
     "body-parser": "^1.15.1",
     "dotenv": "^2.0.0",
     "express": "^4.13.4",
@@ -30,6 +31,8 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.3",
     "http": "0.0.0",
+    "jsonwebtoken": "^7.0.0",
+    "mongoose": "^4.4.19",
     "path": "^0.12.7",
     "run-sequence": "^1.2.1",
     "stardog": "^0.3.1"

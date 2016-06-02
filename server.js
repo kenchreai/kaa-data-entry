@@ -11,7 +11,27 @@ var username = process.env.KENCHREAI_USER;
 var password = process.env.KENCHREAI_PASSWORD;
 var dbService = DbService('http://kenchreai.org/kaa/', username, password);
 var port = process.env.PORT || 3000;
+var jwt = require('jsonwebtoken');
+var key = process.env.SIGNING_KEY;
+var mongoKey = process.env.MONGODB_URI;
+var mongoose = require('mongoose');
+var bcrypt = require('bcrypt');
 
+/****************** configure database ****************/
+
+mongoose.connect(mongoKey);
+var db = mongoose.connection;
+var User;
+
+db.once('open', function() {
+  var userSchema = mongoose.Schema({
+    username: String,
+    password: String,
+    isAdmin: Boolean
+  });
+
+  User = mongoose.model('User', userSchema);
+});
 
 /***************** configure middleware ***************/
 
@@ -27,8 +47,56 @@ app.use(function(req, res, next) {
 
 app.use(express.static(__dirname + '/public'));
 
+function validateToken(token) {
+  jwt.verify(token, key, function(err, decoded) {
+    console.log(decoded);
+  });
+}
 
 /*****************      routes     ********************/
+
+app.post('/api/users', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  User.find({ username: username }, function(err, users) {
+    if (err) res.send('error');
+    if (users.length != 0) {
+      res.status(404).send('Username already taken');
+      return;
+    }
+    var hashedPassword = bcrypt.hashSync(password, 15);
+    var user = new User({ username: username, password: hashedPassword, isAdmin: false });
+    user.save(function(err, user) {
+      if (err) res.send(err);
+      res.send(user);
+    });
+  });
+});
+
+app.post('/api/token', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  User.find({ username: username }, function(err, users) {
+    if (users.length !== 1) {
+      res.status(400).send('Username or password do not match');
+      return;
+    }
+
+    var user = users[0];
+
+    if (err || !bcrypt.compareSync(password, user.password)) {
+      res.status(400).send('Username or password do not match');
+      return;
+    }
+
+    var token = jwt.sign({
+      isAdmin: user.isAdmin,
+      iat: Date.now()
+    }, key);
+
+    res.send(token);
+  });
+});
 
 app.get('/api/entitylist', function(req, res) {
   dbService.query(req.query.domain, function(response) {
