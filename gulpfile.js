@@ -38,6 +38,7 @@ gulp.task('concatSourceScripts', function() {
     'src/js/spinnerService.js',
     'src/js/urlService.js',
     'src/js/typeService.js',
+    'src/js/authService.js',
     'src/js/validator.js',
     'src/js/utils.js',
     'src/js/detail.js',
