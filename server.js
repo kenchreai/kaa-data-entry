@@ -61,9 +61,9 @@ app.post('/api/users', function(req, res) {
   var password = req.body.password;
   User.find({ username: username }, function(err, users) {
     if (err) res.send('error');
-    if (users.length != 0) {
+    if (users.length > 0)
       res.status(404).send('Username already taken');
-    } else {
+    else {
       var hashedPassword = bcrypt.hashSync(password, 15);
       var user = new User({ username: username, password: hashedPassword, isAdmin: false });
       user.save(function(err, user) {
@@ -82,7 +82,7 @@ app.get('/api/users', function(req, res) {
 
 app.post('/api/users/password', function(req, res) {
   validateToken(req, res, false, function() {
-    var username = jwt.verify(req.get('x-access-token')).username;
+    var username = jwt.verify(req.get('x-access-token'), key).username;
     User.find({ username: username }, function(err, users) {
       var user = users[0];
       var oldPassword = req.body.oldPassword;
@@ -124,9 +124,8 @@ app.post('/api/token', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
   User.find({ username: username }, function(err, users) {
-    var taken = users.length > 0;
     var user = users[0];
-    if (err || taken || !bcrypt.compareSync(password, user.password)) {
+    if (err || !bcrypt.compareSync(password, user.password)) {
       res.status(400).send('Username or password do not match');
     } else {
       var token = jwt.sign({
