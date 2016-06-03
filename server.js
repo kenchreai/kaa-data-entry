@@ -48,8 +48,10 @@ app.use(express.static(__dirname + '/public'));
 
 function validateToken(req, res, adminOnly, func) {
   jwt.verify(req.get('x-access-token'), key, function(err, decoded) {
-    if (!decoded.isAdmin && adminOnly)
+    if (err || !decoded.isAdmin && adminOnly)
       res.status(403).send('Unauthorized to modify this resource');
+    else if ((Date.now() - decoded.iat)/1000 > 1000)
+      res.status(403).send('Token expired');
     else func();
   });
 }
@@ -68,15 +70,22 @@ app.post('/api/users', function(req, res) {
       var user = new User({ username: username, password: hashedPassword, isAdmin: false });
       user.save(function(err, user) {
         if (err) res.send(err);
-        res.send(user);
+        var token = jwt.sign({
+          isAdmin: user.isAdmin,
+          username: user.username,
+          iat: Date.now()
+        }, key);
+        res.send(token);
       });
     }
   });
 });
 
 app.get('/api/users', function(req, res) {
-  User.find(function(err, users) {
-    res.send(users);
+  validateToken(req, res, true, function() {
+    User.find(function(err, users) {
+      res.send(users);
+    });
   });
 });
 

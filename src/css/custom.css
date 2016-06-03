@@ -123,3 +123,21 @@ input[type="text"].valid {
 input[type="text"].invalid {
   border: 1px solid red;
 }
+
+header > section {
+  float: right;
+  margin-right: 10px;
+}
+
+header { height: 30px; }
+
+#login-form > *,
+#register-form > * {
+  display: block;
+  margin: 20px auto;
+}
+
+#login-form,
+#register-form {
+  margin-top: 17%;
+}

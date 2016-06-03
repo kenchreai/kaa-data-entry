@@ -59,18 +59,20 @@
         var type = getValueFieldType();
         properties.val = converter.type(type, properties.val);
         $.post('/api/entities?resourceName=' + resource, properties).done(function(response) {
-          spinnerService.stop();
           cb(response);
-        });
+        }).fail(function(response) {
+          location.hash = '/login';
+        }).always(function() { spinnerService.stop(); });
       }
 
       function deleteAttribute(resource, properties, type, cb) {
         spinnerService.start();
         properties.value = converter.type(type, properties.value);
         $.delete('/api/entities?resourceName=' + resource, properties).done(function(response) {
-          spinnerService.stop();
           cb(response);
-        });
+        }).fail(function(response) {
+          location.hash = '/login';
+        }).always(function() { spinnerService.stop(); });
       }
 
       function getDescriptors(cb) {

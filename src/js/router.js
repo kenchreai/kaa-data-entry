@@ -7,7 +7,7 @@
     var typeConverter = TypeService();
     var dbService = DbService(spinnerService, typeConverter);
     var utils = Utils(dbService, validator);
-    var authService = AuthService();
+    var authService = AuthService(spinnerService);
     var view = $('#view');
     
     function loadDetailPage(hash) {
@@ -48,6 +48,8 @@
         loadRegisterView();
       } else if (hash === '/login') {
         loadLoginView();
+      } else if (hash === '/logout') {
+        authService.logout();
       } else
           loadListView();
     }
