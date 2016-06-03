@@ -40,22 +40,20 @@ gulp.task('concatSourceScripts', function() {
     'src/js/typeService.js',
     'src/js/authService.js',
     'src/js/validator.js',
+    'src/js/register.js',
+    'src/js/login.js',
     'src/js/utils.js',
     'src/js/detail.js',
     'src/js/main.js',
     'src/js/router.js'])
-    .pipe(maps.init())
     .pipe(jsConcat('src.js'))
-    .pipe(maps.write('./'))
     .pipe(gulp.dest('src/js'));
 });
 
 gulp.task('minifyScripts', function(done) {
   runSequence('concatSourceScripts', function() {
     gulp.src('src/js/src.js')
-      .pipe(maps.init())
       .pipe(uglify())
-      .pipe(maps.write())
       .pipe(rename('src.min.js'))
       .pipe(gulp.dest('src/js'));
     done();
@@ -69,17 +67,39 @@ gulp.task('concatMinifiedScripts', function(done) {
       'public/node_modules/spin/dist/spin.min.js',
       'public/node_modules/awesomplete/awesomplete.min.js',
       'src/js/src.min.js'])
-      .pipe(maps.init())
       .pipe(jsConcat('app.min.js'))
-      .pipe(maps.write('./'))
       .pipe(gulp.dest('public/js/'));
     done();
   });
 });
 
+gulp.task('concatDev', function() {
+  return gulp.src([
+    'public/node_modules/jquery/dist/jquery.min.js',
+    'public/node_modules/spin/dist/spin.min.js',
+    'public/node_modules/awesomplete/awesomplete.min.js',
+    'src/js/dbService.js',
+    'src/js/spinnerService.js',
+    'src/js/urlService.js',
+    'src/js/typeService.js',
+    'src/js/authService.js',
+    'src/js/validator.js',
+    'src/js/register.js',
+    'src/js/login.js',
+    'src/js/utils.js',
+    'src/js/detail.js',
+    'src/js/main.js',
+    'src/js/router.js'
+    ])
+    .pipe(maps.init())
+    .pipe(jsConcat('app.js'))
+    .pipe(maps.write('./'))
+    .pipe(gulp.dest('public/js'));
+});
+
 gulp.task('watchFiles', function() {
   gulp.watch(['src/css/*.css'], ['minifyCss']);
-  gulp.watch(['src/js/*.js'], ['concatMinifiedScripts']);
+  gulp.watch(['src/js/*.js'], ['concatDev']);
 });
 
 gulp.task('clean', function() {
@@ -90,7 +110,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('serve', function(done) {
-  runSequence('build', 'watchFiles', function() {
+  runSequence('build', 'concatDev', 'watchFiles', function() {
     done();
   });
 });
