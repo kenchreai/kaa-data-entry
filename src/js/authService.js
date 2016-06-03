@@ -21,7 +21,7 @@
         $.post('/api/users', { username: username, password: password }).done(function(response) {
           debugger
           localStorage.setItem('access-token', response);
-          func(true);
+          func(response);
         });
       }
 
@@ -32,12 +32,15 @@
         });
       }
       
-      function logout() {
+      function logout(func) {
         localStorage.removeItem('access-token');
       }
 
       return {
-        login: login
+        login: login,
+        logout: logout,
+        register: register,
+        changePassword: changePassword
       };
     };
   })();
