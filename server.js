@@ -50,7 +50,7 @@ function validateToken(req, res, adminOnly, func) {
   jwt.verify(req.get('x-access-token'), key, function(err, decoded) {
     if (err || !decoded.isAdmin && adminOnly)
       res.status(403).send('Unauthorized to modify this resource');
-    else if ((Date.now() - decoded.iat)/1000 > 1000)
+    else if ((Date.now() - decoded.iat)/1000 > 86000)
       res.status(403).send('Token expired');
     else func();
   });
@@ -84,7 +84,10 @@ app.post('/api/users', function(req, res) {
 app.get('/api/users', function(req, res) {
   validateToken(req, res, true, function() {
     User.find(function(err, users) {
-      res.send(users);
+      var usernames = users.map(function(user) {
+        return user.username;
+      });
+      res.send(usernames);
     });
   });
 });

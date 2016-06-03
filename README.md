@@ -1,0 +1,13 @@
+#KAA Data Editor
+
+To promote other users to be admins, issue a POST request to the following url: `http://kaa-data-editor.herokuapp.com/api/admins/{{username}}` with your token in the request header `'x-access-token'`. 
+
+To obtain your token, issue a POST request to `http://kaa-data-editor.herokuapp.com/api/token` with the JSON payload of:
+```
+{
+  "username": {{ your username }},
+  "password": {{ your password }}
+}
+```
+If unsure of the specific username of someone, issue a GET request with your token in the header to `http://kaa-data-editor.herokuapp.com/api/users`.
+
