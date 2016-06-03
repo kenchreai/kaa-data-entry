@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var TypeService = require('./../public/js/typeService.js');
+var TypeService = require('./../src/js/typeService.js');
 
 
 describe('Ensuring types are properly rendered for a db query', function() {

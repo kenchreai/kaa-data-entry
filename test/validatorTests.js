@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var Validator = require('./../public/js/validator.js');
+var Validator = require('./../src/js/validator.js');
 
 describe('Instantiating the module', function() {
   

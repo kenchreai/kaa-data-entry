@@ -16,7 +16,7 @@ var browser = new AbstractBrowser(opts);
 var window = browser.getWindow();
 
 //pass window object to service
-var UrlService = require('./../public/js/urlService.js')(window);
+var UrlService = require('./../src/js/urlService.js')(window);
 
 
 describe('Importing the module', function() {
