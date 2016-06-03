@@ -9,7 +9,7 @@
     var utils = Utils(dbService, validator);
     var authService = AuthService(spinnerService);
     var view = $('#view');
-    
+
     function loadDetailPage(hash) {
       view.load('templates/detail.html', function() {
         DetailPage(urlService, dbService, utils);

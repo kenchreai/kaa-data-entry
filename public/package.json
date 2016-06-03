@@ -11,6 +11,7 @@
   "dependencies": {
     "awesomplete": "^1.1.0",
     "jquery": "^2.2.4",
-    "spin": "0.0.1"
+    "spin": "0.0.1",
+    "toastr": "^2.1.2"
   }
 }

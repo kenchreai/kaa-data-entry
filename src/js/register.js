@@ -12,7 +12,7 @@
           var username = usernameField.val();
           var password = passwordField.val();
           var confirmPw = confirmField.val();
-          if (password != confirmPw) return alert('passwords do not match');
+          if (password != confirmPw) return toastr.warning('Passwords do not match');
           if (!!username && !!password) {
             auth.register(username, password, function(success) {
               if (!!success)

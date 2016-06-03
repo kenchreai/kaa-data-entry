@@ -5,7 +5,7 @@
       clean = require('gulp-clean'),
      rename = require('gulp-rename'),
      uglify = require('gulp-uglify'),
-  minifyCss = require('gulp-minify-css'),
+  minifyCss = require('gulp-clean-css'),
 runSequence = require('run-sequence');
 
 gulp.task('concatCss', function(done) {
@@ -66,6 +66,7 @@ gulp.task('concatMinifiedScripts', function(done) {
       'public/node_modules/jquery/dist/jquery.min.js',
       'public/node_modules/spin/dist/spin.min.js',
       'public/node_modules/awesomplete/awesomplete.min.js',
+      'public/node_modules/toastr/package/build/toastr.min.js',
       'src/js/src.min.js'])
       .pipe(jsConcat('app.min.js'))
       .pipe(gulp.dest('public/js/'));
@@ -78,6 +79,7 @@ gulp.task('concatDev', function() {
     'public/node_modules/jquery/dist/jquery.min.js',
     'public/node_modules/spin/dist/spin.min.js',
     'public/node_modules/awesomplete/awesomplete.min.js',
+    'public/node_modules/toastr/package/build/toastr.min.js',
     'src/js/dbService.js',
     'src/js/spinnerService.js',
     'src/js/urlService.js',
