@@ -76,9 +76,8 @@
 
         function addEntry(e) {
           e.preventDefault();
-          if (input.hasClass('invalid')) return;
           var key = select.val(), value = input.val(), label = getDescriptorLabel(key);
-
+          if (input.hasClass('invalid')) return toastr.warning('Invalid value for ' + label);
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
               var elem = $('<tr><td>' + label + '</td><td class="object-value">' + value + '</td></tr>');
