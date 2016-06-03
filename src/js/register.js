@@ -15,8 +15,10 @@
           if (password != confirmPw) return toastr.warning('Passwords do not match');
           if (!!username && !!password) {
             auth.register(username, password, function(success) {
-              if (!!success)
+              if (!!success) {
+                toastr.success('Registered user');
                 window.location.hash = '';
+              }
             });
           }
         });

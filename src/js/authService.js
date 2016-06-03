@@ -40,6 +40,7 @@
       
       function logout(func) {
         localStorage.removeItem('access-token');
+        toastr.success('Logged out');
         location.hash = '/login';
       }
 

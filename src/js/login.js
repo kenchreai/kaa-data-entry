@@ -12,8 +12,10 @@
           var password = passwordField.val();
           if (!!username && !!password) {
             auth.login(username, password, function(success) {
-              if (!!success)
+              if (!!success) {
+                toastr.success('Logged in');
                 window.location.hash = '';
+              }
             });
           }
         });

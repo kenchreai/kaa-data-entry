@@ -61,6 +61,7 @@
         $.post('/api/entities?resourceName=' + resource, properties).done(function(response) {
           cb(response);
         }).fail(function(response) {
+          toastr.error("Your session is invalid or expired");
           location.hash = '/login';
         }).always(function() { spinnerService.stop(); });
       }
@@ -71,6 +72,7 @@
         $.delete('/api/entities?resourceName=' + resource, properties).done(function(response) {
           cb(response);
         }).fail(function(response) {
+          toastr.error("Your session is invalid or expired");
           location.hash = '/login';
         }).always(function() { spinnerService.stop(); });
       }
