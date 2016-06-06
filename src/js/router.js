@@ -9,6 +9,7 @@
     var utils = Utils(dbService, validator);
     var authService = AuthService(spinnerService);
     var view = $('#view');
+    vex.defaultOptions.className = 'vex-theme-os';
 
     function loadDetailPage(hash) {
       view.load('templates/detail.html', function() {

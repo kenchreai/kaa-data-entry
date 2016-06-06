@@ -13,6 +13,8 @@ gulp.task('concatCss', function(done) {
     'src/css/normalize.css',
     'src/css/skeleton.css',
     'public/node_modules/awesomplete/awesomplete.css',
+    'public/node_modules/vex-js/css/vex.css',
+    'public/node_modules/vex-js/css/vex-theme-os.css',
     'src/css/custom.css'])
     .pipe(maps.init())
     .pipe(cssConcat('styles.css'))
@@ -67,6 +69,7 @@ gulp.task('concatMinifiedScripts', function(done) {
       'public/node_modules/spin/dist/spin.min.js',
       'public/node_modules/awesomplete/awesomplete.min.js',
       'public/node_modules/toastr/package/build/toastr.min.js',
+      'public/node_modules/vex-js/js/vex.combined.min.js',
       'src/js/src.min.js'])
       .pipe(jsConcat('app.min.js'))
       .pipe(gulp.dest('public/js/'));
@@ -80,6 +83,7 @@ gulp.task('concatDev', function() {
     'public/node_modules/spin/dist/spin.min.js',
     'public/node_modules/awesomplete/awesomplete.min.js',
     'public/node_modules/toastr/package/build/toastr.min.js',
+    'public/node_modules/vex-js/js/vex.combined.min.js',
     'src/js/dbService.js',
     'src/js/spinnerService.js',
     'src/js/urlService.js',
