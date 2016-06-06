@@ -19,7 +19,7 @@
         options.query = 'select ?s ?p where { ' +
                           '?s a kaaont:inventory-number . ' +
                           '?s kaaont:is-logical-part-of ' +
-                          '<' + baseUrl + 'kth/inventoried-objects> ' +
+                          '<' + baseUrl + domain + '/inventoried-objects> ' +
                         '} order by ?s';
         //options.query = 'select ?s ?p where { ?s a kaaont:inventory-number . ?s kaaont:is-logical-part-of+/kaa:' + params.entity + ' } order by ?s';
         conn.query(options, function(response) {
