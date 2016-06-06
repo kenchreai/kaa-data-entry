@@ -141,3 +141,26 @@ header { height: 30px; }
 #register-form {
   margin-top: 17%;
 }
+
+.vex.vex-theme-os .vex-content {
+  height: 140%;
+  width: 80%;
+  min-height: 290px;;
+}
+
+.textbox-wrapper,
+.textbox-field-wrapper {
+  height: 100%;
+}
+
+.textbox-wrapper > textarea {
+  height: 90%;
+}
+
+.vex-dialog-form {
+  height: 100%;
+}
+
+.vex-dialog-input {
+  height: 78%;
+}

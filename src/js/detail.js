@@ -29,6 +29,28 @@
         dropDown.on('change', function(e) {
           var type = utils.getType(e.target.value);
           input.attr('field-type', type);
+          var label = getDescriptorLabel(e.target.value);
+          if (label === 'Description') {
+            vex.dialog.buttons.YES.text = 'Save';
+            vex.dialog.open({
+              message: null,
+              input: '<div class="textbox-field-wrapper">' +
+                       '<label>Add ' + label + '</label>' +
+                       '<div class="textbox-wrapper">' +
+                         '<textarea name="textbox"></textarea>' +
+                       '</div>' +
+                     '</div>',
+              callback: function(data) {
+                if (!!data) {
+                  dbService.insert(resourceTitle, { key: e.target.value, val: data.textbox }, function(response) {
+                    var elem = $('<tr><td>' + label + '</td><td class="object-value"><p>' + data.textbox + '</p></td></tr>');
+                    attributeList.append(elem);
+                    input.val('').removeClass('invalid').removeClass('valid');
+                  });
+                }
+              }
+            });
+          }
           validate();
           handleTypeahead(type);
         });

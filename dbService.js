@@ -69,9 +69,12 @@
 
       function insert(re, cb) {
         var options = Object.assign({}, dbConfig);
+        re.object = re.object.replace(/\r/g, '\\r');
+        re.object = re.object.replace(/\n/g, '\\n');
         options.query = 'insert data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
+                          console.log(options.query);
         conn.query(options, function(response) {
           cb(response);
         });
@@ -93,6 +96,7 @@
 
       function deleteDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
+        re.object = re.object.replace(/\n/g, '\\r\\n');
         options.query = 'delete data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
