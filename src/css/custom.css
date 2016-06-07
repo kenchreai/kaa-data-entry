@@ -92,7 +92,8 @@ table {
   width: 100%;
 }
 
-.button-remove {
+.button-remove,
+.button-view {
   display: none;
   padding: 0 12px;
   font-size: 13px;
@@ -107,13 +108,19 @@ table {
   background: #f6f6f6;
 }
 
-.object-value:hover .button-remove {
+.object-value:hover .button-remove,
+.object-value:hover .button-view {
   display: inherit;
 }
 
 .button-remove:hover {
   color: red;
   border: 1px solid red;
+}
+
+.button-view:hover {
+  color: #33c3f0;
+  border: 1px solid #33c3f0;
 }
 
 input[type="text"].valid {
@@ -163,4 +170,15 @@ header { height: 30px; }
 
 .vex-dialog-input {
   height: 78%;
+}
+
+.view-button {
+  max-width: 301px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.vex-content {
+  overflow: auto;
 }

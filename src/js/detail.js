@@ -73,8 +73,11 @@
               }
               descriptors.push(result.o.value);
               var elem = $('<tr><td>' + descriptors[0] + 
-                           '</td><td class="object-value"><p>' + descriptors[1] + '</p>' +
-                           '<button class="button button-remove">X</button></td></tr>');
+                           '</td><td class="object-value">' +
+                           '<p class="' + hasModal(descriptors[0]) + '">' + descriptors[1] + '</p>' +
+                           '<button class="button button-remove">X</button>' +
+                           addModalButton(descriptors[0]) +
+                           '</td></tr>');
               attributeList.append(elem);
             });
 
@@ -93,7 +96,27 @@
                 });
               }
             });
+
+            $('.button-view').on('click', function(e) {
+              var row = $(this).parent().parent();
+              var label = $(row.children()[0]).text();
+              var content = $($(this).parent().children()[0]).text();
+              vex.open({
+                showCloseButton: true,
+                content: '<h1>' + label + '</h1><p>' + content.replace(/\n/g, '</p><p>') + '</p>'
+              });
+            });
           });
+        }
+
+        function hasModal(label) {
+          return label === 'Description' ? ' view-button' : '';
+        }
+
+        function addModalButton(label) {
+          if (label === 'Description') {
+            return '<button class="button button-view">View</button>'
+          } else return '';
         }
 
         function addEntry(e) {
