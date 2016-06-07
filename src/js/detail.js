@@ -138,7 +138,7 @@
         function addEntry(e) {
           e.preventDefault();
           var key = select.val(), value = input.val(), label = getDescriptorLabel(key);
-          if (input.attr('type') === 'date') value = new Date(value).getTime() / 1000;
+          if (input.attr('type') === 'date') value = parseInt((new Date(value).getTime() / 1000).toFixed(0));
           if (input.hasClass('invalid') && input.attr('type') !== 'date') return toastr.warning('Invalid value for ' + label);
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
