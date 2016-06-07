@@ -30,6 +30,9 @@
           var type = utils.getType(e.target.value);
           input.attr('field-type', type);
           var label = getDescriptorLabel(e.target.value);
+          if (label === "Not before (date)" || label === "Not after (date)") {
+            input.attr('type', 'date');
+          } else input.attr('type', 'text');
           if (label === 'Description') {
             vex.dialog.buttons.YES.text = 'Save';
             vex.dialog.open({
@@ -74,9 +77,13 @@
                 descriptors.push(result.p.value);
               }
               descriptors.push(result.o.value);
+              if (descriptors[0].indexOf('date') !== -1) {
+                descriptors[2] = descriptors[1];
+                descriptors[1] = new Date(descriptors[1] * 1000).toLocaleDateString();
+              }
               var elem = $('<tr><td>' + descriptors[0] +
                            '</td><td class="object-value">' +
-                           '<p class="' + hasModal(descriptors[0]) + '">' + descriptors[1] + '</p>' +
+                           '<p class="' + hasModal(descriptors[0]) + '"' + timestamp(descriptors) + '>' + descriptors[1] + '</p>' +
                            '<button class="button button-remove">X</button>' +
                            addModalButton(descriptors[0]) +
                            '</td></tr>');
@@ -87,6 +94,8 @@
               var row = $(this).parent().parent();
               var key = getFullUri($(row.children()[0]).text());
               var value = $($(this).siblings()[0]).text();
+              if (getDescriptorLabel(key).indexOf('date') !== -1)
+                value = $($(this).siblings()[0]).attr('timestamp');
               var type = utils.getType(key);
               if (confirm('Delete this attribute?')) {
                 dbService.deleteAttribute(
@@ -111,6 +120,11 @@
           });
         }
 
+        function timestamp(descriptors) {
+          if (descriptors[2])
+            return ' timestamp="' + descriptors[2] + '"';
+        }
+
         function hasModal(label) {
           return label === 'Description' ? ' view-button' : '';
         }
@@ -124,7 +138,8 @@
         function addEntry(e) {
           e.preventDefault();
           var key = select.val(), value = input.val(), label = getDescriptorLabel(key);
-          if (input.hasClass('invalid')) return toastr.warning('Invalid value for ' + label);
+          if (input.attr('type') === 'date') value = new Date(value).getTime() / 1000;
+          if (input.hasClass('invalid') && input.attr('type') !== 'date') return toastr.warning('Invalid value for ' + label);
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
               loadDetail();
