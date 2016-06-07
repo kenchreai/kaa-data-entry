@@ -56,10 +56,12 @@
         });
 
         function loadDetail() {
-          utils.getAllUris(function(response) {
-            uris = response;
-            handleTypeahead();
-          });
+          if (uris.length === 0) {
+            utils.getAllUris(function(response) {
+              uris = response;
+              handleTypeahead();
+            });
+          }
 
           dbService.getDetail(resourceTitle, function(response) {
             attributeList.children().remove();
@@ -72,7 +74,7 @@
                 descriptors.push(result.p.value);
               }
               descriptors.push(result.o.value);
-              var elem = $('<tr><td>' + descriptors[0] + 
+              var elem = $('<tr><td>' + descriptors[0] +
                            '</td><td class="object-value">' +
                            '<p class="' + hasModal(descriptors[0]) + '">' + descriptors[1] + '</p>' +
                            '<button class="button button-remove">X</button>' +
@@ -125,8 +127,7 @@
           if (input.hasClass('invalid')) return toastr.warning('Invalid value for ' + label);
           if (key && value) {
             dbService.insert(resourceTitle, { key: key, val: value }, function(response) {
-              var elem = $('<tr><td>' + label + '</td><td class="object-value">' + value + '</td></tr>');
-              attributeList.append(elem);
+              loadDetail();
               input.val('').removeClass('invalid').removeClass('valid');
             });
           }
@@ -148,7 +149,7 @@
             input.removeClass('valid');
             input.removeClass('invalid');
           }
-        }, 250, true);
+        }, 150, true);
 
         function getDescriptorLabel(uri) {
           var descriptor;
@@ -168,13 +169,15 @@
 
         function handleTypeahead(type) {
           if (!type) var type = input.attr('field-type');
-          if (['string', 'integer', 'float', 'boolean'].indexOf(type) == -1 && typeahead === null) {
-            var options = {
-              list: uris,
-              maxItems: 25
-            };
-            typeahead = new Awesomplete(document.querySelector('#typeahead'), options);
-            input.on('awesomplete-selectcomplete', validate);
+          if (['string', 'integer', 'float', 'boolean'].indexOf(type) == -1) {
+            if (typeahead === null) {
+              var options = {
+                list: uris,
+                maxItems: 25
+              };
+              typeahead = new Awesomplete(document.querySelector('#typeahead'), options);
+              input.on('awesomplete-selectcomplete', validate);
+            }
           } else {
             typeahead = null;
             $('ul[hidden]').remove();
