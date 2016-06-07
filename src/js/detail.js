@@ -11,6 +11,26 @@
         var dropDown = $('#key-value-pairs select');
         var input = $('input[name="value"]');
         var select = $('select[name="key"]');
+        var hyperlinkedProperties = ['Link',
+                                     'Photograph',
+                                     '3D Model',
+                                     'Broader',
+                                     'Has Part',
+                                     'Has logical part',
+                                     'Has physical part',
+                                     'In excavation trench',
+                                     'Is Part Of',
+                                     'Logical part of',
+                                     'Material',
+                                     'Modern chronology',
+                                     'Name',
+                                     'Narrower',
+                                     'Next',
+                                     'On notebook page',
+                                     'Physical part of',
+                                     'Published catalog entry',
+                                     'Same as',
+                                     'VIAF Id']; 
 
         $('#add-btn').click(addEntry);
         $('#resource-title').text('Details for ' + resourceTitle);
@@ -81,9 +101,17 @@
                 descriptors[2] = descriptors[1];
                 descriptors[1] = new Date(descriptors[1] * 1000).toLocaleDateString();
               }
+              if (hyperlinkedProperties.indexOf(descriptors[0]) !== -1) {
+                if (result.o.value.search('kenchreai.org/kaa/') === -1)
+                  descriptors[2] = 'http://kenchreai.org/kaa/' + result.o.value;
+                else descriptors[2] = result.o.value;
+              }
               var elem = $('<tr><td>' + descriptors[0] +
                            '</td><td class="object-value">' +
-                           '<p class="' + hasModal(descriptors[0]) + '"' + timestamp(descriptors) + '>' + descriptors[1] + '</p>' +
+                           '<p class="' + hasModal(descriptors[0]) + '"' +
+                           timestamp(descriptors) + '>' +
+                           isLink(descriptors).opening + descriptors[1] + isLink(descriptors).closing +
+                           '</p>' +
                            '<button class="button button-remove">X</button>' +
                            addModalButton(descriptors[0]) +
                            '</td></tr>');
@@ -117,7 +145,21 @@
                 content: '<h1>' + label + '</h1><p>' + content.replace(/\n/g, '</p><p>') + '</p>'
               });
             });
+
+
           });
+        }
+
+        function isLink(descriptors) {
+          var properties = {
+            opening: '',
+            closing: ''
+          };
+          if (hyperlinkedProperties.indexOf(descriptors[0]) !== -1) {
+            properties.opening = '<a target="_blank" href="' + descriptors[2] + '">';
+            properties.closing = '</a>';
+          }
+          return properties;
         }
 
         function timestamp(descriptors) {
