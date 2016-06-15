@@ -33,7 +33,7 @@
                                      'VIAF Id']; 
 
         $('#add-btn').click(addEntry);
-        $('#resource-title').text('Details for ' + resourceTitle);
+        $('#resource-title').text(resourceTitle).attr('href', 'http://kenchreai.org/kaa/' + resourceTitle);
         $('title').text('Details - ' + resourceTitle);
         input.bind('input', function() { validate(); });
 
