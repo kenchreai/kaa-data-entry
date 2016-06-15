@@ -192,3 +192,7 @@ input[type="date"] {
   box-shadow: none;
   box-sizing: border-box;
 }
+
+#resource-title {
+  text-decoration: none;
+}
