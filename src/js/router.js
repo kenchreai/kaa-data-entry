@@ -44,11 +44,11 @@
 
     $(window).on('hashchange', function(e) {
       e.preventDefault();
-      displayCurrentUser();
       route();  
     });
 
     function route() {
+      displayCurrentUser();
       var hash = location.hash ? location.hash.slice(1) : null;
 
       if (hash && hash.indexOf('/detail/') >= 0) {

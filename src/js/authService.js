@@ -9,7 +9,7 @@
         $.post('/api/token', { username: username, password: password }).done(function(response) {
           if (response) {
             localStorage.setItem('access-token', response);
-            currentUser = _getUser(response);
+            _getUser(response);
             func(true);
           } else {
             localStorage.removeItem('access-token');
@@ -49,11 +49,16 @@
       }
 
       function _getUser(jwt) {
+        if (jwt == "" || !jwt) {
+          jwt = localStorage.getItem('access-token');
+          if (!jwt) return null;
+        }
         var segments = jwt.split('.');
-        if (jwt == "") return null;
 
-        return JSON.parse(atob(segments[1])).username;
+        currentUser = JSON.parse(atob(segments[1])).username;
       }
+
+      _getUser();
 
       return {
         login: login,
