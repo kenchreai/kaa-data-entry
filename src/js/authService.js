@@ -2,11 +2,14 @@
   var AuthService = (function() {
     return function(spinnerService) {
 
+      var currentUser = null;
+
       function getToken(username, password, func) {
         spinnerService.start();
         $.post('/api/token', { username: username, password: password }).done(function(response) {
           if (response) {
             localStorage.setItem('access-token', response);
+            currentUser = _getUser(response);
             func(true);
           } else {
             localStorage.removeItem('access-token');
@@ -40,14 +43,23 @@
       
       function logout(func) {
         localStorage.removeItem('access-token');
+        currentUser = null;
         toastr.success('Logged out');
         location.hash = '/login';
+      }
+
+      function _getUser(jwt) {
+        var segments = jwt.split('.');
+        if (jwt == "") return null;
+
+        return JSON.parse(atob(segments[1])).username;
       }
 
       return {
         login: login,
         logout: logout,
         register: register,
+        currentUser: function() { return currentUser; },
         changePassword: changePassword
       };
     };
