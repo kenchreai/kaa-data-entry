@@ -134,6 +134,7 @@ input[type="text"].invalid {
 header > section {
   float: right;
   margin-right: 10px;
+  clear: right;
 }
 
 header { height: 30px; }

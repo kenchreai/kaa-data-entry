@@ -9,6 +9,7 @@
     var utils = Utils(dbService, validator);
     var authService = AuthService(spinnerService);
     var view = $('#view');
+    var currentUser = $('#current-user');
     vex.defaultOptions.className = 'vex-theme-os';
 
     function loadDetailPage(hash) {
@@ -35,8 +36,15 @@
       });
     }
 
+    function displayCurrentUser() {
+      if (!!authService.currentUser()) {
+        currentUser.text('Logged in as: ' + authService.currentUser());
+      } else currentUser.text('');
+    }
+
     $(window).on('hashchange', function(e) {
       e.preventDefault();
+      displayCurrentUser();
       route();  
     });
 
