@@ -109,9 +109,9 @@ app.post('/api/users/password', function(req, res) {
   });
 });
 
-app.post('/api/admins/:username', function(req, res) {
+app.post('/api/admins/', function(req, res) {
   validateToken(req, res, true, function() {
-    User.find({ username: req.params.username }, function(err, users) {
+    User.find({ username: req.body.username }, function(err, users) {
       var user = users[0];
       user.isAdmin = true;
       user.save(function(err, user) {
