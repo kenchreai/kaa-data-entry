@@ -92,6 +92,19 @@ app.get('/api/users', function(req, res) {
   });
 });
 
+app.post('/api/reset', function(req, res) {
+  validateToken(req, res, true, function() {
+    User.find({ username: req.body.username }, function(err, users) {
+      if (err) res.send('Couldn\'t find user');
+      var user = users[0];
+      user.password = bcrypt.hashSync("change_me_now", 15);
+      user.save(function(err, user) {
+        res.send('Password reset');
+      });
+    });
+  });
+});
+
 app.post('/api/users/password', function(req, res) {
   validateToken(req, res, false, function() {
     var username = jwt.verify(req.get('x-access-token'), key).username;
