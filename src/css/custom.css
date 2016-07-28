@@ -140,13 +140,15 @@ header > section {
 header { height: 30px; }
 
 #login-form > *,
-#register-form > * {
+#register-form > *,
+#change-password-form > * {
   display: block;
   margin: 20px auto;
 }
 
 #login-form,
-#register-form {
+#register-form,
+#change-password-form {
   margin-top: 17%;
 }
 

@@ -6,7 +6,12 @@
         var usernameField = $('input[name="username"]');
         var passwordField = $('input[name="password"]');
 
-        $('button').click(function(e) {
+        $('#change-password').click(function(e) {
+          e.preventDefault();
+          window.location.hash = "/changepassword";
+        });
+
+        $('#login').click(function(e) {
           e.preventDefault();
           var username = usernameField.val();
           var password = passwordField.val();

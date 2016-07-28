@@ -47,6 +47,7 @@ gulp.task('concatSourceScripts', function() {
     'src/js/utils.js',
     'src/js/detail.js',
     'src/js/main.js',
+    'src/js/changePassword.js',
     'src/js/router.js'])
     .pipe(jsConcat('src.js'))
     .pipe(gulp.dest('src/js'));
@@ -94,6 +95,7 @@ gulp.task('concatDev', function() {
     'src/js/login.js',
     'src/js/utils.js',
     'src/js/detail.js',
+    'src/js/changePassword.js',
     'src/js/main.js',
     'src/js/router.js'
     ])
