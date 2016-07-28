@@ -37,7 +37,7 @@
       function changePassword(old, newPw, func) {
         spinnerService.start();
         $.post('/api/users/password', { oldPassword: old, newPassword: newPw }).done(function(response) {
-          func();
+          func(response);
         }).always(function() { spinnerService.stop(); });
       }
       

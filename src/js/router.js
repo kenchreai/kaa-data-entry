@@ -36,6 +36,12 @@
       });
     }
 
+    function loadChangePasswordView() {
+      view.load('templates/change-password.html', function() {
+        ChangePasswordView(authService);
+      });
+    }
+
     function displayCurrentUser() {
       if (!!authService.currentUser()) {
         currentUser.text('Logged in as: ' + authService.currentUser());
@@ -57,6 +63,8 @@
         loadRegisterView();
       } else if (hash === '/login') {
         loadLoginView();
+      } else if (hash === '/changepassword') {
+        loadChangePasswordView();
       } else if (hash === '/logout') {
         authService.logout();
       } else
