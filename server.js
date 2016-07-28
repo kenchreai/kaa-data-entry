@@ -59,7 +59,7 @@ function validateToken(req, res, adminOnly, func) {
 /*****************      routes     ********************/
 
 app.post('/api/users', function(req, res) {
-  var username = req.body.username;
+  var username = req.body.username.toLowerCase();
   var password = req.body.password;
   User.find({ username: username }, function(err, users) {
     if (err) res.send('error');
@@ -146,7 +146,7 @@ app.delete('/api/users', function(req, res) {
 });
 
 app.post('/api/token', function(req, res) {
-  var username = req.body.username;
+  var username = req.body.username.toLowerCase();
   var password = req.body.password;
   User.find({ username: username }, function(err, users) {
     var user = users[0];
