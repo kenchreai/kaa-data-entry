@@ -107,10 +107,11 @@
                 else descriptors[2] = result.o.value;
               }
               var elem = $('<tr><td>' + descriptors[0] +
-                           '</td><td class="object-value">' +
+                           '</td><td class="object-value ' + hasPng(descriptors) + '">' +
                            '<p class="' + hasModal(descriptors[0]) + '"' +
                            timestamp(descriptors) + '>' +
                            isLink(descriptors).opening + descriptors[1] + isLink(descriptors).closing +
+                           renderPng(descriptors) +
                            '</p>' +
                            '<button class="button button-remove">X</button>' +
                            addModalButton(descriptors[0]) +
@@ -150,6 +151,22 @@
           });
         }
 
+        function renderPng(descriptors) {
+          if (['Photograph', 'Drawing', 'File'].indexOf(descriptors[0]) !== -1) {
+            if (descriptors[0] === 'File' && (descriptors[1].indexOf('.jpg') === -1 || descriptors[1].indexOf('.png') === -1)) return '';
+            return '</p><img alt="photo from kenchreai archives"' +
+                   'src="http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/' + descriptors[1] +
+                   '"/><p>'
+          }
+          return ''
+        }
+
+        function hasPng(descriptors) {
+          if (descriptors[0] === 'Photograph' || descriptors[0] === 'Drawing')
+            return 'inline-image';
+          else return '';
+        }
+
         function isLink(descriptors) {
           var properties = {
             opening: '',
@@ -157,6 +174,10 @@
           };
           if (hyperlinkedProperties.indexOf(descriptors[0]) !== -1) {
             properties.opening = '<a target="_blank" href="' + descriptors[2] + '">';
+            properties.closing = '</a>';
+          }
+          if (['Photograph', 'Drawing', 'File'].indexOf(descriptors[0]) !== -1) {
+            properties.opening = '<a target="_blank" href="http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/' + descriptors[1] + '">';
             properties.closing = '</a>';
           }
           return properties;
