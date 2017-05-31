@@ -6,7 +6,5 @@ public/css/*.css
 public/css/*.map
 public/js/*.js
 public/js/*.map
-dist/build.js
-dist/build.js.map
 npm-debug.log
 yarn-error.log
