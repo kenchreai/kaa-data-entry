@@ -139,7 +139,7 @@ export default {
     },
     loadEntity (func) {
       this.entityLoading = true
-      const url = `http://localhost:3030/api/entities?resourceName=${this.resource}`
+      const url = `/api/entities?resourceName=${this.resource}`
       this.$http.get(url).then(response => {
         this.entity = response.body
         this.entityLoading = false
@@ -147,12 +147,12 @@ export default {
       })
     },
     loadPredicates () {
-      this.$http.get('http://localhost:3030/api/descriptors').then(response => {
+      this.$http.get('/api/descriptors').then(response => {
         this.predicates = response.body.results.bindings
       })
     },
     loadUris () {
-      this.$http.get('http://localhost:3030/api/uris').then(response => {
+      this.$http.get('/api/uris').then(response => {
         this.uris = response.body.results.bindings.map(b => b.s.value)
         uris = this.uris
       })
@@ -172,7 +172,7 @@ export default {
       return this.predicates.find(p => p.label.value === label)
     },
     addPredicateValue () {
-      const url = `http://localhost:3030/api/entities/${this.resource}`
+      const url = `/api/entities/${this.resource}`
       const val = types[this.predicateType](this.newValue)
       this.$http.post(url, { key: this.newPredicate, val }).then(response => {
         if (response.body.boolean) {
@@ -182,7 +182,7 @@ export default {
     },
     removePredicateValue (index) {
       const predicateValue = this.entity.results.bindings[index]
-      const url = `http://localhost:3030/api/entities/${this.resource}`
+      const url = `/api/entities/${this.resource}`
       const ptype = this.getType(p => p.label.value === predicateValue.label.value)
       const value = types[ptype](predicateValue.o.value)
       const query = `?key=${predicateValue.p.value}&value=${value}`

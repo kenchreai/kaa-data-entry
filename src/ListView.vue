@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     load (searchTerm) {
-      const url = `http://localhost:3030/api/entitylist?domain=${searchTerm}`
+      const url = `/api/entitylist?domain=${searchTerm}`
       this.$http.get(url).then(response => {
         this.results = response.body.results.bindings.map(r => {
           return Object.keys(r).map(k => r[k].value).join()

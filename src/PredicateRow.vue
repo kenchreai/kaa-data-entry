@@ -131,7 +131,7 @@
         this.value = kvp.o.value
       },
       updatePredicateValue () {
-        const url = `http://localhost:3030/api/entities/${this.resource}`
+        const url = `/api/entities/${this.resource}`
         const oldVal = this.types[this.predicateType](this.value)
         const newVal = this.types[this.predicateType](this.editorValue)
         const data = {

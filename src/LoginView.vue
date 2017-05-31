@@ -33,7 +33,7 @@ export default {
   methods: {
     login () {
       const { username, password } = this
-      this.$http.post('http://localhost:3030/api/token', { username, password }).then(response => {
+      this.$http.post('/api/token', { username, password }).then(response => {
         localStorage.setItem('access-token', response.body)
         bus.$emit('login')
         this.$router.push('search')
