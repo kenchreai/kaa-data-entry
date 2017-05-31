@@ -76,7 +76,6 @@
         options.query = 'insert data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
-        console.log(options.query);
         conn.query(options, function(response) {
           cb(response);
         });
@@ -84,6 +83,9 @@
 
       function updateDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
+        re.oldObject = re.oldObject.replace(/\n/g, '\\n');
+        re.newObject = re.newObject.replace(/\n/g, '\\n');
+        re.newObject = re.newObject.replace(/\r/g, '\\r');
         options.query = `
           delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
@@ -96,7 +98,7 @@
 
       function deleteDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
-        re.object = re.object.replace(/\n/g, '\\r\\n');
+        re.object = re.object.replace(/\n/g, '\\n');
         options.query = 'delete data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
