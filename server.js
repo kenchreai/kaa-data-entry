@@ -46,7 +46,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname));
 
 function validateToken(req, res, adminOnly, func) {
   jwt.verify(req.get('x-access-token'), key, function(err, decoded) {
@@ -231,7 +231,7 @@ app.get('/api/descriptors', function(req, res) {
 });
 
 app.get('*', function(req, res) {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
 
