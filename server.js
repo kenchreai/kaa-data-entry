@@ -2,6 +2,7 @@
 
 var express = require('express');
 var app = express();
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var path = require('path');
@@ -10,7 +11,7 @@ var DbService = require('./dbService.js');
 var username = process.env.KENCHREAI_USER;
 var password = process.env.KENCHREAI_PASSWORD;
 var dbService = DbService('http://kenchreai.org/kaa/', username, password);
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3030;
 var jwt = require('jsonwebtoken');
 var key = process.env.SIGNING_KEY;
 var mongoKey = process.env.MONGODB_URI;
@@ -36,10 +37,11 @@ db.once('open', function() {
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST');
+  res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
   next();
 });
@@ -148,9 +150,9 @@ app.delete('/api/users', function(req, res) {
 app.post('/api/token', function(req, res) {
   var username = req.body.username.toLowerCase();
   var password = req.body.password;
-  User.find({ username: username }, function(err, users) {
+  User.find({ username }, function(err, users) {
     var user = users[0];
-    if (err || !bcrypt.compareSync(password, user.password)) {
+    if (err || !user || !bcrypt.compareSync(password, user.password)) {
       res.status(400).send('Username or password do not match');
     } else {
       var token = jwt.sign({
@@ -181,10 +183,10 @@ app.get('/api/entities', function(req, res) {
   });
 });
 
-app.post('/api/entities/', function(req, res) {
+app.post('/api/entities/:collection/:entity', function(req, res) {
   validateToken(req, res, true, function() {
     var resource = {
-      subject: req.query.resourceName,
+      subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.body.key,
       object: req.body.val
     };
@@ -194,22 +196,28 @@ app.post('/api/entities/', function(req, res) {
   });
 });
 
-app.put('/api/entities/:resourceName', function(req, res) {
+app.put('/api/entities/:collection/:entity', function(req, res) {
   validateToken(req, res, true, function() {
-    var properties = req.body;
-    dbService.updateDetail(req.params.resourceName, properties, function(response) {
+    const resource = {
+      subject: `${req.params.collection}/${req.params.entity}`,
+      predicate: req.body.predicate,
+      oldObject: req.body.oldVal,
+      newObject: req.body.newVal 
+    }
+    dbService.updateDetail(resource, function(response) {
       res.send(response);
     });
   });
 });
 
-app.delete('/api/entities/', function(req, res) {
+app.delete('/api/entities/:collection/:entity', function(req, res) {
   validateToken(req, res, true, function() {
     var triple = {
-      subject: req.query.resourceName,
-      predicate: req.body.key,
-      object: req.body.value
+      subject: `${req.params.collection}/${req.params.entity}`,
+      predicate: req.query.key,
+      object: req.query.value
     };
+    console.log(triple)
     dbService.deleteDetail(triple, function(response) {
       res.send(response);
     });
