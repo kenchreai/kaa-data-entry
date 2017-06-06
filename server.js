@@ -18,10 +18,6 @@ var mongoKey = process.env.MONGODB_URI;
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 
-var webpack = require('webpack');
-var webpackConfig = require('./webpack.config.js');
-var compiler = webpack(webpackConfig);
-
 /****************** configure database ****************/
 
 mongoose.connect(mongoKey);
@@ -51,6 +47,10 @@ app.use(function(req, res, next) {
 });
 
 if (process.env.NODE_ENV !== 'production') {
+  var webpack = require('webpack');
+  var webpackConfig = require('./webpack.config.js');
+  var compiler = webpack(webpackConfig);
+
   app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true, publicPath: webpackConfig.output.publicPath
   }));
