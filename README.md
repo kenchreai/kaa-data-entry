@@ -1,5 +1,4 @@
-#KAA Data Editor
-
+# KAA Data Editor
 
 To promote other users to be admins, issue a POST request to the following url: `https://kenchreai-data-editor.herokuapp.com/api/admins/{{username}}` with your admin token in the request header `'x-access-token'`. 
 
