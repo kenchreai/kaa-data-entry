@@ -2,11 +2,19 @@ var path = require('path')
 var webpack = require('webpack')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 
+const PRODUCTION = process.env.NODE_ENV === 'production'
+const entry = PRODUCTION
+              ? './src/main.js'
+              : ['./src/main.js', 'webpack-hot-middleware/client']
+
+const plugins = PRODUCTION
+                ? []
+                : [ new webpack.HotModuleReplacementPlugin(),
+                    new webpack.NoEmitOnErrorsPlugin() ]
+
+
 module.exports = {
-  entry: [
-    './src/main.js',
-    'webpack-hot-middleware/client'
-  ],
+  entry: entry,
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
@@ -50,11 +58,7 @@ module.exports = {
     hints: false
   },
   devtool: '#eval-source-map',
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
-  ]
-}
+  plugins: plugins}
 
 if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
