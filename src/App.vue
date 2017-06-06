@@ -1,5 +1,6 @@
 <template>
 <section>
+  <vue-toastr ref="toastr"></vue-toastr>
   <header>
     <section>
       <router-link to="/">Search</router-link>
@@ -20,14 +21,29 @@
 <script>
 import { bus }from './eventBus.js'
 
+import Vue from 'vue'
+import Toastr from 'vue-toastr'
+require('vue-toastr/src/vue-toastr.less')
+
 export default {
   name: 'app',
+  components: {
+    'vue-toastr': Toastr
+  },
   data () {
     return { loggedIn: false }
+
   },
   created () {
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
-    bus.$on('login', () => this.loggedIn = true)
+    bus.$on('login', () => {
+      this.loggedIn = true
+      this.$refs.toastr.s('Logged in')
+    })
+    bus.$on('logout', () => this.loggedIn = false)
+    bus.$on('toast-success', mes => this.$refs.toastr.s(mes))
+    bus.$on('toast-error', mes => this.$refs.toastr.e(mes))
+    bus.$on('toast-warning', mes => this.$refs.toastr.w(mes))
   },
   methods: {
     logout () {

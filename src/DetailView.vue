@@ -1,4 +1,4 @@
- <template>
+<template>
 <section>
   <h1 class="section-heading" id="resource-title">
     <a :href="`http://kenchreai.org/kaa/${resource}`"
@@ -75,17 +75,15 @@
 <script>
 import PredicateRow from './PredicateRow.vue'
 import Typeahead from './Typeahead.vue'
-import bus from './eventBus.js'
+import { bus } from './eventBus.js'
 import types from './typeService.js'
 import validators from './validators.js'
-
-let uris = []
 
 export default {
   components: {
     'predicate-row': PredicateRow,
     'typeahead': Typeahead
- },
+  },
   props: ['collection', 'inventoryNum'],
   data () {
     return {
@@ -103,9 +101,11 @@ export default {
   },
   created () {
     this.loadEntity()
-    this.loadPredicates()
-    this.loadUris()
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
+    this.predicates = bus.predicates
+    this.uris = bus.uris
+    bus.$on('uris loaded', data => this.uris = data)
+    bus.$on('predicates loaded', data => this.predicates = data)
   },
   watch: {
     '$route': 'loadEntity'
@@ -143,18 +143,7 @@ export default {
       this.$http.get(url).then(response => {
         this.entity = response.body
         this.entityLoading = false
-        if (func) func()
-      })
-    },
-    loadPredicates () {
-      this.$http.get('/api/descriptors').then(response => {
-        this.predicates = response.body.results.bindings
-      })
-    },
-    loadUris () {
-      this.$http.get('/api/uris').then(response => {
-        this.uris = response.body.results.bindings.map(b => b.s.value)
-        uris = this.uris
+        if (func && typeof func === 'function') func()
       })
     },
     getType (findExpression) {
@@ -172,23 +161,31 @@ export default {
       return this.predicates.find(p => p.label.value === label)
     },
     addPredicateValue () {
-      const url = `/api/entities/${this.resource}`
-      const val = types[this.predicateType](this.newValue)
-      this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-        if (response.body.boolean) {
-          this.loadEntity(() => this.newValue = undefined)
-        }
-      })
+      if (this.isValid) {
+        const url = `/api/entities/${this.resource}`
+        const val = this.types[this.predicateType](this.newValue)
+        this.$http.post(url, { key: this.newPredicate, val }).then(response => {
+          if (response.body.boolean) {
+            this.loadEntity(() => {
+              this.newValue = undefined
+              bus.$emit('toast-success', 'Added predicate')
+            })
+          }
+        })
+      }
     },
     removePredicateValue (index) {
       const predicateValue = this.entity.results.bindings[index]
       const url = `/api/entities/${this.resource}`
       const ptype = this.getType(p => p.label.value === predicateValue.label.value)
-      const value = types[ptype](predicateValue.o.value)
+      const value = this.types[ptype](predicateValue.o.value)
       const query = `?key=${predicateValue.p.value}&value=${value}`
-      this.$http.delete(url + query).then(response =>
+      this.$http.delete(url + query).then(response => {
         this.entity.results.bindings.splice(index, 1)
-      )
+        bus.$emit('toast-warning', 'Removed predicate')
+      }, error => {
+        bus.$emit('toast-error', error.body)
+      })
     }
   }
 }

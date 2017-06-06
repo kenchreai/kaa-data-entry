@@ -69,68 +69,70 @@
 
 
 <script>
-  import Typeahead from './Typeahead.vue'
+import { bus } from './eventBus.js'
+import Typeahead from './Typeahead.vue'
 
-  export default {
-    props: [
-      'keyValPair',
-      'predicate',
-      'predicateType',
-      'types',
-      'isLongText',
-      'awsUrl',
-      'resource',
-      'uris',
-      'validators',
-      'loggedIn'
-    ],
-    components: {
-      'typeahead': Typeahead
+export default {
+  props: [
+    'keyValPair',
+    'predicate',
+    'predicateType',
+    'types',
+    'isLongText',
+    'awsUrl',
+    'resource',
+    'uris',
+    'validators',
+    'loggedIn'
+  ],
+  components: {
+    'typeahead': Typeahead
+  },
+  data () {
+    return {
+      key: '',
+      value: '',
+      editorValue: undefined,
+      editorOpened: false
+    }
+  },
+  created () {
+    this.renderRow()
+    this.editorValue = this.value
+  },
+  computed: {
+    isImage () {
+      return this.key === 'Photograph' || this.key === 'Drawing'
     },
-    data () {
-      return {
-        key: '',
-        value: '',
-        editorValue: undefined,
-        editorOpened: false
-      }
+    isHyperLink () {
+      return this.predicate && this.predicate.ptype.value.indexOf('Object') !== -1 
     },
-    created () {
-      this.renderRow()
-      this.editorValue = this.value
+    isAWSLink () {
+      return Boolean(['Photograph', 'Drawing', 'File'].find(r => r === this.key))
     },
-    computed: {
-      isImage () {
-        return this.key === 'Photograph' || this.key === 'Drawing'
-      },
-      isHyperLink () {
-        return this.predicate && this.predicate.ptype.value.indexOf('Object') !== -1 
-      },
-      isAWSLink () {
-        return Boolean(['Photograph', 'Drawing', 'File'].find(r => r === this.key))
-      },
-      url () {
-        if (this.isHyperLink) {
-          if (this.value.search('kenchreai.org/kaa') === -1) {
-            return `http://kenchreai.org/kaa/${this.value}`
-          } else {
-            return this.value
-          }
-        }
-      },
-      isValid () {
-        if (this.validators[this.predicateType]) {
-          return this.validators[this.predicateType](this.editorValue, this.uris)
+    url () {
+      if (this.isHyperLink) {
+        if (this.value.search('kenchreai.org/kaa') === -1) {
+          return `http://kenchreai.org/kaa/${this.value}`
+        } else {
+          return this.value
         }
       }
     },
-    methods: {
-      renderRow () {
-        const kvp = this.keyValPair
-        this.key = kvp.label.value ? kvp.label.value : kvp.p.value
-        this.value = kvp.o.value
-      },
-      updatePredicateValue () {
+    isValid () {
+      if (this.validators[this.predicateType]) {
+        return this.validators[this.predicateType](this.editorValue, this.uris)
+      }
+    }
+  },
+  methods: {
+    renderRow () {
+      const kvp = this.keyValPair
+      this.key = kvp.label.value ? kvp.label.value : kvp.p.value
+      this.value = kvp.o.value
+    },
+    updatePredicateValue () {
+      if (this.isValid) {
         const url = `/api/entities/${this.resource}`
         const oldVal = this.types[this.predicateType](this.value)
         const newVal = this.types[this.predicateType](this.editorValue)
@@ -143,14 +145,16 @@
           if (response.body.boolean) {
             this.value = this.editorValue
             this.editorOpened = false
+            bus.$emit('toast-success', 'Updated predicate')
           }
         })
-      },
-      updateModel (data) {
-        this.editorValue = data
       }
+    },
+    updateModel (data) {
+      this.editorValue = data
     }
   }
+}
 </script>
 
 

@@ -9,15 +9,23 @@ import DetailView from './DetailView.vue'
 import ListView from './ListView.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
+import { bus } from './eventBus.js'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(VueProgressBar)
 Vue.use(VueResourceProgressBarInterceptor)
 
-Vue.http.interceptors.push(function(request, next) {
+Vue.http.interceptors.push((request, next) => {
   request.headers.set('x-access-token', localStorage.getItem('access-token'))
-  next()
+  next(function (response) {
+    if (response.status === 403) {
+      localStorage.setItem('access-token', '')
+      bus.$emit('logout')
+      bus.$emit('toast-error', 'Login needed')
+      this.$router.push('/login')
+    }
+  })
 })
 
 const routes = [{
