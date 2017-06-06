@@ -18,6 +18,10 @@ var mongoKey = process.env.MONGODB_URI;
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 
+var webpack = require('webpack');
+var webpackConfig = require('./webpack.config.js');
+var compiler = webpack(webpackConfig);
+
 /****************** configure database ****************/
 
 mongoose.connect(mongoKey);
@@ -45,6 +49,12 @@ app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
   next();
 });
+
+app.use(require('webpack-dev-middleware')(compiler, {
+  noInfo: true, publicPath: webpackConfig.output.publicPath
+}));
+
+app.use(require('webpack-hot-middleware')(compiler));
 
 app.use(express.static(__dirname));
 
