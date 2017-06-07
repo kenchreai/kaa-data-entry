@@ -50,6 +50,7 @@
             <typeahead :uris="uris"
                        @selection="updateModel($event)"
                        :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
+                       :placeholder="'URI...'"
                        v-if="!isLongText && predicateType === 'uri'">
             </typeahead>
           </section>
@@ -218,9 +219,7 @@ export default {
   }
 
   .valid,
-  .valid:focus,
-  .valid.awesomplete .awesomplete input#typeahead,
-  .valid.awesomplete .awesomplete input#typeahead:focus {
+  .valid:focus {
     border-color: green;
   }
 

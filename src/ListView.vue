@@ -1,51 +1,34 @@
 <template>
 <section id="wrapper">
-  <section>
-    <h1 class="section-heading">Kenchreai Data Editor</h1>
-    <form id="entity-search-form">
-      <section class="row">
-        <input type="text"
-               placeholder="KAA entity..."
-               v-model="searchTerm">
-        <button @click.prevent="load(searchTerm)"
-                class="button button-primary">
-          Search
-        </button>
-      </section>
-    </form>
-  </section>
-  <section v-if="results.length">
-    <section>
-      <ul>
-        <li v-for="result in results">
-          <a :href="'/#/detail/' + shortenUrl(result)">{{result}}</a>
-        </li>
-      </ul>
-    </section>
-  </section>
+  <h1 class="section-heading">Kenchreai Data Editor</h1>
+  <typeahead :uris="entities"
+             :placeholder="'KAA entity...'"
+             @selection="viewEntity($event)">
+  </typeahead>
 </section>
 </template>
 
 
 <script>
+import { bus } from './eventBus.js'
+import Typeahead from './Typeahead.vue'
+
 export default {
   data () {
     return {
-      results: [],
-      searchTerm: ''
+      entities: bus.entities,
     }
   },
+  components: {
+    'typeahead': Typeahead
+  },
+  created () {
+    bus.$on('entities loaded', val => this.entities = val)
+  },
   methods: {
-    load (searchTerm) {
-      const url = `/api/entitylist?domain=${searchTerm}`
-      this.$http.get(url).then(response => {
-        this.results = response.body.results.bindings.map(r => {
-          return Object.keys(r).map(k => r[k].value).join()
-        })
-      })
-    },
-    shortenUrl (url) {
-      return url.replace('http://kenchreai.org/kaa/', '')
+    viewEntity (url) {
+      const shortUrl = url.replace('http://kenchreai.org/kaa/', '')
+      this.$router.push(`/detail/${shortUrl}`)
     }
   }
 }

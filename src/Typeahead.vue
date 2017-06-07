@@ -2,7 +2,7 @@
   <div class="awesomplete">
     <input type="text"
            id="typeahead"
-           placeholder="URI..."
+           :placeholder="placeholder"
            @awesomplete-selectcomplete="validate($event)"/>
   </div>
 </template>
@@ -12,11 +12,17 @@
   let awesomplete
 
   export default {
-    props: ['uris'],
+    props: ['uris', 'placeholder'],
     data () {
       return {
         valid: false,
         selectedUri: undefined
+      }
+    },
+    watch: {
+      uris: function (value) {
+        awesomplete = null
+        this.initialize()
       }
     },
     methods: {
@@ -34,7 +40,7 @@
       }
     },
     mounted () {
-      setTimeout(() => this.initialize(), 400)
+      this.initialize()
     },
     destroyed () { awesomplete = null }
   }
@@ -45,4 +51,15 @@
   .awesomplete, #typeahead {
     width: 100%;
   }
+
+  .valid.awesomplete .awesomplete input#typeahead,
+  .valid.awesomplete .awesomplete input#typeahead:focus {
+    border-color: green;
+  }
+
+  .invalid,
+  .invalid:focus {
+    border-color: red;
+  }
+
 </style>

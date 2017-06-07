@@ -6,7 +6,8 @@ Vue.use(VueResource)
 export const bus = new Vue({
   data: {
     uris: [],
-    predicates: []
+    predicates: [],
+    entities: []
   },
   methods: {
     loadPredicates () {
@@ -20,11 +21,26 @@ export const bus = new Vue({
         this.uris = response.body.results.bindings.map(b => b.s.value)
         this.$emit('uris loaded', this.uris)
       })
+    },
+    loadEntities () {
+      let searchTerms = ['kcp', 'kth']
+      searchTerms.forEach(term  => {
+        const url = `/api/entitylist?domain=${term}`
+        this.$http.get(url).then(response => {
+          this.entities = this.entities.concat(
+            response.body.results.bindings.map(r => {
+              return Object.keys(r).map(k => r[k].value).join()
+            })
+          )
+          this.$emit('entities loaded', this.entities)
+        })
+      })
     }
   },
   created () {
     this.loadPredicates()
     this.loadUris()
+    this.loadEntities()
   }
 })
 

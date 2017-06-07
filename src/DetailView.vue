@@ -62,6 +62,7 @@
                placeholder="Value...">
         <typeahead :uris="uris"
                    :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
+                   :placeholder="'URI...'"
                    @selection="updateModel($event)"
                    v-if="!isLongText && predicateType === 'uri'">
         </typeahead>
