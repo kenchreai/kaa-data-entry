@@ -3,9 +3,9 @@
   <vue-toastr ref="toastr"></vue-toastr>
   <header>
     <section>
-      <router-link to="/">Search</router-link>
+      <router-link to="/search">Search</router-link>
       <router-link to="/login" v-if="!loggedIn">Login</router-link>
-      <a href="#/login"
+      <a href="/login"
          @click="logout"
          v-if="loggedIn">
         Logout

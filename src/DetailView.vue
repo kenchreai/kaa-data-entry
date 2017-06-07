@@ -186,7 +186,7 @@ export default {
         this.entity.results.bindings.splice(index, 1)
         bus.$emit('toast-warning', 'Removed predicate')
       }, error => {
-        bus.$emit('toast-error', error.body)
+        console.log(error.body)
       })
     }
   }

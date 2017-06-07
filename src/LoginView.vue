@@ -27,8 +27,12 @@ export default {
   data () {
     return {
       username: undefined,
-      password: undefined
+      password: undefined,
+      redirectUrl: undefined
     }
+  },
+  created () {
+    bus.$on('redirected from detail', url => this.redirectUrl = url)
   },
   methods: {
     login () {
@@ -36,7 +40,11 @@ export default {
       this.$http.post('/api/token', { username, password }).then(response => {
         localStorage.setItem('access-token', response.body)
         bus.$emit('login')
-        this.$router.push('search')
+        if (this.redirectUrl) {
+          this.$router.push(this.redirectUrl)
+        } else {
+          this.$router.push('search')
+        }
       }, error => {
         console.log(error)
       })

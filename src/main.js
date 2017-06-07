@@ -41,12 +41,18 @@ const routes = [{
       props: true
     }, {
       path: 'login',
-      component: LoginView
+      component: LoginView,
+      beforeEnter: (to, from, next) => {
+        if (from.fullPath.substr(0, 7) === '/detail') {
+          setTimeout(() => bus.$emit('redirected from detail', from.fullPath), 500)
+        }
+        next()
+      },
     }, {
       path: 'register',
       component: RegisterView
     }]
 }]
 
-const router = new VueRouter({ routes })
+const router = new VueRouter({ routes, mode: 'history' })
 const app = new Vue({ router }).$mount('#app')
