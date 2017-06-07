@@ -6,3 +6,5 @@ public/css/*.css
 public/css/*.map
 public/js/*.js
 public/js/*.map
+npm-debug.log
+yarn-error.log

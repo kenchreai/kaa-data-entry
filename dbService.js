@@ -52,14 +52,16 @@
 
       function getDescriptors(cb) {
         var options = Object.assign({}, dbConfig);
-        options.query = 'SELECT ?s ?p ?o ?type ?domain ?range ?label WHERE {' +
+        options.query = 'SELECT ?s ?p ?o ?ptype ?domain ?range ?label ?longtext WHERE {' +
                           'graph <urn:kenchreai:schema> {' +
-                            '{ ?s rdf:type owl:ObjectProperty . ?s rdf:type ?type . }' +
-                            'UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?type . }' +
+                            '{ ?s rdf:type owl:ObjectProperty . ?s rdf:type ?ptype . }' +
+                            'UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?ptype . }' +
                             'OPTIONAL { ?s rdfs:label ?label . }' +
                             'OPTIONAL { ?s rdfs:domain ?domain . }' +
                             'OPTIONAL { ?s rdfs:range ?range . }' +
-                            'FILTER ( ?type = owl:ObjectProperty || ?type = owl:DatatypeProperty )' +
+                            'OPTIONAL { ?s kaaont:x-long-text ?longtext . }' +
+                            '?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .' +
+                            'FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )' +
                           '}' +
                         '} ORDER BY ?label';
         conn.query(options, function(response) {
@@ -74,7 +76,6 @@
         options.query = 'insert data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
-                          console.log(options.query);
         conn.query(options, function(response) {
           cb(response);
         });
@@ -82,13 +83,14 @@
 
       function updateDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
-        options.query = 'delete { ' +
-                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
-                        '} insert {' +
-                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.newObject + ' ' +
-                        '} where { ' +
-                          '<' + baseUrl + re.subject + '> ' + re.predicate + ' ' + re.oldObject + ' ' +
-                        '}';
+        re.oldObject = re.oldObject.replace(/\n/g, '\\n');
+        re.newObject = re.newObject.replace(/\n/g, '\\n');
+        re.newObject = re.newObject.replace(/\r/g, '\\r');
+        options.query = `
+          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
+          insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
+        `
+        console.log(options.query)
         conn.query(options, function(response) {
           cb(response);
         });
@@ -96,7 +98,7 @@
 
       function deleteDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
-        re.object = re.object.replace(/\n/g, '\\r\\n');
+        re.object = re.object.replace(/\n/g, '\\n');
         options.query = 'delete data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
