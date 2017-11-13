@@ -179,7 +179,9 @@ export default {
       const predicateValue = this.entity.results.bindings[index]
       const url = `/api/entities/${this.resource}`
       let ptype = this.getType(p => p.label.value === predicateValue.label.value)
-      if (predicateValue.label.value === 'File') ptype = 'uri'
+
+      // removing this for time being as it was wrapping with < and >, messing up deletes
+      // if (predicateValue.label.value === 'File') ptype = 'uri'
       const value = this.types[ptype](predicateValue.o.value)
       const query = `?key=${predicateValue.p.value}&value=${value}`
       this.$http.delete(url + query).then(response => {

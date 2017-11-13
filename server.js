@@ -11,7 +11,7 @@ var DbService = require('./dbService.js');
 var username = process.env.KENCHREAI_USER;
 var password = process.env.KENCHREAI_PASSWORD;
 var dbService = DbService('http://kenchreai.org/kaa/', username, password);
-var port = process.env.PORT || 3030;
+var port = process.env.PORT || 8080;
 var jwt = require('jsonwebtoken');
 var key = process.env.SIGNING_KEY;
 var mongoKey = process.env.MONGODB_URI;
@@ -229,7 +229,6 @@ app.delete('/api/entities/:collection/:entity', function(req, res) {
       predicate: req.query.key,
       object: req.query.value
     };
-    console.log(triple)
     dbService.deleteDetail(triple, function(response) {
       res.send(response);
     });

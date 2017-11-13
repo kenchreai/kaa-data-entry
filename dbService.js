@@ -99,22 +99,25 @@
       function deleteDetail(re, cb) {
         var options = Object.assign({}, dbConfig);
         re.object = re.object.replace(/\n/g, '\\n');
-        options.query = 'delete data { ' +
+        options.query = `delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }`
+        debugger
+        /*options.query = 'delete data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}';
+                       */
         conn.query(options, function(response) {
           cb(response);
         });
       }
 
       return {
-        query: query,
-        getAllUris: getAllUris,
-        getDetail: getDetail,
-        getDescriptors: getDescriptors,
-        insert: insert,
-        updateDetail: updateDetail,
-        deleteDetail: deleteDetail
+        query,
+        getAllUris,
+        getDetail,
+        getDescriptors,
+        insert,
+        updateDetail,
+        deleteDetail
       };
     };
   })();
