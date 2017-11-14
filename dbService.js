@@ -90,7 +90,6 @@
           delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
         `
-        console.log(options.query)
         conn.query(options, function(response) {
           cb(response);
         });
@@ -100,11 +99,6 @@
         var options = Object.assign({}, dbConfig);
         re.object = re.object.replace(/\n/g, '\\n');
         options.query = `delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }`
-        debugger
-        /*options.query = 'delete data { ' +
-                          '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
-                        '}';
-                       */
         conn.query(options, function(response) {
           cb(response);
         });
