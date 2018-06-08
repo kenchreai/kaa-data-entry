@@ -16,7 +16,7 @@ var jwt = require('jsonwebtoken');
 var key = process.env.SIGNING_KEY;
 var mongoKey = process.env.MONGODB_URI;
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 /****************** configure database ****************/
 
