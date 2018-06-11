@@ -36,6 +36,7 @@
       <section id="input-wrapper">
         <section>
           <select v-model="newPredicate"
+                  @change="checkValidity"
                   :disabled="entityLoading">
             <option v-for="predicate in predicates"
                     :value="predicate.s.value">
@@ -52,6 +53,7 @@
                   :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
                   :disabled="entityLoading"
                   v-model="newValue"
+                  @input="checkValidity"
                   placeholder="Text...">
         </textarea>
         <input type="text"
@@ -59,13 +61,16 @@
                :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
                v-if="!isLongText && !(predicateType === 'uri')"
                v-model="newValue"
+               @input="checkValidity"
                placeholder="Value...">
         <typeahead :uris="uris"
                    :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
                    :placeholder="'URI...'"
+                   @input="checkValidity"
                    @selection="updateModel($event)"
                    v-if="!isLongText && predicateType === 'uri'">
         </typeahead>
+        <p v-if="errorMessage">{{errorMessage}}</p>
        </section>
     </form>
   </section>
@@ -97,7 +102,8 @@ export default {
       awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
       types: types,
       validators: validators,
-      loggedIn: false
+      loggedIn: false,
+      errorMessage: null
     }
   },
   created () {
@@ -109,7 +115,8 @@ export default {
     bus.$on('predicates loaded', data => this.predicates = data)
   },
   watch: {
-    '$route': 'loadEntity'
+    '$route': 'loadEntity',
+    'newValue': 'checkValidity'
   },
   computed: {
     resource () {
@@ -125,15 +132,20 @@ export default {
     predicateType () {
       return this.getType(p => p.s.value === this.newPredicate)
     },
-    isValid () {
-      if (validators[this.predicateType])
-        return validators[this.predicateType](this.newValue, this.uris)
-    }
+    isValid () { return !this.errorMessage }
   },
   methods: {
     predicateIsLongText (keyValPair) {
       const pred = this.predicates.find(p => p.s.value === keyValPair.p.value)
       return Boolean(pred && pred.longtext)
+    },
+    checkValidity () {
+      const validator = this.validators[this.predicateType + 'Error']
+      if (validator && this.newValue) {
+        this.errorMessage = validator(this.newValue, this.uris)
+      } else {
+        this.errorMessage = null
+      }
     },
     updateModel (data) {
       this.newValue = data

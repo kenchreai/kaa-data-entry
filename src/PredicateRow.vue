@@ -128,7 +128,10 @@ export default {
       if (validator) {
         this.errorMessage = validator(this.editorValue, this.uris)
         return !Boolean(this.errorMessage)
-      } else return true
+      } else {
+        this.errorMessage = null
+        return true
+      }
     }
   },
   methods: {

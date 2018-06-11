@@ -6,7 +6,6 @@ var cors = require('cors');
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var path = require('path');
-var env = require('dotenv').config();
 var DbService = require('./dbService.js');
 var username = process.env.KENCHREAI_USER;
 var password = process.env.KENCHREAI_PASSWORD;
