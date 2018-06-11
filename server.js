@@ -75,16 +75,17 @@ function validateToken(req, res, adminOnly, func) {
 app.post('/api/users', function(req, res) {
   var username = req.body.username.toLowerCase();
   var password = req.body.password;
-  User.find({ username: username }, function(err, users) {
+  User.find({ username }, function(err, users) {
+    console.log(err)
     if (err) res.send('error');
     if (users.length > 0)
       res.status(404).send('Username already taken');
     else {
-      var hashedPassword = bcrypt.hashSync(password, 15);
-      var user = new User({ username: username, password: hashedPassword, isAdmin: false });
-      user.save(function(err, user) {
+      const hashedPassword = bcrypt.hashSync(password, 15);
+      const user = new User({ username: username, password: hashedPassword, isAdmin: false });
+      user.save((err, user) => {
         if (err) res.send(err);
-        var token = jwt.sign({
+        const token = jwt.sign({
           isAdmin: user.isAdmin,
           username: user.username,
           iat: Date.now()
@@ -97,11 +98,8 @@ app.post('/api/users', function(req, res) {
 
 app.get('/api/users', function(req, res) {
   validateToken(req, res, true, function() {
-    User.find(function(err, users) {
-      var usernames = users.map(function(user) {
-        return user.username;
-      });
-      res.send(usernames);
+    User.find((err, users) => {
+      res.send(users.map(u => u.username))
     });
   });
 });
