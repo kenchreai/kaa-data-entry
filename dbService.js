@@ -77,15 +77,12 @@
           delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} }
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
         `
-        conn.query(options, response => cb(response))
       }
 
       function deleteDetail(re, cb) {
-        const options = Object.assign({}, dbConfig)
-        re.object = re.object.replace(/\n/g, '\\n')
-        options.query = 'delete data { ' +
-                          '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
-                        '}'
+        const options = Object.assign({}, dbConfig);
+        re.object = re.object.replace(/\n/g, '\\n');
+        options.query = `delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }`
         conn.query(options, response => cb(response))
       }
 

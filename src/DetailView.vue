@@ -179,9 +179,13 @@ export default {
       const predicateValue = this.entity.results.bindings[index]
       const url = `/api/entities/${this.resource}`
       let ptype = this.getType(p => p.label.value === predicateValue.label.value)
-      if (predicateValue.label.value === 'File') ptype = 'uri'
-      const value = this.types[ptype](predicateValue.o.value)
-      const query = `?key=${predicateValue.p.value}&value=${value}`
+
+      // removing this for time being as it was wrapping with < and >, messing up deletes
+      // if (predicateValue.label.value === 'File') ptype = 'uri'
+      const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
+      const key = encodeURIComponent(predicateValue.p.value)
+      const query = `?key=${key}&value=${value}`
+
       this.$http.delete(url + query).then(response => {
         this.entity.results.bindings.splice(index, 1)
         bus.$emit('toast-warning', 'Removed predicate')
