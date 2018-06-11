@@ -29,29 +29,29 @@ Vue.http.interceptors.push((request, next) => {
 })
 
 const routes = [{
-    path: '/',
-    component: App,
-    redirect: '/search',
-    children: [{
-      path: 'search',
-      component: ListView
-    }, {
-      path: 'detail/:collection/:inventoryNum',
-      component: DetailView,
-      props: true
-    }, {
-      path: 'login',
-      component: LoginView,
-      beforeEnter: (to, from, next) => {
-        if (from.fullPath.substr(0, 7) === '/detail') {
-          setTimeout(() => bus.$emit('redirected from detail', from.fullPath), 500)
-        }
-        next()
-      },
-    }, {
-      path: 'register',
-      component: RegisterView
-    }]
+  path: '/',
+  component: App,
+  redirect: '/search',
+  children: [{
+    path: 'search',
+    component: ListView
+  }, {
+    path: 'detail/:collection/:inventoryNum',
+    component: DetailView,
+    props: true
+  }, {
+    path: 'login',
+    component: LoginView,
+    beforeEnter: (to, from, next) => {
+      if (from.fullPath.substr(0, 7) === '/detail') {
+        setTimeout(() => bus.$emit('redirected from detail', from.fullPath), 500)
+      }
+      next()
+    },
+  }, {
+    path: 'register',
+    component: RegisterView
+  }]
 }]
 
 const router = new VueRouter({ routes, mode: 'history' })

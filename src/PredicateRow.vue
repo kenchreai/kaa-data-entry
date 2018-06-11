@@ -53,6 +53,7 @@
                        :placeholder="'URI...'"
                        v-if="!isLongText && predicateType === 'uri'">
             </typeahead>
+            <p class="invalid" v-if="errorMessage">{{errorMessage}}</p>
           </section>
           <button class="button button-remove"
                   @click.prevent="updatePredicateValue">
@@ -94,7 +95,8 @@ export default {
       key: '',
       value: '',
       editorValue: undefined,
-      editorOpened: false
+      editorOpened: false,
+      errorMessage: null
     }
   },
   created () {
@@ -102,6 +104,7 @@ export default {
     this.editorValue = this.value
   },
   computed: {
+    validatorType () { return `${this.predicateType}Error` },
     isImage () {
       return this.key === 'Photograph' || this.key === 'Drawing'
     },
@@ -121,9 +124,11 @@ export default {
       }
     },
     isValid () {
-      if (this.validators[this.predicateType]) {
-        return this.validators[this.predicateType](this.editorValue, this.uris)
-      }
+      const validator = this.validators[this.validatorType]
+      if (validator) {
+        this.errorMessage = validator(this.editorValue, this.uris)
+        return !Boolean(this.errorMessage)
+      } else return true
     }
   },
   methods: {
