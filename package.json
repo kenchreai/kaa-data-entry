@@ -9,7 +9,7 @@
     "test": "mocha --watch --reporter nyan"
   },
   "engines": {
-    "node": "6.11.1"
+    "node": "8.3.0"
   },
   "heroku-postbuild": "npm run build",
   "author": "Blaise Gratton, Sebastian Heath",
