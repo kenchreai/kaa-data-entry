@@ -81,7 +81,7 @@ app.post('/api/users', function(req, res) {
       res.status(400).send('Username already taken');
     else {
       const hashedPassword = bcrypt.hashSync(password, 15);
-      const user = new User({ username: username, password: hashedPassword, isAdmin: false });
+      const user = new User({ username, password: hashedPassword, isAdmin: false });
       user.save((err, user) => {
         if (err) res.send(err);
         const token = jwt.sign({
