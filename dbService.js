@@ -60,8 +60,10 @@
 
       function insert(re, cb) {
         const options = Object.assign({}, dbConfig)
-        re.object = re.object.replace(/\r/g, '\\r')
-        re.object = re.object.replace(/\n/g, '\\n')
+        if (re.object.replace) {
+          re.object = re.object.replace(/\r/g, '\\r')
+          re.object = re.object.replace(/\n/g, '\\n')
+        }
         options.query = 'insert data { ' +
                           '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
                         '}'
@@ -70,9 +72,11 @@
 
       function updateDetail(re, cb) {
         const options = Object.assign({}, dbConfig)
-        re.oldObject = re.oldObject.replace(/\n/g, '\\n')
-        re.newObject = re.newObject.replace(/\n/g, '\\n')
-        re.newObject = re.newObject.replace(/\r/g, '\\r')
+        if (re.oldObject.replace) {
+          re.oldObject = re.oldObject.replace(/\n/g, '\\n')
+          re.newObject = re.newObject.replace(/\n/g, '\\n')
+          re.newObject = re.newObject.replace(/\r/g, '\\r')
+        }
         options.query = `
           delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
@@ -82,8 +86,12 @@
 
       function deleteDetail(re, cb) {
         const options = Object.assign({}, dbConfig);
-        re.object = re.object.replace(/\n/g, '\\n');
-        options.query = `delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }`
+        if (re.object.replace) {
+          re.object = re.object.replace(/\n/g, '\\n');
+        }
+        options.query = `
+          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
+        `
         conn.query(options, response => cb(response))
       }
 
