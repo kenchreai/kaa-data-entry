@@ -74,9 +74,10 @@
         re.newObject = re.newObject.replace(/\n/g, '\\n')
         re.newObject = re.newObject.replace(/\r/g, '\\r')
         options.query = `
-          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} }
+          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
         `
+        conn.query(options, response => cb(response))
       }
 
       function deleteDetail(re, cb) {
