@@ -20,6 +20,7 @@
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
+                       :isURIProperty="isURIProperty"
                        :isLongText="predicateIsLongText(keyValPair)"
                        :keyValPair="keyValPair"
                        :awsUrl="awsUrl"
@@ -59,7 +60,7 @@
         <input type="text"
                :disabled="entityLoading"
                :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-               v-if="!isLongText && !(predicateType === 'uri')"
+               v-if="!isLongText && !isURIProperty"
                v-model="newValue"
                @input="checkValidity"
                placeholder="Value...">
@@ -68,7 +69,7 @@
                    :placeholder="'URI...'"
                    @input="checkValidity"
                    @selection="updateModel($event)"
-                   v-if="!isLongText && predicateType === 'uri'">
+                   v-if="!isLongText && isURIProperty">
         </typeahead>
         <p v-if="errorMessage">{{errorMessage}}</p>
        </section>
@@ -99,6 +100,7 @@ export default {
       newValue: undefined,
       predicates: [],
       uris: [],
+      uriProperties: [],
       awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
       types: types,
       validators: validators,
@@ -111,8 +113,10 @@ export default {
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
     this.predicates = bus.predicates
     this.uris = bus.uris
+    this.uriProperties = bus.uriProperties
     bus.$on('uris loaded', data => this.uris = data)
     bus.$on('predicates loaded', data => this.predicates = data)
+    bus.$on('URI properties loaded', data => this.uriProperties = data)
   },
   watch: {
     '$route': 'loadEntity',
@@ -132,7 +136,10 @@ export default {
     predicateType () {
       return this.getType(p => p.s.value === this.newPredicate)
     },
-    isValid () { return !this.errorMessage }
+    isValid () { return !this.errorMessage },
+    isURIProperty () {
+      return Boolean(this.uriProperties.find(p => p === this.newPredicate))
+    }
   },
   methods: {
     predicateIsLongText (keyValPair) {

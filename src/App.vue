@@ -19,11 +19,11 @@
 
 
 <script>
-import { bus }from './eventBus.js'
-
 import Vue from 'vue'
 import Toastr from 'vue-toastr'
 require('vue-toastr/src/vue-toastr.less')
+
+import { bus }from './eventBus.js'
 
 export default {
   name: 'app',

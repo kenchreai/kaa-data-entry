@@ -7,7 +7,8 @@ export const bus = new Vue({
   data: {
     uris: [],
     predicates: [],
-    entities: []
+    entities: [],
+    uriProperties: [] // properties which are 'uri' type
   },
   methods: {
     loadPredicates () {
@@ -35,12 +36,19 @@ export const bus = new Vue({
           this.$emit('entities loaded', this.entities)
         })
       })
+    },
+    loadPredicateURIs () {
+      this.$http.get('/api/uriproperties').then(response => {
+        this.uriProperties = response.body.results.bindings.map(b => b.subject.value)
+        this.$emit('URI properties loaded', this.uriProperties)
+      })
     }
   },
   created () {
     this.loadPredicates()
     this.loadUris()
     this.loadEntities()
+    this.loadPredicateURIs()
   }
 })
 
