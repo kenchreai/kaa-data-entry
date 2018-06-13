@@ -20,7 +20,7 @@
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
-                       :isURIProperty="isURIProperty"
+                       :isURIProperty="isURIProperty(keyValPair.p.value)"
                        :isLongText="predicateIsLongText(keyValPair)"
                        :keyValPair="keyValPair"
                        :awsUrl="awsUrl"
@@ -60,7 +60,7 @@
         <input type="text"
                :disabled="entityLoading"
                :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-               v-if="!isLongText && !isURIProperty"
+               v-if="!isLongText && !isURIProperty(newPredicate)"
                v-model="newValue"
                @input="checkValidity"
                placeholder="Value...">
@@ -69,7 +69,7 @@
                    :placeholder="'URI...'"
                    @input="checkValidity"
                    @selection="updateModel($event)"
-                   v-if="!isLongText && isURIProperty">
+                   v-if="!isLongText && isURIProperty(newPredicate)">
         </typeahead>
         <p v-if="errorMessage">{{errorMessage}}</p>
        </section>
@@ -136,12 +136,12 @@ export default {
     predicateType () {
       return this.getType(p => p.s.value === this.newPredicate)
     },
-    isValid () { return !this.errorMessage },
-    isURIProperty () {
-      return Boolean(this.uriProperties.find(p => p === this.newPredicate))
-    }
+    isValid () { return !this.errorMessage }
   },
   methods: {
+    isURIProperty (predicate) {
+      return Boolean(this.uriProperties.find(p => p === predicate))
+    },
     predicateIsLongText (keyValPair) {
       const pred = this.predicates.find(p => p.s.value === keyValPair.p.value)
       return Boolean(pred && pred.longtext)
