@@ -43,7 +43,7 @@
                       placeholder="Text...">
             </textarea>
             <input type="text"
-                   v-if="!isLongText && !(predicateType === 'uri')"
+                   v-if="!isLongText && !isURIProperty"
                    :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
                    v-model="editorValue"
                    placeholder="Value...">
@@ -51,7 +51,7 @@
                        @selection="updateModel($event)"
                        :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
                        :placeholder="'URI...'"
-                       v-if="!isLongText && predicateType === 'uri'">
+                       v-if="!isLongText && isURIProperty">
             </typeahead>
             <p class="invalid" v-if="errorMessage">{{errorMessage}}</p>
           </section>
@@ -85,7 +85,8 @@ export default {
     'resource',
     'uris',
     'validators',
-    'loggedIn'
+    'loggedIn',
+    'isURIProperty'
   ],
   components: {
     'typeahead': Typeahead

@@ -174,22 +174,20 @@ app.post('/api/token', function(req, res) {
 });
 
 app.get('/api/entitylist', function(req, res) {
-  dbService.query(req.query.domain, function(response) {
-    res.send(response);
-  });
+  dbService.query(req.query.domain, response => res.send(response))
 });
 
-app.get('/api/uris', function(req, res) {
-  dbService.getAllUris(function(response) {
-    res.send(response);
-  });
-});
+app.get('/api/uris', (req, res) => {
+  dbService.getAllUris(response => res.send(response))
+})
+
+app.get('/api/uriproperties', (req, res) => {
+  dbService.getURIProperties(props => res.send(props))
+})
 
 app.get('/api/entities', function(req, res) {
-  dbService.getDetail(req.query.resourceName, function(response) {
-    res.send(response);
-  });
-});
+  dbService.getDetail(req.query.resourceName, response => res.send(response))
+})
 
 app.post('/api/entities/:collection/:entity', function(req, res) {
   validateToken(req, res, true, function() {

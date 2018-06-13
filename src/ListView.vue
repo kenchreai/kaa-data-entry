@@ -10,8 +10,9 @@
 
 
 <script>
-import { bus } from './eventBus.js'
 import Typeahead from './Typeahead.vue'
+
+import { bus } from './eventBus.js'
 
 export default {
   data () {

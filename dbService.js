@@ -28,6 +28,18 @@
         conn.query(options, response => cb(response))
       }
 
+      function getURIProperties(cb) {
+        const options = Object.assign({}, dbConfig)
+        options.query = `
+          SELECT * WHERE {
+            graph <urn:kenchreai:schema> {
+              ?subject rdf:type owl:ObjectProperty .
+            }
+          }
+        `
+        conn.query(options, response => cb(response))
+      }
+
       function getDetail(detailUrl, cb) {
         const options = Object.assign({}, dbConfig)
         options.query = 'select ?p ?o ?label where { ' +
@@ -98,6 +110,7 @@
       return {
         query,
         getAllUris,
+        getURIProperties,
         getDetail,
         getDescriptors,
         insert,
