@@ -75,21 +75,27 @@
        </section>
     </form>
   </section>
+  <section id="map-container">
+    <map-component></map-component>
+  </section>
 </section>
 </template>
 
 
 <script>
+import { bus } from './eventBus.js'
+import MapComponent from './MapComponent.vue'
 import PredicateRow from './PredicateRow.vue'
 import Typeahead from './Typeahead.vue'
-import { bus } from './eventBus.js'
 import types from './typeService.js'
 import validators from './validators.js'
+
 
 export default {
   components: {
     'predicate-row': PredicateRow,
-    'typeahead': Typeahead
+    'typeahead': Typeahead,
+    'map-component': MapComponent
   },
   props: ['collection', 'inventoryNum'],
   data () {
@@ -218,6 +224,10 @@ export default {
 
 
 <style scoped>
+
+#map-container {
+  margin-bottom: 90px;
+}
 
 #resource-title {
   text-decoration: none;
