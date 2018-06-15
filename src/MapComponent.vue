@@ -1,5 +1,32 @@
 <template>
-  <section id="map"></section>
+  <section>
+    <button @click="openEditing"
+            v-if="!editing">
+      Edit
+    </button>
+    <button @click="cancelEditing"
+            v-if="editing">
+      Cancel
+    </button>
+    <form v-if="editing">
+      <label for="editing-mode">Mode</label>
+      <select v-model="editingMode" id="editing-mode">
+        <option value="markers">Markers</option>
+        <option value="polygons">Polygons</option>
+      </select>
+      <label for="feature-label">Feature Label</label>
+      <input id="feature-label" v-model="featureLabel" type="text" />
+      <section v-if="editingMode==='polygons'">
+        <label for="polygon-list">Select Feature</label>
+        <select id="polygon-list">
+          <option v-for=""></option>
+        </select>
+      </section>
+      
+      <button @click.prevent="save" type="submit">Save</button>
+    </form>
+    <section id="map"></section>
+  </section>
 </template>
 
 
@@ -12,19 +39,24 @@ const tileLayer = L.tileLayer(
     maxZoom: 18,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
   })
-
+const markerConfig = {
+  radius: 8,
+  fillColor: '#ff7800',
+  color: '#000',
+  weight: 1,
+  opacity: 1,
+  fillOpacity: 0.8
+}
 
 export default {
   data () {
     return {
       map: null,
-      features: [],
-      layers: [{
-        id:0,
-        name: 'markerLayer',
-        active: true,
-        features: this.features
-      }]
+      layers: [],
+      layerEdits: [],
+      editing: false,
+      editingMode: 'markers', // either 'markers' or 'polygons'
+      featureLabel: ''
     }
   },
   methods: {
@@ -32,40 +64,58 @@ export default {
       this.map = L.map('map')
                   .setView([37.8829530184844, 22.994623691774912], 17)
       tileLayer.addTo(this.map)
+      const mapComponent = this
 
-      // const componentRef = this
-
-      this.map.on('click', (event) => {
-        this.addMarker(event.latlng)
-        // const p = L.geoJSON(point).addTo(componentRef.map)
-
-        L.DomEvent.stopPropagation(event)
+      this.map.on('dblclick', (event) => {
+        if (mapComponent.editing) {
+          switch (mapComponent.editingMode) {
+              case 'markers': mapComponent.addMarker(event.latlng)
+              case 'polygons': mapComponent.addPolygonPoint(event.latlng)
+          }
+          L.DomEvent.stopPropagation(event)
+        }
       })
+    },
+    openEditing () {
+      this.layerEdits = [...this.layers]
+      this.editing = true
+      this.map.doubleClickZoom.disable()
+    },
+    cancelEditing () {
+      this.layerEdits = []
+      this.editing = false
+      this.map.doubleClickZoom.enable()
     },
     addMarker (latlng) {
       const feature = {
         type: 'Feature',
-        properties: {},
+        properties: {
+          label: ''
+        },
         geometry: {
           type: 'Point',
           coordinates: [latlng.lng, latlng.lat]
         }
       }
       const featureLayer = L.geoJSON(feature, {
-        pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
-          radius: 8,
-          fillColor: '#ff7800',
-          color: '#000',
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        })
+        pointToLayer: (feature, latlng) => L.circleMarker(
+          latlng, markerConfig
+        )
       })
-      featureLayer.on('click', (event) => {
-        event.layer.remove()
-        L.DomEvent.stopPropagation(event)
+      featureLayer.on('dblclick', (event) => {
+        if (this.editing) {
+          event.layer.remove()
+          L.DomEvent.stopPropagation(event)
+        }
       })
       featureLayer.addTo(this.map)
+      this.layerEdits.push(featureLayer)
+    },
+    addPolygonPoint (latlng) {
+      const feature = {}
+    },
+    save () {
+
     }
   },
   mounted () { this.initialize() }
