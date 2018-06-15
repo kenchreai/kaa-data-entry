@@ -11,6 +11,11 @@ import ListView from './ListView.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
 
+require('../dist/css/normalize.css')
+require('../dist/css/skeleton.css')
+require('../node_modules/awesomplete/awesomplete.css')
+require('../node_modules/leaflet/dist/leaflet.css')
+
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(VueProgressBar)

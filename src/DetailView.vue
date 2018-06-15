@@ -20,7 +20,7 @@
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
-                       :isURIProperty="isURIProperty"
+                       :isURIProperty="isURIProperty(keyValPair.p.value)"
                        :isLongText="predicateIsLongText(keyValPair)"
                        :keyValPair="keyValPair"
                        :awsUrl="awsUrl"
@@ -60,7 +60,7 @@
         <input type="text"
                :disabled="entityLoading"
                :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-               v-if="!isLongText && !isURIProperty"
+               v-if="!isLongText && !isURIProperty(newPredicate)"
                v-model="newValue"
                @input="checkValidity"
                placeholder="Value...">
@@ -69,27 +69,33 @@
                    :placeholder="'URI...'"
                    @input="checkValidity"
                    @selection="updateModel($event)"
-                   v-if="!isLongText && isURIProperty">
+                   v-if="!isLongText && isURIProperty(newPredicate)">
         </typeahead>
         <p v-if="errorMessage">{{errorMessage}}</p>
        </section>
     </form>
+  </section>
+  <section id="map-container">
+    <map-component></map-component>
   </section>
 </section>
 </template>
 
 
 <script>
+import { bus } from './eventBus.js'
+import MapComponent from './MapComponent.vue'
 import PredicateRow from './PredicateRow.vue'
 import Typeahead from './Typeahead.vue'
-import { bus } from './eventBus.js'
 import types from './typeService.js'
 import validators from './validators.js'
+
 
 export default {
   components: {
     'predicate-row': PredicateRow,
-    'typeahead': Typeahead
+    'typeahead': Typeahead,
+    'map-component': MapComponent
   },
   props: ['collection', 'inventoryNum'],
   data () {
@@ -136,12 +142,12 @@ export default {
     predicateType () {
       return this.getType(p => p.s.value === this.newPredicate)
     },
-    isValid () { return !this.errorMessage },
-    isURIProperty () {
-      return Boolean(this.uriProperties.find(p => p === this.newPredicate))
-    }
+    isValid () { return !this.errorMessage }
   },
   methods: {
+    isURIProperty (predicate) {
+      return Boolean(this.uriProperties.find(p => p === predicate))
+    },
     predicateIsLongText (keyValPair) {
       const pred = this.predicates.find(p => p.s.value === keyValPair.p.value)
       return Boolean(pred && pred.longtext)
@@ -218,6 +224,10 @@ export default {
 
 
 <style scoped>
+
+#map-container {
+  margin-bottom: 90px;
+}
 
 #resource-title {
   text-decoration: none;
