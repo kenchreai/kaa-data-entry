@@ -17,6 +17,7 @@
       </thead>
       <tbody v-if="entity">
         <predicate-row v-for="(keyValPair, index) in entity.results.bindings"
+                       v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
@@ -75,8 +76,9 @@
        </section>
     </form>
   </section>
-  <section id="map-container">
-    <map-component></map-component>
+  <section id="map-container" v-if="mapData">
+    <map-component :resource="resource"
+                   :mapData="mapData"></map-component>
   </section>
 </section>
 </template>
@@ -111,7 +113,8 @@ export default {
       types: types,
       validators: validators,
       loggedIn: false,
-      errorMessage: null
+      errorMessage: null,
+      mapData: null
     }
   },
   created () {
@@ -170,6 +173,7 @@ export default {
         this.entity = response.body
         this.entityLoading = false
         if (func && typeof func === 'function') func()
+        this.getMapData()
       })
     },
     getType (findExpression) {
@@ -217,6 +221,13 @@ export default {
       }, error => {
         console.log(error.body)
       })
+    },
+    getMapData () {
+      const mapProp = this.entity.results.bindings
+        .find(prop => prop.p.value === 'kaaont:x-geojson') 
+      if (mapProp) {
+        this.mapData = JSON.parse(mapProp.o.value)
+      }
     }
   }
 }

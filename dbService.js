@@ -76,9 +76,9 @@
           re.object = re.object.replace(/\r/g, '\\r')
           re.object = re.object.replace(/\n/g, '\\n')
         }
-        options.query = 'insert data { ' +
-                          '<' + baseUrl + re.subject + '> <' + re.predicate + '> ' + re.object + ' ' +
-                        '}'
+        options.query = `
+          insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
+        `
         conn.query(options, response => cb(response))
       }
 
@@ -90,10 +90,11 @@
           re.newObject = re.newObject.replace(/\r/g, '\\r')
         }
         options.query = `
-          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
+          delete where { <${baseUrl + re.subject}> <${re.predicate}> ?anyObject };
           insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
         `
-        conn.query(options, response => cb(response))
+        console.log(options.query)
+        conn.query(options, response => {console.log(response); cb(response)})
       }
 
       function deleteDetail(re, cb) {
