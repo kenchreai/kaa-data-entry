@@ -11,6 +11,15 @@ const L = require('../node_modules/leaflet/dist/leaflet.js')
 require('../node_modules/leaflet-draw/dist/leaflet.draw.js')
 require('../node_modules/leaflet-draw/dist/leaflet.draw.css')
 
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('../node_modules/leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('../node_modules/leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('../node_modules/leaflet/dist/images/marker-shadow.png'),
+});
+
+
 const tileLayer = L.tileLayer(
   'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
   {
