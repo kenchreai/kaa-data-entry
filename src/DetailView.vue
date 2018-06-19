@@ -17,6 +17,7 @@
       </thead>
       <tbody v-if="entity">
         <predicate-row v-for="(keyValPair, index) in entity.results.bindings"
+                       v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
@@ -75,7 +76,7 @@
        </section>
     </form>
   </section>
-  <section id="map-container">
+  <section id="map-container" v-if="false">
     <map-component></map-component>
   </section>
 </section>
