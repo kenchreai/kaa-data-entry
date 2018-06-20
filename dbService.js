@@ -1,125 +1,105 @@
-(function() {
-  const Stardog = require('stardog')
-  const DbService = (function() {
-    return (baseUrl, username, password) => { 
-      
-      const conn = new Stardog.Connection()
-      conn.setEndpoint("http://kenchreai.org:5820/")
-      conn.setReasoning(false)
-      conn.setCredentials(username, password)
-      
-      const dbConfig = {
-        database: 'kenchreai'
-      }
+const { Connection, query } = require('stardog')
 
-      function query(domain, cb) {
-        const options = Object.assign({}, dbConfig)
-        options.query = 'select ?s ?p where { ' +
-                          '?s a kaaont:inventory-number . ' +
-                          '?s kaaont:is-logical-part-of ' +
-                          '<' + baseUrl + domain + '/inventoried-objects> ' +
-                        '} order by ?s'
-        conn.query(options, response => cb(response))
-      }
+const DbService = (function() {
+  return (baseUrl, username, password) => { 
+    const CONN = new Connection({
+      endpoint: 'http://kenchreai.org:5820/',
+      username,
+      password
+    })
+    const DATABASE = 'kenchreai'
+    const service = {}
 
-      function getAllUris(cb) {
-        const options = Object.assign({}, dbConfig)
-        options.query = 'select distinct ?s where { ?s ?p ?o filter isURI(?s) }'
-        conn.query(options, response => cb(response))
-      }
-
-      function getURIProperties(cb) {
-        const options = Object.assign({}, dbConfig)
-        options.query = `
-          SELECT * WHERE {
-            graph <urn:kenchreai:schema> {
-              ?subject rdf:type owl:ObjectProperty .
-            }
-          }
-        `
-        conn.query(options, response => cb(response))
-      }
-
-      function getDetail(detailUrl, cb) {
-        const options = Object.assign({}, dbConfig)
-        options.query = 'select ?p ?o ?label where { ' +
-                          '<' + baseUrl + detailUrl + '> ?p ?o . ' +
-                          'optional {' +
-                            'graph <urn:kenchreai:schema> { ' +
-                              '?p rdfs:label ?label ' +
-                            '} ' +
-                          '} ' +
-                        '}'
-        conn.query(options, response => cb(response))
-      }
-
-      function getDescriptors(cb) {
-        const options = Object.assign({}, dbConfig)
-        options.query = 'SELECT ?s ?p ?o ?ptype ?domain ?range ?label ?longtext WHERE {' +
-                          'graph <urn:kenchreai:schema> {' +
-                            '{ ?s rdf:type owl:ObjectProperty . ?s rdf:type ?ptype . }' +
-                            'UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?ptype . }' +
-                            'OPTIONAL { ?s rdfs:label ?label . }' +
-                            'OPTIONAL { ?s rdfs:domain ?domain . }' +
-                            'OPTIONAL { ?s rdfs:range ?range . }' +
-                            'OPTIONAL { ?s kaaont:x-long-text ?longtext . }' +
-                            '?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .' +
-                            'FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )' +
-                          '}' +
-                        '} ORDER BY ?label'
-        conn.query(options, response => cb(response))
-      }
-
-      function insert(re, cb) {
-        const options = Object.assign({}, dbConfig)
-        if (re.object.replace) {
-          re.object = re.object.replace(/\r/g, '\\r')
-          re.object = re.object.replace(/\n/g, '\\n')
-        }
-        options.query = `
-          insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
-        `
-        conn.query(options, response => cb(response))
-      }
-
-      function updateDetail(re, cb) {
-        const options = Object.assign({}, dbConfig)
-        if (re.oldObject.replace) {
-          re.oldObject = re.oldObject.replace(/\n/g, '\\n')
-          re.newObject = re.newObject.replace(/\n/g, '\\n')
-          re.newObject = re.newObject.replace(/\r/g, '\\r')
-        }
-        options.query = `
-          delete where { <${baseUrl + re.subject}> <${re.predicate}> ?anyObject };
-          insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
-        `
-        console.log(options.query)
-        conn.query(options, response => {console.log(response); cb(response)})
-      }
-
-      function deleteDetail(re, cb) {
-        const options = Object.assign({}, dbConfig);
-        if (re.object.replace) {
-          re.object = re.object.replace(/\n/g, '\\n');
-        }
-        options.query = `
-          delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
-        `
-        conn.query(options, response => cb(response))
-      }
-
-      return {
-        query,
-        getAllUris,
-        getURIProperties,
-        getDetail,
-        getDescriptors,
-        insert,
-        updateDetail,
-        deleteDetail
-      }
+    service.queryByDomain = (domain, cb) => {
+      const queryString = `
+        select ?s ?p where { 
+          ?s a kaaont:inventory-number .
+          ?s kaaont:is-logical-part-of <${baseUrl + domain}/inventoried-objects> 
+        } order by ?s
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
     }
-  })()
 
-  module.exports = DbService
+    service.getAllUris = (cb) => {
+      const queryString = 'select distinct ?s where { ?s ?p ?o filter isURI(?s) }'
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.getURIProperties = (cb) => {
+      const queryString = `
+        SELECT * WHERE {
+          graph <urn:kenchreai:schema> {
+            ?subject rdf:type owl:ObjectProperty .
+          }
+        }
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.getDetail = (detailUrl, cb) => {
+      const queryString = 'select ?p ?o ?label where { ' +
+                        '<' + baseUrl + detailUrl + '> ?p ?o . ' +
+                        'optional {' +
+                          'graph <urn:kenchreai:schema> { ' +
+                            '?p rdfs:label ?label ' +
+                          '} ' +
+                        '} ' +
+                      '}'
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.getDescriptors = (cb) => {
+      const queryString = 'SELECT ?s ?p ?o ?ptype ?domain ?range ?label ?longtext WHERE {' +
+                        'graph <urn:kenchreai:schema> {' +
+                          '{ ?s rdf:type owl:ObjectProperty . ?s rdf:type ?ptype . }' +
+                          'UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?ptype . }' +
+                          'OPTIONAL { ?s rdfs:label ?label . }' +
+                          'OPTIONAL { ?s rdfs:domain ?domain . }' +
+                          'OPTIONAL { ?s rdfs:range ?range . }' +
+                          'OPTIONAL { ?s kaaont:x-long-text ?longtext . }' +
+                          '?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .' +
+                          'FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )' +
+                        '}' +
+                      '} ORDER BY ?label'
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.insert = (re, cb) => {
+      if (re.object.replace) {
+        re.object = re.object.replace(/\r/g, '\\r')
+        re.object = re.object.replace(/\n/g, '\\n')
+      }
+      const queryString = `
+        insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.updateDetail = (re, cb) => {
+      if (re.oldObject.replace) {
+        re.oldObject = re.oldObject.replace(/\n/g, '\\n')
+        re.newObject = re.newObject.replace(/\n/g, '\\n')
+        re.newObject = re.newObject.replace(/\r/g, '\\r')
+      }
+      const queryString = `
+        delete where { <${baseUrl + re.subject}> <${re.predicate}> ?anyObject };
+        insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => {console.log(response); cb(response.body)})
+    }
+
+    service.deleteDetail = (re, cb) => {
+      if (re.object.replace) {
+        re.object = re.object.replace(/\n/g, '\\n');
+      }
+      const queryString = `
+        delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.object} }
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    return service
+  }
 })()
+
+module.exports = DbService

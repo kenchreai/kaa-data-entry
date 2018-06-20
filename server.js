@@ -114,13 +114,13 @@ app.get('/api/users', (req, res) => {
   })
 })
 
-app.post('/api/reset', function(req, res) {
-  validateToken(req, res, true, function() {
-    User.find({ username: req.body.username }, function(err, users) {
+app.post('/api/reset', (req, res) => {
+  validateToken(req, res, true, () => {
+    User.find({ username: req.body.username }, (err, users) => {
       if (err) res.send('Couldn\'t find user')
       const user = users[0]
       user.password = bcrypt.hashSync(process.env.PASSWORD_RESET, 15)
-      user.save(function(err, user) {
+      user.save((err, user) => {
         res.send('Password reset')
       })
     })
@@ -151,7 +151,7 @@ app.post('/api/admins/', (req, res) => {
     User.find({ username: req.body.username }, (err, users) => {
       const user = users[0]
       user.isAdmin = true
-      user.save(function(err, user) {
+      user.save((err, user) => {
         if (err) res.send('Error updating admin')
         else res.send('Updated admin')
       })
@@ -186,7 +186,9 @@ app.post('/api/token', function(req, res) {
 })
 
 app.get('/api/entitylist', (req, res) => {
-  dbService.query(req.query.domain, response => res.send(response))
+  dbService.queryByDomain(req.query.domain, response => {
+    res.send(response)
+  })
 })
 
 app.get('/api/uris', (req, res) => {
