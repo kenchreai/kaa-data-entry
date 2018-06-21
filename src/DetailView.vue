@@ -195,7 +195,7 @@ export default {
         const url = `/api/entities/${this.resource}`
         const val = this.types[this.predicateType](this.newValue)
         this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-          if (response.body.boolean) {
+          if (response.bodyText === 'true') {
             this.loadEntity(() => {
               this.newValue = undefined
               bus.$emit('toast-success', 'Added predicate')

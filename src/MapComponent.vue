@@ -72,13 +72,13 @@ export default {
       const url = `/api/entities/${this.resource}`
       const payload = {
         predicate: predicateType,
-        oldVal: '',
-        newVal: updatedGeoJSON
+        data: updatedGeoJSON
       }
 
-      this.$http.put(url, payload).then((response) => {
+      this.$http.put(url, payload).then(() => {
+        bus.$emit('toast-success', 'Updated Map')
       }, (error) => {
-        debugger
+        bus.$emit('toast-error', `Error Saving Map: ${error.statusText}`)
       })
     }
   },

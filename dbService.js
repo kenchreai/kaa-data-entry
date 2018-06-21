@@ -82,10 +82,18 @@ const DbService = (function() {
         re.newObject = re.newObject.replace(/\r/g, '\\r')
       }
       const queryString = `
-        delete where { <${baseUrl + re.subject}> <${re.predicate}> ?anyObject };
+        delete data { <${baseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
         insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
       `
-      query.execute(CONN, DATABASE, queryString).then(response => {console.log(response); cb(response.body)})
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+    }
+
+    service.updateMap = (re, cb) => {
+      const queryString = `
+        delete where { <${baseUrl + re.subject}> <${re.predicate}> ?anyObject };
+        insert data { <${baseUrl + re.subject}> <${re.predicate}> ${re.data} }
+      `
+      query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
     }
 
     service.deleteDetail = (re, cb) => {

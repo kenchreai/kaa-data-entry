@@ -30,7 +30,7 @@ mongoose.connect(mongoKey)
 const db = mongoose.connection
 let User
 
-db.once('open', function() {
+db.once('open', () => {
   const userSchema = mongoose.Schema({
     username: String,
     password: String,
@@ -43,7 +43,7 @@ db.once('open', function() {
 /***************** configure middleware ***************/
 
 
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.urlencoded({ extended:true }))
 app.use(bodyParser.json())
 app.use(cors())
 
@@ -69,14 +69,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(express.static(__dirname))
 
-const validateToken = (req, res, adminOnly, func) => {
+const validateToken = (req, res, adminOnly, routeFunc) => {
   jwt.verify(req.get('x-access-token'), key, (err, decoded) => {
     if (err || !decoded.isAdmin && adminOnly) {
       res.status(403).send('Unauthorized to modify this resource')
     } else if ((Date.now() - decoded.iat)/1000 > 86000) {
       res.status(403).send('Token expired')
     } else {
-      func()
+      routeFunc()
     }
   })
 }
@@ -167,7 +167,7 @@ app.delete('/api/users/:id', (req, res) => {
   })
 })
 
-app.post('/api/token', function(req, res) {
+app.post('/api/token', (req, res) => {
   const username = req.body.username.toLowerCase()
   const password = req.body.password
   User.find({ username }, (err, users) => {
@@ -199,12 +199,12 @@ app.get('/api/uriproperties', (req, res) => {
   dbService.getURIProperties(props => res.send(props))
 })
 
-app.get('/api/entities', function(req, res) {
+app.get('/api/entities', (req, res) => {
   dbService.getDetail(req.query.resourceName, response => res.send(response))
 })
 
-app.post('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
+app.post('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
     const resource = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.body.key,
@@ -214,20 +214,25 @@ app.post('/api/entities/:collection/:entity', function(req, res) {
   })
 })
 
-app.put('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
+app.put('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
     const resource = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.body.predicate,
       oldObject: req.body.oldVal,
-      newObject: req.body.newVal 
+      newObject: req.body.newVal,
+      data: req.body.data
     }
-    dbService.updateDetail(resource, response => res.send(response))
+    if (req.body.predicate === 'kaaont:x-geojson') {
+      dbService.updateMap(resource, response => res.send(response))
+    } else {
+      dbService.updateDetail(resource, response => res.send(response))
+    }
   })
 })
 
-app.delete('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
+app.delete('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
     const triple = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.query.key,
