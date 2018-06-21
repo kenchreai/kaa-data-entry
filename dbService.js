@@ -37,14 +37,16 @@ const DbService = (function() {
     }
 
     service.getDetail = (detailUrl, cb) => {
-      const queryString = 'select ?p ?o ?label where { ' +
-                        '<' + baseUrl + detailUrl + '> ?p ?o . ' +
-                        'optional {' +
-                          'graph <urn:kenchreai:schema> { ' +
-                            '?p rdfs:label ?label ' +
-                          '} ' +
-                        '} ' +
-                      '}'
+      const queryString = `
+        select ?p ?o ?label where { 
+          <${baseUrl + detailUrl}> ?p ?o . 
+          optional {
+            graph <urn:kenchreai:schema> {
+              ?p rdfs:label ?label
+            }
+          }
+        }
+      `
       query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
     }
 
