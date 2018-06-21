@@ -76,9 +76,16 @@
        </section>
     </form>
   </section>
-  <section id="map-container" v-if="mapData">
-    <map-component :resource="resource"
-                   :mapData="mapData"></map-component>
+  <section id="map-container">
+    <button v-if="!mapData"
+            @click="mapData = []"
+            id="add-map">
+      Add Map
+    </button>
+    <map-component v-if="mapData"
+                   :resource="resource"
+                   :mapData="mapData">
+    </map-component>
   </section>
 </section>
 </template>
@@ -238,6 +245,11 @@ export default {
 
 #map-container {
   margin-bottom: 90px;
+}
+
+#add-map {
+  position: relative;
+  left: 43%;
 }
 
 #resource-title {
