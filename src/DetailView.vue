@@ -176,7 +176,7 @@ export default {
     loadEntity (func) {
       this.entityLoading = true
       const url = `/api/entities?resourceName=${this.resource}`
-      this.$http.get(url).then(response => {
+      this.$http.get(url).then((response) => {
         this.entity = response.body
         this.entityLoading = false
         if (func && typeof func === 'function') func()

@@ -186,9 +186,7 @@ app.post('/api/token', (req, res) => {
 })
 
 app.get('/api/entitylist', (req, res) => {
-  dbService.queryByDomain(req.query.domain, response => {
-    res.send(response)
-  })
+  dbService.queryByDomain(req.query.domain, response => res.send(response))
 })
 
 app.get('/api/uris', (req, res) => {

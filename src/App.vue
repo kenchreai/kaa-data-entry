@@ -32,7 +32,6 @@ export default {
   },
   data () {
     return { loggedIn: false }
-
   },
   created () {
     this.loggedIn = Boolean(localStorage.getItem('access-token'))

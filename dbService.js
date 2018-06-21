@@ -51,18 +51,20 @@ const DbService = (function() {
     }
 
     service.getDescriptors = (cb) => {
-      const queryString = 'SELECT ?s ?p ?o ?ptype ?domain ?range ?label ?longtext WHERE {' +
-                        'graph <urn:kenchreai:schema> {' +
-                          '{ ?s rdf:type owl:ObjectProperty . ?s rdf:type ?ptype . }' +
-                          'UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?ptype . }' +
-                          'OPTIONAL { ?s rdfs:label ?label . }' +
-                          'OPTIONAL { ?s rdfs:domain ?domain . }' +
-                          'OPTIONAL { ?s rdfs:range ?range . }' +
-                          'OPTIONAL { ?s kaaont:x-long-text ?longtext . }' +
-                          '?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .' +
-                          'FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )' +
-                        '}' +
-                      '} ORDER BY ?label'
+      const queryString = `
+        SELECT ?s ?p ?o ?ptype ?domain ?range ?label ?longtext WHERE {
+          graph <urn:kenchreai:schema> {
+            { ?s rdf:type owl:ObjectProperty . ?s rdf:type ?ptype . }
+            UNION { ?s rdf:type owl:DatatypeProperty . ?s rdf:type ?ptype . }
+            OPTIONAL { ?s rdfs:label ?label . }
+            OPTIONAL { ?s rdfs:domain ?domain . }
+            OPTIONAL { ?s rdfs:range ?range . }
+            OPTIONAL { ?s kaaont:x-long-text ?longtext . }
+            ?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .
+            FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )
+          }
+        } ORDER BY ?label
+      `
       query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
     }
 
