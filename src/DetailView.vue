@@ -109,19 +109,19 @@ export default {
   props: ['collection', 'inventoryNum'],
   data () {
     return {
+      awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
       entityLoading: false,
       entity: null,
+      errorMessage: null,
+      loggedIn: false,
+      mapData: null,
       newPredicate: 'http://kenchreai.org/kaa/ontology/associated-with-month',
       newValue: undefined,
       predicates: [],
-      uris: [],
+      types,
       uriProperties: [],
-      awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
-      types: types,
-      validators: validators,
-      loggedIn: false,
-      errorMessage: null,
-      mapData: null
+      uris: [],
+      validators
     }
   },
   created () {
@@ -216,18 +216,20 @@ export default {
       const url = `/api/entities/${this.resource}`
       let ptype = this.getType(p => p.label.value === predicateValue.label.value)
 
-      // removing this for time being as it was wrapping with < and >, messing up deletes
-      // if (predicateValue.label.value === 'File') ptype = 'uri'
-      const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
-      const key = encodeURIComponent(predicateValue.p.value)
-      const query = `?key=${key}&value=${value}`
+      if (confirm(`Delete ${predicateValue.o.value} from ${this.resource}?`)) {
+        // removing this for time being as it was wrapping with < and >, messing up deletes
+        // if (predicateValue.label.value === 'File') ptype = 'uri'
+        const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
+        const key = encodeURIComponent(predicateValue.p.value)
+        const query = `?key=${key}&value=${value}`
 
-      this.$http.delete(url + query).then(response => {
-        this.entity.results.bindings.splice(index, 1)
-        bus.$emit('toast-warning', 'Removed predicate')
-      }, error => {
-        console.log(error.body)
-      })
+        this.$http.delete(url + query).then(response => {
+          this.entity.results.bindings.splice(index, 1)
+          bus.$emit('toast-warning', 'Removed predicate')
+        }, error => {
+          console.log(error.body)
+        })
+      }
     },
     getMapData () {
       const mapProp = this.entity.results.bindings
