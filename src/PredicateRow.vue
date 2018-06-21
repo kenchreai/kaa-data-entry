@@ -152,7 +152,7 @@ export default {
           newVal: newVal
         }
         this.$http.put(url, data).then(response => {
-          if (response.body.boolean) {
+          if (response.bodyText === 'true') {
             this.value = this.editorValue
             this.editorOpened = false
             bus.$emit('toast-success', 'Updated predicate')

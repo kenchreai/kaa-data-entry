@@ -76,8 +76,16 @@
        </section>
     </form>
   </section>
-  <section id="map-container" v-if="mapData">
-    <map-component></map-component>
+  <section id="map-container">
+    <button v-if="!mapData"
+            @click="mapData = []"
+            id="add-map">
+      Add Map
+    </button>
+    <map-component v-if="mapData"
+                   :resource="resource"
+                   :mapData="mapData">
+    </map-component>
   </section>
 </section>
 </template>
@@ -172,6 +180,7 @@ export default {
         this.entity = response.body
         this.entityLoading = false
         if (func && typeof func === 'function') func()
+        this.getMapData()
       })
     },
     getType (findExpression) {
@@ -193,7 +202,7 @@ export default {
         const url = `/api/entities/${this.resource}`
         const val = this.types[this.predicateType](this.newValue)
         this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-          if (response.body.boolean) {
+          if (response.bodyText === 'true') {
             this.loadEntity(() => {
               this.newValue = undefined
               bus.$emit('toast-success', 'Added predicate')
@@ -238,6 +247,11 @@ export default {
 
 #map-container {
   margin-bottom: 90px;
+}
+
+#add-map {
+  position: relative;
+  left: 43%;
 }
 
 #resource-title {

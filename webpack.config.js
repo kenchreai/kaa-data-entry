@@ -1,8 +1,10 @@
-var path = require('path')
-var webpack = require('webpack')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 const PRODUCTION = process.env.NODE_ENV === 'production'
+
 const entry = PRODUCTION
               ? './src/main.js'
               : ['./src/main.js', 'webpack-hot-middleware/client']
@@ -11,6 +13,7 @@ const plugins = PRODUCTION
                 ? []
                 : [ new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin() ]
+plugins.push(new VueLoaderPlugin())
 
 
 module.exports = {
@@ -20,6 +23,7 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+  mode: PRODUCTION ? 'production' : 'development', 
   module: {
     rules: [
       {
@@ -68,7 +72,8 @@ module.exports = {
     hints: false
   },
   devtool: '#eval-source-map',
-  plugins: plugins}
+  plugins
+}
 
 if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
@@ -79,12 +84,14 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
+    /*
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
         warnings: false
       }
     }),
+    */
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })
