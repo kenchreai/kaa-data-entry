@@ -3,6 +3,7 @@
 const bcrypt = require('bcryptjs')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const dbPassword = process.env.KENCHREAI_PASSWORD
 const DbService = require('./dbService.js')
 const express = require('express')
 const http = require('http')
@@ -10,8 +11,6 @@ const jwt = require('jsonwebtoken')
 const key = process.env.SIGNING_KEY
 const mongoKey = process.env.MONGODB_URI
 const mongoose = require('mongoose')
-const dbPassword = process.env.KENCHREAI_PASSWORD
-const path = require('path')
 const port = process.env.PORT || 8080
 const dbUsername = process.env.KENCHREAI_USER
 
@@ -120,7 +119,8 @@ app.post('/api/reset', (req, res) => {
       if (err) res.send('Couldn\'t find user')
       const user = users[0]
       user.password = bcrypt.hashSync(process.env.PASSWORD_RESET, 15)
-      user.save((err, user) => {
+      user.save((err) => {
+        if (err) res.send('Resetting password failed')
         res.send('Password reset')
       })
     })
@@ -135,7 +135,7 @@ app.put('/api/users/password', (req, res) => {
       const { oldPassword, newPassword } = req.body
       if (newPassword && bcrypt.compareSync(oldPassword, user.password)) {
         user.password = bcrypt.hashSync(newPassword, 15)
-        user.save((err, user) => {
+        user.save((err) => {
           if (err) res.status(500).send(err)
           res.send('Password updated')
         })
@@ -151,7 +151,7 @@ app.post('/api/admins/', (req, res) => {
     User.find({ username: req.body.username }, (err, users) => {
       const user = users[0]
       user.isAdmin = true
-      user.save((err, user) => {
+      user.save((err) => {
         if (err) res.send('Error updating admin')
         else res.send('Updated admin')
       })
@@ -162,7 +162,10 @@ app.post('/api/admins/', (req, res) => {
 app.delete('/api/users/:id', (req, res) => {
   validateToken(req, res, true, () => {
     User.find({ _id: req.params.id }, (err, users) => {
-      users[0].remove(err => res.send('User deleted'))
+      users[0].remove((err) => {
+        if (err) res.status(500).send('Deleting failed')
+        res.send('User deleted')
+      })
     })
   })
 })
@@ -254,5 +257,6 @@ app.get('*', (req, res) => {
 
 
 const server = http.Server(app)
+//eslint-disable-next-line no-console
 server.listen(port, () => console.log(`listening on port ${port}`))
 
