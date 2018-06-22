@@ -21,7 +21,7 @@ Vue.use(VueResource)
 Vue.use(VueProgressBar)
 Vue.use(VueResourceProgressBarInterceptor)
 
-Vue.http.interceptors.push((request, next) => {
+Vue.http.interceptors.push(function (request, next) {
   request.headers.set('x-access-token', localStorage.getItem('access-token'))
   next((response) => {
     if (response.status === 403) {

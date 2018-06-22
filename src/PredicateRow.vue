@@ -19,12 +19,12 @@
             <p v-else>{{value}}</p>
           </section>
           <button class="button button-remove"
-                  v-if="loggedIn"
+                  v-if="isAdmin"
                   @click="$emit('remove')">
             X
           </button>
           <button class="button button-remove"
-                  v-if="loggedIn"
+                  v-if="isAdmin"
                   @click="editorOpened = !editorOpened">
             Edit
           </button>
@@ -33,7 +33,7 @@
              alt="photo from the kenchreai archives"
              :src="awsUrl + value"/>
     </td>
-    <td v-if="editorOpened && loggedIn">
+    <td v-if="editorOpened && isAdmin">
       <section class="inline-editor">
         <form>
           <section id="input-wrapper">
@@ -76,28 +76,29 @@ import Typeahead from './Typeahead.vue'
 
 export default {
   props: [
+    'awsUrl',
+    'validators',
+    'isAdmin',
+    'isLongText',
+    'isURIProperty',
     'keyValPair',
+    'loggedIn',
     'predicate',
     'predicateType',
-    'types',
-    'isLongText',
-    'awsUrl',
     'resource',
-    'uris',
-    'validators',
-    'loggedIn',
-    'isURIProperty'
+    'types',
+    'uris'
   ],
   components: {
     'typeahead': Typeahead
   },
   data () {
     return {
-      key: '',
-      value: '',
-      editorValue: undefined,
       editorOpened: false,
-      errorMessage: null
+      editorValue: undefined,
+      errorMessage: null,
+      key: '',
+      value: ''
     }
   },
   created () {

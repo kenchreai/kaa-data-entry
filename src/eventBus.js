@@ -28,7 +28,7 @@ export const bus = new Vue({
       })
     },
     loadEntities () {
-      let searchTerms = ['kcp', 'kth']
+      let searchTerms = ['kcp', 'kth', 'ke']
       searchTerms.forEach(term  => {
         const url = `/api/entitylist?domain=${term}`
         this.$http.get(url).then((response) => {

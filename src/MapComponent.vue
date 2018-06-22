@@ -1,7 +1,5 @@
 <template>
-  <section>
-    <section id="map"></section>
-  </section>
+  <section id="map"></section>
 </template>
 
 
@@ -29,7 +27,11 @@ const tileLayer = L.tileLayer(
 )
 
 export default {
-  props: ['mapData', 'resource'],
+  props: [
+    'isAdmin',
+    'mapData',
+    'resource'
+  ],
   data () {
     return {
       map: null,
@@ -47,7 +49,7 @@ export default {
       const featureGroup = L.geoJSON(this.mapData).addTo(map)
       this.featureGroup = featureGroup
 
-      if (true) {
+      if (this.isAdmin) {
         const drawControls = new L.Control.Draw({
           edit: { featureGroup }
         })

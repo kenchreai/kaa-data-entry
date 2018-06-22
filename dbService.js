@@ -1,6 +1,6 @@
 const { Connection, query } = require('stardog')
 
-const DbService = (function() {
+const DbService = (function () {
   return (baseUrl, username, password) => { 
     const CONN = new Connection({
       endpoint: 'http://kenchreai.org:5820/',

@@ -25,6 +25,7 @@ require('vue-toastr/src/vue-toastr.less')
 
 import { bus }from './eventBus.js'
 
+
 export default {
   name: 'app',
   components: {

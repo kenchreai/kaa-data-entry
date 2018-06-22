@@ -29,12 +29,12 @@
                        :types="types"
                        :resource="resource"
                        :validators="validators"
-                       :loggedIn="loggedIn"
+                       :isAdmin="isAdmin"
                        @remove="removePredicateValue(index)">
         </predicate-row>
       </tbody>
     </table>
-    <form v-if="loggedIn">
+    <form v-if="isAdmin">
       <section id="input-wrapper">
         <section>
           <select v-model="newPredicate"
@@ -83,6 +83,7 @@
       Add Map
     </button>
     <map-component v-if="mapData"
+                   :isAdmin="isAdmin"
                    :resource="resource"
                    :mapData="mapData">
     </map-component>
@@ -114,6 +115,7 @@ export default {
       entity: null,
       errorMessage: null,
       loggedIn: false,
+      isAdmin: false,
       mapData: null,
       newPredicate: 'http://kenchreai.org/kaa/ontology/associated-with-month',
       newValue: undefined,
@@ -127,12 +129,19 @@ export default {
   created () {
     this.loadEntity()
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
+    this.isAdmin = this.loggedIn
+      ? JSON.parse(atob(localStorage.getItem('access-token').split('.')[1])).isAdmin
+      : false
     this.predicates = bus.predicates
     this.uris = bus.uris
     this.uriProperties = bus.uriProperties
     bus.$on('uris loaded', data => this.uris = data)
     bus.$on('predicates loaded', data => this.predicates = data)
     bus.$on('URI properties loaded', data => this.uriProperties = data)
+    bus.$on('logout', () => {
+      this.loggedIn = false
+      this.isAdmin = false
+    })
   },
   watch: {
     '$route': 'loadEntity',
