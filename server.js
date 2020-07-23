@@ -1,253 +1,260 @@
-'use strict';
+'use strict'
 
-var express = require('express');
-var app = express();
-var cors = require('cors');
-var bodyParser = require('body-parser');
-var http = require('http').Server(app);
-var path = require('path');
-var env = require('dotenv').config();
-var DbService = require('./dbService.js');
-var username = process.env.KENCHREAI_USER;
-var password = process.env.KENCHREAI_PASSWORD;
-var dbService = DbService('http://kenchreai.org/kaa/', username, password);
-var port = process.env.PORT || 8080;
-var jwt = require('jsonwebtoken');
-var key = process.env.SIGNING_KEY;
-var mongoKey = process.env.MONGODB_URI;
-var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const DbService = require('./dbService.js')
+const express = require('express')
+const http = require('http')
+const jwt = require('jsonwebtoken')
+const key = process.env.SIGNING_KEY
+const mongoKey = process.env.MONGODB_URI
+const mongoose = require('mongoose')
+const dbPassword = process.env.KENCHREAI_PASSWORD
+const path = require('path')
+const port = process.env.PORT || 8080
+const dbUsername = process.env.KENCHREAI_USER
+
+
+/****************** initialise app ********************/
+
+
+const app = express()
+const dbService = DbService('http://kenchreai.org/kaa/', dbUsername, dbPassword)
+
 
 /****************** configure database ****************/
 
-mongoose.connect(mongoKey);
-var db = mongoose.connection;
-var User;
 
-db.once('open', function() {
-  var userSchema = mongoose.Schema({
+mongoose.connect(mongoKey)
+const db = mongoose.connection
+let User
+
+db.once('open', () => {
+  const userSchema = mongoose.Schema({
     username: String,
     password: String,
     isAdmin: Boolean
-  });
-  User = mongoose.model('User', userSchema);
-});
+  })
+  User = mongoose.model('User', userSchema)
+})
+
 
 /***************** configure middleware ***************/
 
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
-app.use(cors());
 
-app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
-  next();
-});
+app.use(bodyParser.urlencoded({ extended:true }))
+app.use(bodyParser.json())
+app.use(cors())
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE')
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization')
+  next()
+})
 
 if (process.env.NODE_ENV !== 'production') {
-  var webpack = require('webpack');
-  var webpackConfig = require('./webpack.config.js');
-  var compiler = webpack(webpackConfig);
+  const webpack = require('webpack')
+  const webpackConfig = require('./webpack.config.js')
+  const compiler = webpack(webpackConfig)
 
   app.use(require('webpack-dev-middleware')(compiler, {
-    noInfo: true, publicPath: webpackConfig.output.publicPath
-  }));
+    noInfo: true,
+    publicPath: webpackConfig.output.publicPath
+  }))
 
-  app.use(require('webpack-hot-middleware')(compiler));
+  app.use(require('webpack-hot-middleware')(compiler))
 }
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname))
 
-function validateToken(req, res, adminOnly, func) {
-  jwt.verify(req.get('x-access-token'), key, function(err, decoded) {
-    if (err || !decoded.isAdmin && adminOnly)
-      res.status(403).send('Unauthorized to modify this resource');
-    else if ((Date.now() - decoded.iat)/1000 > 86000)
-      res.status(403).send('Token expired');
-    else func();
-  });
+const validateToken = (req, res, adminOnly, routeFunc) => {
+  jwt.verify(req.get('x-access-token'), key, (err, decoded) => {
+    if (err || !decoded.isAdmin && adminOnly) {
+      res.status(403).send('Unauthorized to modify this resource')
+    } else if ((Date.now() - decoded.iat)/1000 > 86000) {
+      res.status(403).send('Token expired')
+    } else {
+      routeFunc()
+    }
+  })
 }
+
 
 /*****************      routes     ********************/
 
-app.post('/api/users', function(req, res) {
-  var username = req.body.username.toLowerCase();
-  var password = req.body.password;
-  User.find({ username: username }, function(err, users) {
-    if (err) res.send('error');
+
+app.post('/api/users', (req, res) => {
+  const username = req.body.username.toLowerCase()
+  const password = req.body.password
+  User.find({ username }, (err, users) => {
+    if (err) res.send('error')
     if (users.length > 0)
-      res.status(404).send('Username already taken');
+      res.status(400).send('Username already taken')
     else {
-      var hashedPassword = bcrypt.hashSync(password, 15);
-      var user = new User({ username: username, password: hashedPassword, isAdmin: false });
-      user.save(function(err, user) {
-        if (err) res.send(err);
-        var token = jwt.sign({
+      const hashedPassword = bcrypt.hashSync(password, 15)
+      const user = new User({ username, password: hashedPassword, isAdmin: false })
+      user.save((err, user) => {
+        if (err) res.send(err)
+        const token = jwt.sign({
           isAdmin: user.isAdmin,
           username: user.username,
           iat: Date.now()
-        }, key);
-        res.send(token);
-      });
+        }, key)
+        res.send(token)
+      })
     }
-  });
-});
+  })
+})
 
-app.get('/api/users', function(req, res) {
-  validateToken(req, res, true, function() {
-    User.find(function(err, users) {
-      var usernames = users.map(function(user) {
-        return user.username;
-      });
-      res.send(usernames);
-    });
-  });
-});
+app.get('/api/users', (req, res) => {
+  validateToken(req, res, true, () => {
+    User.find((err, users) => res.send(users.map(u => u.username)))
+  })
+})
 
-app.post('/api/reset', function(req, res) {
-  validateToken(req, res, true, function() {
-    User.find({ username: req.body.username }, function(err, users) {
-      if (err) res.send('Couldn\'t find user');
-      var user = users[0];
-      user.password = bcrypt.hashSync("change_me_now", 15);
-      user.save(function(err, user) {
-        res.send('Password reset');
-      });
-    });
-  });
-});
+app.post('/api/reset', (req, res) => {
+  validateToken(req, res, true, () => {
+    User.find({ username: req.body.username }, (err, users) => {
+      if (err) res.send('Couldn\'t find user')
+      const user = users[0]
+      user.password = bcrypt.hashSync(process.env.PASSWORD_RESET, 15)
+      user.save((err, user) => {
+        res.send('Password reset')
+      })
+    })
+  })
+})
 
-app.post('/api/users/password', function(req, res) {
-  validateToken(req, res, false, function() {
-    var username = jwt.verify(req.get('x-access-token'), key).username;
-    User.find({ username: username }, function(err, users) {
-      var user = users[0];
-      var oldPassword = req.body.oldPassword;
-      var newPassword = req.body.newPassword;
-      if (bcrypt.hashSync(oldPassword, user.password)) {
-        user.password = bcrypt.hashSync(newPassword, 15);
-        user.save(function(err, user) {
-          res.send('Password updated');
-        });
-      } else res.status(400).send('Updating password failed');
-    });
-  });
-});
+app.put('/api/users/password', (req, res) => {
+  validateToken(req, res, false, () => {
+    const username = jwt.verify(req.get('x-access-token'), key).username
+    User.find({ username }, (err, users) => {
+      const user = users[0]
+      const { oldPassword, newPassword } = req.body
+      if (newPassword && bcrypt.compareSync(oldPassword, user.password)) {
+        user.password = bcrypt.hashSync(newPassword, 15)
+        user.save((err, user) => {
+          if (err) res.status(500).send(err)
+          res.send('Password updated')
+        })
+      } else {
+        res.status(400).send('Updating password failed')
+      }
+    })
+  })
+})
 
-app.post('/api/admins/', function(req, res) {
-  validateToken(req, res, true, function() {
-    User.find({ username: req.body.username }, function(err, users) {
-      var user = users[0];
-      user.isAdmin = true;
-      user.save(function(err, user) {
+app.post('/api/admins/', (req, res) => {
+  validateToken(req, res, true, () => {
+    User.find({ username: req.body.username }, (err, users) => {
+      const user = users[0]
+      user.isAdmin = true
+      user.save((err, user) => {
         if (err) res.send('Error updating admin')
-        else res.send('Updated admin');
-      });
-    });
-  });
-});
+        else res.send('Updated admin')
+      })
+    })
+  })
+})
 
-app.delete('/api/users', function(req, res) {
-  validateToken(req, res, true, function() {
-    User.find({ _id: req.query.id }, function(err, users) {
-      users[0].remove(function(err) {
-        res.send('User deleted');
-      });
-    });
-  });
-});
+app.delete('/api/users/:id', (req, res) => {
+  validateToken(req, res, true, () => {
+    User.find({ _id: req.params.id }, (err, users) => {
+      users[0].remove(err => res.send('User deleted'))
+    })
+  })
+})
 
-app.post('/api/token', function(req, res) {
-  var username = req.body.username.toLowerCase();
-  var password = req.body.password;
-  User.find({ username }, function(err, users) {
-    var user = users[0];
+app.post('/api/token', (req, res) => {
+  const username = req.body.username.toLowerCase()
+  const password = req.body.password
+  User.find({ username }, (err, users) => {
+    const user = users[0]
     if (err || !user || !bcrypt.compareSync(password, user.password)) {
-      res.status(400).send('Username or password do not match');
+      res.status(400).send('Username or password do not match')
     } else {
-      var token = jwt.sign({
+      const token = jwt.sign({
         isAdmin: user.isAdmin,
         username: user.username,
         iat: Date.now()
-      }, key);
-      res.send(token);
+      }, key)
+      res.send(token)
     }
-  });
-});
+  })
+})
 
-app.get('/api/entitylist', function(req, res) {
-  dbService.query(req.query.domain, function(response) {
-    res.send(response);
-  });
-});
+app.get('/api/entitylist', (req, res) => {
+  dbService.queryByDomain(req.query.domain, response => {
+    res.send(response)
+  })
+})
 
-app.get('/api/uris', function(req, res) {
-  dbService.getAllUris(function(response) {
-    res.send(response);
-  });
-});
+app.get('/api/uris', (req, res) => {
+  dbService.getAllUris(response => res.send(response))
+})
 
-app.get('/api/entities', function(req, res) {
-  dbService.getDetail(req.query.resourceName, function(response) {
-    res.send(response);
-  });
-});
+app.get('/api/uriproperties', (req, res) => {
+  dbService.getURIProperties(props => res.send(props))
+})
 
-app.post('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
-    var resource = {
+app.get('/api/entities', (req, res) => {
+  dbService.getDetail(req.query.resourceName, response => res.send(response))
+})
+
+app.post('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
+    const resource = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.body.key,
       object: req.body.val
-    };
-    dbService.insert(resource, function(response) {
-      res.send(response);
-    });
-  });
-});
+    }
+    dbService.insert(resource, response => res.send(response))
+  })
+})
 
-app.put('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
+app.put('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
     const resource = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.body.predicate,
       oldObject: req.body.oldVal,
-      newObject: req.body.newVal 
+      newObject: req.body.newVal,
+      data: req.body.data
     }
-    dbService.updateDetail(resource, function(response) {
-      res.send(response);
-    });
-  });
-});
+    if (req.body.predicate === 'kaaont:x-geojson') {
+      dbService.updateMap(resource, response => res.send(response))
+    } else {
+      dbService.updateDetail(resource, response => res.send(response))
+    }
+  })
+})
 
-app.delete('/api/entities/:collection/:entity', function(req, res) {
-  validateToken(req, res, true, function() {
-    var triple = {
+app.delete('/api/entities/:collection/:entity', (req, res) => {
+  validateToken(req, res, true, () => {
+    const triple = {
       subject: `${req.params.collection}/${req.params.entity}`,
       predicate: req.query.key,
       object: req.query.value
-    };
-    dbService.deleteDetail(triple, function(response) {
-      res.send(response);
-    });
-  });
-});
+    }
+    dbService.deleteDetail(triple, response => res.send(response))
+  })
+})
 
-app.get('/api/descriptors', function(req, res) {
-  dbService.getDescriptors(function(response) {
-    res.send(response);
-  });
-});
+app.get('/api/descriptors', (req, res) => {
+  dbService.getDescriptors(response => res.send(response))
+})
 
-app.get('*', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
+app.get('*', (req, res) => {
+  res.sendFile(__dirname + '/index.html')
+})
+
 
 
 /******************************************************/
 
-http.listen(port, function() {
-  console.log('listening on *:' + port);
-});
+
+const server = http.Server(app)
+server.listen(port, () => console.log(`listening on port ${port}`))
+

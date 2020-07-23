@@ -17,9 +17,11 @@
       </thead>
       <tbody v-if="entity">
         <predicate-row v-for="(keyValPair, index) in entity.results.bindings"
+                       v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
                        :key="keyValPair.o.value"
                        :predicate="findPredicate(keyValPair)"
                        :predicateType="getType(x => x.s.value === keyValPair.p.value)"
+                       :isURIProperty="isURIProperty(keyValPair.p.value)"
                        :isLongText="predicateIsLongText(keyValPair)"
                        :keyValPair="keyValPair"
                        :awsUrl="awsUrl"
@@ -36,6 +38,7 @@
       <section id="input-wrapper">
         <section>
           <select v-model="newPredicate"
+                  @change="checkValidity"
                   :disabled="entityLoading">
             <option v-for="predicate in predicates"
                     :value="predicate.s.value">
@@ -52,52 +55,73 @@
                   :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
                   :disabled="entityLoading"
                   v-model="newValue"
+                  @input="checkValidity"
                   placeholder="Text...">
         </textarea>
         <input type="text"
                :disabled="entityLoading"
                :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-               v-if="!isLongText && !(predicateType === 'uri')"
+               v-if="!isLongText && !isURIProperty(newPredicate)"
                v-model="newValue"
+               @input="checkValidity"
                placeholder="Value...">
         <typeahead :uris="uris"
                    :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
                    :placeholder="'URI...'"
+                   @input="checkValidity"
                    @selection="updateModel($event)"
-                   v-if="!isLongText && predicateType === 'uri'">
+                   v-if="!isLongText && isURIProperty(newPredicate)">
         </typeahead>
+        <p v-if="errorMessage">{{errorMessage}}</p>
        </section>
     </form>
+  </section>
+  <section id="map-container">
+    <button v-if="!mapData"
+            @click="mapData = []"
+            id="add-map">
+      Add Map
+    </button>
+    <map-component v-if="mapData"
+                   :resource="resource"
+                   :mapData="mapData">
+    </map-component>
   </section>
 </section>
 </template>
 
 
 <script>
+import { bus } from './eventBus.js'
+import MapComponent from './MapComponent.vue'
 import PredicateRow from './PredicateRow.vue'
 import Typeahead from './Typeahead.vue'
-import { bus } from './eventBus.js'
 import types from './typeService.js'
 import validators from './validators.js'
+
 
 export default {
   components: {
     'predicate-row': PredicateRow,
-    'typeahead': Typeahead
+    'typeahead': Typeahead,
+    'map-component': MapComponent
   },
   props: ['collection', 'inventoryNum'],
   data () {
     return {
+      awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
       entityLoading: false,
       entity: null,
+      errorMessage: null,
+      loggedIn: false,
+      mapData: null,
       newPredicate: 'http://kenchreai.org/kaa/ontology/associated-with-month',
       newValue: undefined,
       predicates: [],
+      types,
+      uriProperties: [],
       uris: [],
-      awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
-      types: types,
-      validators: validators,
-      loggedIn: false
+      validators
     }
   },
   created () {
@@ -105,11 +129,14 @@ export default {
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
     this.predicates = bus.predicates
     this.uris = bus.uris
+    this.uriProperties = bus.uriProperties
     bus.$on('uris loaded', data => this.uris = data)
     bus.$on('predicates loaded', data => this.predicates = data)
+    bus.$on('URI properties loaded', data => this.uriProperties = data)
   },
   watch: {
-    '$route': 'loadEntity'
+    '$route': 'loadEntity',
+    'newValue': 'checkValidity'
   },
   computed: {
     resource () {
@@ -125,15 +152,23 @@ export default {
     predicateType () {
       return this.getType(p => p.s.value === this.newPredicate)
     },
-    isValid () {
-      if (validators[this.predicateType])
-        return validators[this.predicateType](this.newValue, this.uris)
-    }
+    isValid () { return !this.errorMessage }
   },
   methods: {
+    isURIProperty (predicate) {
+      return Boolean(this.uriProperties.find(p => p === predicate))
+    },
     predicateIsLongText (keyValPair) {
       const pred = this.predicates.find(p => p.s.value === keyValPair.p.value)
       return Boolean(pred && pred.longtext)
+    },
+    checkValidity () {
+      const validator = this.validators[this.predicateType + 'Error']
+      if (validator && this.newValue) {
+        this.errorMessage = validator(this.newValue, this.uris)
+      } else {
+        this.errorMessage = null
+      }
     },
     updateModel (data) {
       this.newValue = data
@@ -145,6 +180,7 @@ export default {
         this.entity = response.body
         this.entityLoading = false
         if (func && typeof func === 'function') func()
+        this.getMapData()
       })
     },
     getType (findExpression) {
@@ -166,7 +202,7 @@ export default {
         const url = `/api/entities/${this.resource}`
         const val = this.types[this.predicateType](this.newValue)
         this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-          if (response.body.boolean) {
+          if (response.bodyText === 'true') {
             this.loadEntity(() => {
               this.newValue = undefined
               bus.$emit('toast-success', 'Added predicate')
@@ -180,18 +216,27 @@ export default {
       const url = `/api/entities/${this.resource}`
       let ptype = this.getType(p => p.label.value === predicateValue.label.value)
 
-      // removing this for time being as it was wrapping with < and >, messing up deletes
-      // if (predicateValue.label.value === 'File') ptype = 'uri'
-      const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
-      const key = encodeURIComponent(predicateValue.p.value)
-      const query = `?key=${key}&value=${value}`
+      if (confirm(`Delete ${predicateValue.o.value} from ${this.resource}?`)) {
+        // removing this for time being as it was wrapping with < and >, messing up deletes
+        // if (predicateValue.label.value === 'File') ptype = 'uri'
+        const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
+        const key = encodeURIComponent(predicateValue.p.value)
+        const query = `?key=${key}&value=${value}`
 
-      this.$http.delete(url + query).then(response => {
-        this.entity.results.bindings.splice(index, 1)
-        bus.$emit('toast-warning', 'Removed predicate')
-      }, error => {
-        console.log(error.body)
-      })
+        this.$http.delete(url + query).then(response => {
+          this.entity.results.bindings.splice(index, 1)
+          bus.$emit('toast-warning', 'Removed predicate')
+        }, error => {
+          console.log(error.body)
+        })
+      }
+    },
+    getMapData () {
+      const mapProp = this.entity.results.bindings
+        .find(prop => prop.p.value === 'kaaont:x-geojson') 
+      if (mapProp) {
+        this.mapData = JSON.parse(mapProp.o.value)
+      }
     }
   }
 }
@@ -199,6 +244,15 @@ export default {
 
 
 <style scoped>
+
+#map-container {
+  margin-bottom: 90px;
+}
+
+#add-map {
+  position: relative;
+  left: 43%;
+}
 
 #resource-title {
   text-decoration: none;

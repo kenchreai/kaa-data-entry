@@ -43,7 +43,7 @@
                       placeholder="Text...">
             </textarea>
             <input type="text"
-                   v-if="!isLongText && !(predicateType === 'uri')"
+                   v-if="!isLongText && !isURIProperty"
                    :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
                    v-model="editorValue"
                    placeholder="Value...">
@@ -51,8 +51,9 @@
                        @selection="updateModel($event)"
                        :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
                        :placeholder="'URI...'"
-                       v-if="!isLongText && predicateType === 'uri'">
+                       v-if="!isLongText && isURIProperty">
             </typeahead>
+            <p class="invalid" v-if="errorMessage">{{errorMessage}}</p>
           </section>
           <button class="button button-remove"
                   @click.prevent="updatePredicateValue">
@@ -84,7 +85,8 @@ export default {
     'resource',
     'uris',
     'validators',
-    'loggedIn'
+    'loggedIn',
+    'isURIProperty'
   ],
   components: {
     'typeahead': Typeahead
@@ -94,7 +96,8 @@ export default {
       key: '',
       value: '',
       editorValue: undefined,
-      editorOpened: false
+      editorOpened: false,
+      errorMessage: null
     }
   },
   created () {
@@ -102,6 +105,7 @@ export default {
     this.editorValue = this.value
   },
   computed: {
+    validatorType () { return `${this.predicateType}Error` },
     isImage () {
       return this.key === 'Photograph' || this.key === 'Drawing'
     },
@@ -121,8 +125,13 @@ export default {
       }
     },
     isValid () {
-      if (this.validators[this.predicateType]) {
-        return this.validators[this.predicateType](this.editorValue, this.uris)
+      const validator = this.validators[this.validatorType]
+      if (validator) {
+        this.errorMessage = validator(this.editorValue, this.uris)
+        return !Boolean(this.errorMessage)
+      } else {
+        this.errorMessage = null
+        return true
       }
     }
   },
@@ -143,7 +152,7 @@ export default {
           newVal: newVal
         }
         this.$http.put(url, data).then(response => {
-          if (response.body.boolean) {
+          if (response.bodyText === 'true') {
             this.value = this.editorValue
             this.editorOpened = false
             bus.$emit('toast-success', 'Updated predicate')

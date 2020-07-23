@@ -10,6 +10,7 @@
 
 <script>
   let awesomplete
+  const Awesomplete = require('../node_modules/awesomplete/awesomplete.min.js')
 
   export default {
     props: ['uris', 'placeholder'],
