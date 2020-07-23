@@ -71,169 +71,175 @@
 
 
 <script>
-import { bus } from './eventBus.js'
-import Typeahead from './Typeahead.vue'
+import { bus } from "./eventBus.js";
+import Typeahead from "./Typeahead.vue";
 
 export default {
   props: [
-    'keyValPair',
-    'predicate',
-    'predicateType',
-    'types',
-    'isLongText',
-    'awsUrl',
-    'resource',
-    'uris',
-    'validators',
-    'loggedIn',
-    'isURIProperty'
+    "keyValPair",
+    "predicate",
+    "predicateType",
+    "types",
+    "isLongText",
+    "awsUrl",
+    "resource",
+    "uris",
+    "validators",
+    "loggedIn",
+    "isURIProperty"
   ],
   components: {
-    'typeahead': Typeahead
+    typeahead: Typeahead
   },
-  data () {
+  data() {
     return {
-      key: '',
-      value: '',
+      key: "",
+      value: "",
       editorValue: undefined,
       editorOpened: false,
       errorMessage: null
-    }
+    };
   },
-  created () {
-    this.renderRow()
-    this.editorValue = this.value
+  created() {
+    this.renderRow();
+    this.editorValue = this.value;
   },
   computed: {
-    validatorType () { return `${this.predicateType}Error` },
-    isImage () {
-      return this.key === 'Photograph' || this.key === 'Drawing'
+    validatorType() {
+      return `${this.predicateType}Error`;
     },
-    isHyperLink () {
-      return this.predicate && this.predicate.ptype.value.indexOf('Object') !== -1 
+    isImage() {
+      return this.key === "Photograph" || this.key === "Drawing";
     },
-    isAWSLink () {
-      return Boolean(['Photograph', 'Drawing', 'File'].find(r => r === this.key))
+    isHyperLink() {
+      return (
+        this.predicate && this.predicate.ptype.value.indexOf("Object") !== -1
+      );
     },
-    url () {
+    isAWSLink() {
+      return Boolean(
+        ["Photograph", "Drawing", "File"].find(r => r === this.key)
+      );
+    },
+    url() {
       if (this.isHyperLink) {
-        if (this.value.search('kenchreai.org/kaa') === -1) {
-          return `http://kenchreai.org/kaa/${this.value}`
+        if (this.value.search("kenchreai.org/kaa") === -1) {
+          return `http://kenchreai.org/kaa/${this.value}`;
         } else {
-          return this.value
+          return this.value;
         }
       }
     },
-    isValid () {
-      const validator = this.validators[this.validatorType]
+    isValid() {
+      const validator = this.validators[this.validatorType];
       if (validator) {
-        this.errorMessage = validator(this.editorValue, this.uris)
-        return !Boolean(this.errorMessage)
+        this.errorMessage = validator(this.editorValue, this.uris);
+        return !Boolean(this.errorMessage);
       } else {
-        this.errorMessage = null
-        return true
+        this.errorMessage = null;
+        return true;
       }
     }
   },
   methods: {
-    renderRow () {
-      const kvp = this.keyValPair
-      this.key = kvp.label.value ? kvp.label.value : kvp.p.value
-      this.value = kvp.o.value
+    renderRow() {
+      const kvp = this.keyValPair;
+      this.key = kvp.label.value ? kvp.label.value : kvp.p.value;
+      this.value = kvp.o.value;
     },
-    updatePredicateValue () {
+    updatePredicateValue() {
       if (this.isValid) {
-        const url = `/api/entities/${this.resource}`
-        const oldVal = this.types[this.predicateType](this.value)
-        const newVal = this.types[this.predicateType](this.editorValue)
+        const url = `/api/entities/${this.resource}`;
+        const oldVal = this.types[this.predicateType](this.value);
+        const newVal = this.types[this.predicateType](this.editorValue);
         const data = {
           predicate: this.predicate.s.value,
           oldVal: oldVal,
           newVal: newVal
-        }
+        };
         this.$http.put(url, data).then(response => {
-          if (response.bodyText === 'true') {
-            this.value = this.editorValue
-            this.editorOpened = false
-            bus.$emit('toast-success', 'Updated predicate')
+          if (!!~response.bodyText.indexOf("Success")) {
+            this.value = this.editorValue;
+            this.editorOpened = false;
+            bus.$emit("toast-success", "Updated predicate");
           }
-        })
+        });
       }
     },
-    updateModel (data) {
-      this.editorValue = data
+    updateModel(data) {
+      this.editorValue = data;
     }
   }
-}
+};
 </script>
 
 
 <style scoped>
-  .inline-image > img {
-    max-width: 300px;
-    display: block;
-  }
+.inline-image > img {
+  max-width: 300px;
+  display: block;
+}
 
-  .object-value {
-    width: 70%;
-  }
+.object-value {
+  width: 70%;
+}
 
-  .object-value > * {
-    display: inline-block;
-  }
+.object-value > * {
+  display: inline-block;
+}
 
-  .object-value p {
-    margin-bottom: 0;
-  }
+.object-value p {
+  margin-bottom: 0;
+}
 
-  .object-value:hover {
-    background: #f6f6f6;
-  }
+.object-value:hover {
+  background: #f6f6f6;
+}
 
-  .object-value .button-remove {
-    display: none;
-  }
+.object-value .button-remove {
+  display: none;
+}
 
-  .object-value:hover .button-remove {
-    display: inherit;
-  }
+.object-value:hover .button-remove {
+  display: inherit;
+}
 
-  .object-value > section {
-    width: 100%;
-  }
+.object-value > section {
+  width: 100%;
+}
 
-  .object-value > section > section {
-    max-width: 80%;
-    display: inline-block;
-  }
+.object-value > section > section {
+  max-width: 80%;
+  display: inline-block;
+}
 
-  .object-value > section > button,
-  .inline-editor button {
-    display: inline-block;
-    float: right;
-    height: 24px;
-    margin: 0;
-    line-height: inherit;
-    padding: 0 11px;
-    margin-right: 5px;
-  }
+.object-value > section > button,
+.inline-editor button {
+  display: inline-block;
+  float: right;
+  height: 24px;
+  margin: 0;
+  line-height: inherit;
+  padding: 0 11px;
+  margin-right: 5px;
+}
 
-  .inline-editor textarea {
-    width: 100%;
-    min-height: 300px;
-  }
+.inline-editor textarea {
+  width: 100%;
+  min-height: 300px;
+}
 
-  .inline-editor input {
-    width: 100%;
-  }
+.inline-editor input {
+  width: 100%;
+}
 
-  .valid,
-  .valid:focus {
-    border-color: green;
-  }
+.valid,
+.valid:focus {
+  border-color: green;
+}
 
-  .invalid,
-  .invalid:focus {
-    border-color: red;
-  }
+.invalid,
+.invalid:focus {
+  border-color: red;
+}
 </style>

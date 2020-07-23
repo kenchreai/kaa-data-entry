@@ -92,159 +92,168 @@
 
 
 <script>
-import { bus } from './eventBus.js'
-import MapComponent from './MapComponent.vue'
-import PredicateRow from './PredicateRow.vue'
-import Typeahead from './Typeahead.vue'
-import types from './typeService.js'
-import validators from './validators.js'
-
+import { bus } from "./eventBus.js";
+import MapComponent from "./MapComponent.vue";
+import PredicateRow from "./PredicateRow.vue";
+import Typeahead from "./Typeahead.vue";
+import types from "./typeService.js";
+import validators from "./validators.js";
 
 export default {
   components: {
-    'predicate-row': PredicateRow,
-    'typeahead': Typeahead,
-    'map-component': MapComponent
+    "predicate-row": PredicateRow,
+    typeahead: Typeahead,
+    "map-component": MapComponent
   },
-  props: ['collection', 'inventoryNum'],
-  data () {
+  props: ["collection", "inventoryNum"],
+  data() {
     return {
-      awsUrl: 'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
+      awsUrl:
+        "http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/",
       entityLoading: false,
       entity: null,
       errorMessage: null,
       loggedIn: false,
       mapData: null,
-      newPredicate: 'http://kenchreai.org/kaa/ontology/associated-with-month',
+      newPredicate: "http://kenchreai.org/kaa/ontology/associated-with-month",
       newValue: undefined,
       predicates: [],
       types,
       uriProperties: [],
       uris: [],
       validators
-    }
+    };
   },
-  created () {
-    this.loadEntity()
-    this.loggedIn = Boolean(localStorage.getItem('access-token'))
-    this.predicates = bus.predicates
-    this.uris = bus.uris
-    this.uriProperties = bus.uriProperties
-    bus.$on('uris loaded', data => this.uris = data)
-    bus.$on('predicates loaded', data => this.predicates = data)
-    bus.$on('URI properties loaded', data => this.uriProperties = data)
+  created() {
+    this.loadEntity();
+    this.loggedIn = Boolean(localStorage.getItem("access-token"));
+    this.predicates = bus.predicates;
+    this.uris = bus.uris;
+    this.uriProperties = bus.uriProperties;
+    bus.$on("uris loaded", data => (this.uris = data));
+    bus.$on("predicates loaded", data => (this.predicates = data));
+    bus.$on("URI properties loaded", data => (this.uriProperties = data));
   },
   watch: {
-    '$route': 'loadEntity',
-    'newValue': 'checkValidity'
+    $route: "loadEntity",
+    newValue: "checkValidity"
   },
   computed: {
-    resource () {
-      return `${this.collection}/${this.inventoryNum}`
+    resource() {
+      return `${this.collection}/${this.inventoryNum}`;
     },
-    loadedEntity () {
-      return Boolean(this.entity)
+    loadedEntity() {
+      return Boolean(this.entity);
     },
-    isLongText () {
-      const pred = this.predicates.find(p => p.s.value === this.newPredicate)
-      return Boolean(pred && pred.longtext)
+    isLongText() {
+      const pred = this.predicates.find(p => p.s.value === this.newPredicate);
+      return Boolean(pred && pred.longtext);
     },
-    predicateType () {
-      return this.getType(p => p.s.value === this.newPredicate)
+    predicateType() {
+      return this.getType(p => p.s.value === this.newPredicate);
     },
-    isValid () { return !this.errorMessage }
+    isValid() {
+      return !this.errorMessage;
+    }
   },
   methods: {
-    isURIProperty (predicate) {
-      return Boolean(this.uriProperties.find(p => p === predicate))
+    isURIProperty(predicate) {
+      return Boolean(this.uriProperties.find(p => p === predicate));
     },
-    predicateIsLongText (keyValPair) {
-      const pred = this.predicates.find(p => p.s.value === keyValPair.p.value)
-      return Boolean(pred && pred.longtext)
+    predicateIsLongText(keyValPair) {
+      const pred = this.predicates.find(p => p.s.value === keyValPair.p.value);
+      return Boolean(pred && pred.longtext);
     },
-    checkValidity () {
-      const validator = this.validators[this.predicateType + 'Error']
+    checkValidity() {
+      const validator = this.validators[this.predicateType + "Error"];
       if (validator && this.newValue) {
-        this.errorMessage = validator(this.newValue, this.uris)
+        this.errorMessage = validator(this.newValue, this.uris);
       } else {
-        this.errorMessage = null
+        this.errorMessage = null;
       }
     },
-    updateModel (data) {
-      this.newValue = data
+    updateModel(data) {
+      this.newValue = data;
     },
-    loadEntity (func) {
-      this.entityLoading = true
-      const url = `/api/entities?resourceName=${this.resource}`
+    loadEntity(func) {
+      this.entityLoading = true;
+      const url = `/api/entities?resourceName=${this.resource}`;
       this.$http.get(url).then(response => {
-        this.entity = response.body
-        this.entityLoading = false
-        if (func && typeof func === 'function') func()
-        this.getMapData()
-      })
+        this.entity = response.body;
+        this.entityLoading = false;
+        if (func && typeof func === "function") func();
+        this.getMapData();
+      });
     },
-    getType (findExpression) {
-      const pred = this.predicates.find(findExpression)
+    getType(findExpression) {
+      const pred = this.predicates.find(findExpression);
       if (pred) {
-        if (pred.ptype.value.indexOf('Object') !== -1) {
-          return 'uri'
+        if (pred.ptype.value.indexOf("Object") !== -1) {
+          return "uri";
         } else {
-          return pred.range.value.slice(pred.range.value.indexOf('#') + 1)
+          return pred.range.value.slice(pred.range.value.indexOf("#") + 1);
         }
       }
     },
-    findPredicate (keyVal) {
-      const label = keyVal.label.value ? keyVal.label.value : keyVal.p.value
-      return this.predicates.find(p => p.label.value === label)
+    findPredicate(keyVal) {
+      const label = keyVal.label.value ? keyVal.label.value : keyVal.p.value;
+      return this.predicates.find(p => p.label.value === label);
     },
-    addPredicateValue () {
+    addPredicateValue() {
       if (this.isValid) {
-        const url = `/api/entities/${this.resource}`
-        const val = this.types[this.predicateType](this.newValue)
+        const url = `/api/entities/${this.resource}`;
+        const val = this.types[this.predicateType](this.newValue);
         this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-          if (response.bodyText === 'true') {
+          if (!!~response.bodyText.indexOf("Success")) {
             this.loadEntity(() => {
-              this.newValue = undefined
-              bus.$emit('toast-success', 'Added predicate')
-            })
+              this.newValue = undefined;
+              bus.$emit("toast-success", "Added predicate");
+            });
           }
-        })
+        });
       }
     },
-    removePredicateValue (index) {
-      const predicateValue = this.entity.results.bindings[index]
-      const url = `/api/entities/${this.resource}`
-      let ptype = this.getType(p => p.label.value === predicateValue.label.value)
+    removePredicateValue(index) {
+      const predicateValue = this.entity.results.bindings[index];
+      const url = `/api/entities/${this.resource}`;
+      let ptype = this.getType(
+        p => p.label.value === predicateValue.label.value
+      );
 
       if (confirm(`Delete ${predicateValue.o.value} from ${this.resource}?`)) {
         // removing this for time being as it was wrapping with < and >, messing up deletes
         // if (predicateValue.label.value === 'File') ptype = 'uri'
-        const value = encodeURIComponent(this.types[ptype](predicateValue.o.value))
-        const key = encodeURIComponent(predicateValue.p.value)
-        const query = `?key=${key}&value=${value}`
+        const value = encodeURIComponent(
+          this.types[ptype](predicateValue.o.value)
+        );
+        const key = encodeURIComponent(predicateValue.p.value);
+        const query = `?key=${key}&value=${value}`;
 
-        this.$http.delete(url + query).then(response => {
-          this.entity.results.bindings.splice(index, 1)
-          bus.$emit('toast-warning', 'Removed predicate')
-        }, error => {
-          console.log(error.body)
-        })
+        this.$http.delete(url + query).then(
+          response => {
+            this.entity.results.bindings.splice(index, 1);
+            bus.$emit("toast-warning", "Removed predicate");
+          },
+          error => {
+            console.log(error.body);
+          }
+        );
       }
     },
-    getMapData () {
-      const mapProp = this.entity.results.bindings
-        .find(prop => prop.p.value === 'kaaont:x-geojson') 
+    getMapData() {
+      const mapProp = this.entity.results.bindings.find(
+        prop => prop.p.value === "kaaont:x-geojson"
+      );
       if (mapProp) {
-        this.mapData = JSON.parse(mapProp.o.value)
+        this.mapData = JSON.parse(mapProp.o.value);
       }
     }
   }
-}
+};
 </script>
 
 
 <style scoped>
-
 #map-container {
   margin-bottom: 90px;
 }
@@ -262,7 +271,7 @@ export default {
 thead > tr > td > h6 {
   text-transform: uppercase;
   font-size: 1.4rem;
-  letter-spacing: .2rem;
+  letter-spacing: 0.2rem;
   font-weight: 600;
 }
 
