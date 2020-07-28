@@ -10,33 +10,32 @@
 
 
 <script>
-import Typeahead from './Typeahead.vue'
+import Typeahead from "./Typeahead.vue";
 
-import { bus } from './eventBus.js'
+import { bus } from "./eventBus.js";
 
 export default {
-  data () {
+  data() {
     return {
-      entities: bus.entities,
-    }
+      entities: bus.entities
+    };
   },
   components: {
-    'typeahead': Typeahead
+    typeahead: Typeahead
   },
-  created () {
-    bus.$on('entities loaded', val => this.entities = val)
+  created() {
+    bus.$on("entities loaded", val => (this.entities = val));
   },
   methods: {
-    viewEntity (url) {
-      const shortUrl = url.replace('http://kenchreai.org/kaa/', '')
-      this.$router.push(`/detail/${shortUrl}`)
+    viewEntity(url) {
+      const shortUrl = url.replace("http://kenchreai.org/kaa/", "");
+      this.$router.push(`/detail/${shortUrl}`);
     }
   }
-}
+};
 </script>
 
 <style scoped>
-
 #wrapper {
   clear: both;
   margin: auto;
@@ -46,5 +45,4 @@ export default {
 h1 {
   font-size: 4rem;
 }
-
 </style>

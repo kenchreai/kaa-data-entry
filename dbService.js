@@ -51,9 +51,10 @@ const DbService = (function() {
       */
       const queryString = `
         ${prefixes}
-        select ?s ?p where {
-          ?s a kaaont:inventory-number .
-        } order by ?s
+        select ?s ?p ?o where {
+          ?s ?p ?o .filter contains(str(?s), "${domain}")
+        }
+        order by ?s
       `
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)

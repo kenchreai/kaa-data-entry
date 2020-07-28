@@ -28,6 +28,7 @@ export const bus = new Vue({
       })
     },
     loadEntities () {
+      /*
       let searchTerms = ['kcp', 'kth']
       searchTerms.forEach(term  => {
         const url = `/api/entitylist?domain=${term}`
@@ -42,6 +43,7 @@ export const bus = new Vue({
           this.$emit('toast-error', `Loading domain ${term} failed: ${error.statusText}`)
         })
       })
+      */
     },
     loadPredicateURIs () {
       this.$http.get('/api/uriproperties').then((response) => {
