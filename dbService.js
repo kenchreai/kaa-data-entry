@@ -51,7 +51,7 @@ const DbService = (function() {
       */
       const queryString = `
         ${prefixes}
-        select ?s ?p ?o where {
+        select ?s where {
           ?s ?p ?o .filter contains(str(?s), "${domain}")
         }
         order by ?s
