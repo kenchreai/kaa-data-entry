@@ -10,6 +10,7 @@
          v-if="loggedIn">
         Logout
       </a>
+      <router-link to="/reset-password" v-if="loggedIn">Reset Password</router-link>
       <router-link to="/register">Register</router-link>
     </section>
   </header>
@@ -19,53 +20,54 @@
 
 
 <script>
-import Vue from 'vue'
-import Toastr from 'vue-toastr'
-require('vue-toastr/src/vue-toastr.less')
+import Vue from "vue";
+import Toastr from "vue-toastr";
+require("vue-toastr/src/vue-toastr.less");
 
-import { bus }from './eventBus.js'
+import { bus } from "./eventBus.js";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    'vue-toastr': Toastr
+    "vue-toastr": Toastr
   },
-  data () {
-    return { loggedIn: false }
-
+  data() {
+    return { loggedIn: false };
   },
-  created () {
-    this.loggedIn = Boolean(localStorage.getItem('access-token'))
-    bus.$on('login', () => {
-      this.loggedIn = true
-      this.$refs.toastr.s('Logged in')
-    })
-    bus.$on('logout', () => this.loggedIn = false)
-    bus.$on('toast-success', mes => this.$refs.toastr.s(mes))
-    bus.$on('toast-error', mes => this.$refs.toastr.e(mes))
-    bus.$on('toast-warning', mes => this.$refs.toastr.w(mes))
+  created() {
+    this.loggedIn = Boolean(localStorage.getItem("access-token"));
+    bus.$on("login", () => {
+      this.loggedIn = true;
+      this.$refs.toastr.s("Logged in");
+    });
+    bus.$on("logout", () => (this.loggedIn = false));
+    bus.$on("toast-success", mes => this.$refs.toastr.s(mes));
+    bus.$on("toast-error", mes => this.$refs.toastr.e(mes));
+    bus.$on("toast-warning", mes => this.$refs.toastr.w(mes));
   },
   methods: {
-    logout () {
-      localStorage.setItem('access-token', '')
-      this.loggedIn = false
+    logout() {
+      localStorage.setItem("access-token", "");
+      this.loggedIn = false;
     }
   }
-}
+};
 </script>
 
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
 
-a { color: #42b983; }
+a {
+  color: #42b983;
+}
 
-header > section{
+header > section {
   float: right;
   margin-right: 10px;
   height: 30px;

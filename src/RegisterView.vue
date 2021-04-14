@@ -23,29 +23,33 @@
 
 
 <script>
-  import { bus } from './eventBus.js'
+import { bus } from "./eventBus.js";
 
-  export default {
-    data () {
-      return {
-        username: undefined,
-        password: undefined,
-        confirmPassword: undefined
-      }
-    },
-    methods: {
-      register () {
-        const { username, password } = this
-        this.$http.post('/api/users', { username, password }).then((response) => {
-          localStorage.setItem('access-token', response.body)
-          bus.$emit('login')
-          this.$router.push('search')
-        }, error => {
-          console.log(error)
-        })
-      }
+export default {
+  data() {
+    return {
+      username: undefined,
+      password: undefined,
+      confirmPassword: undefined
+    };
+  },
+  methods: {
+    register() {
+      const { username, password } = this;
+      this.$http.post("/api/users", { username, password }).then(
+        response => {
+          localStorage.setItem("access-token", response.body);
+          bus.$emit("login");
+          this.$router.push("search");
+        },
+        error => {
+          bus.$emit("toast-error", error.bodyText);
+          console.log(error);
+        }
+      );
     }
   }
+};
 </script>
 
 
