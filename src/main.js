@@ -10,6 +10,7 @@ import DetailView from './DetailView.vue'
 import ListView from './ListView.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
+import ResetPasswordView from './ResetPasswordView.vue'
 
 require('../dist/css/normalize.css')
 require('../dist/css/skeleton.css')
@@ -56,6 +57,9 @@ const routes = [{
   }, {
     path: 'register',
     component: RegisterView
+  }, {
+    path: 'reset-password',
+    component: ResetPasswordView
   }]
 }]
 
