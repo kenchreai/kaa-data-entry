@@ -11,3 +11,16 @@ To obtain your token, issue a POST request to `https://kenchreai-data-editor.her
 ```
 
 If unsure of the specific username of someone, issue a GET request with your token in the header to `https://kenchreai-data-editor.herokuapp.com/api/users`.
+
+
+# Docker notes
+
+Build:
+```
+docker build . -t kaa
+```
+
+Run:
+```
+docker run --env-file .env -p 8080:8080 kaa
+```

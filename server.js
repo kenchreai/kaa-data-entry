@@ -1,5 +1,5 @@
 'use strict'
-
+require('dotenv').config()
 const bcrypt = require('bcryptjs')
 const bodyParser = require('body-parser')
 const cors = require('cors')
