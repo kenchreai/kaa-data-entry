@@ -18,7 +18,6 @@ const dbUsername = process.env.KENCHREAI_USER
 
 /****************** initialise app ********************/
 
-
 const app = express()
 const dbService = DbService('http://kenchreai.org:3030/kaa_endpoint/', dbUsername, dbPassword)
 
