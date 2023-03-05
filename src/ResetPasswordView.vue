@@ -34,8 +34,7 @@
 
 <script>
 import { bus } from "./eventBus.js";
-
-const baseURL = "http://localhost:8080";
+import { API_ROOT } from "./constants.js";
 
 export default {
   data() {
@@ -52,7 +51,7 @@ export default {
     resetPassword() {
       const { oldPassword, newPassword } = this;
       this.$http
-        .put(`${baseURL}/api/users/password`, { oldPassword, newPassword })
+        .put(`${API_ROOT}/api/users/password`, { oldPassword, newPassword })
         .then(
           (response) => {
             bus.$emit("toast-success", response.bodyText);

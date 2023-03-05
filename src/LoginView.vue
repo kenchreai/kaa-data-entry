@@ -26,8 +26,7 @@
 
 <script>
 import { bus } from "./eventBus.js";
-
-const baseURL = "http://localhost:8080";
+import { API_ROOT } from "./constants.js";
 
 export default {
   data() {
@@ -43,7 +42,7 @@ export default {
   methods: {
     login() {
       const { username, password } = this;
-      this.$http.post(`${baseURL}/api/token`, { username, password }).then(
+      this.$http.post(`${API_ROOT}/api/token`, { username, password }).then(
         (response) => {
           localStorage.setItem("access-token", response.body);
           bus.$emit("login");

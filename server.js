@@ -25,7 +25,6 @@ const dbService = DbService('http://kenchreai.org:3030/kaa_endpoint/', dbUsernam
 
 /****************** configure database ****************/
 
-
 mongoose.connect(mongoKey, { useNewUrlParser: true })
 const db = mongoose.connection
 let User
@@ -64,6 +63,8 @@ const validateToken = (req, res, adminOnly, routeFunc) => {
     }
   })
 }
+
+app.use(express.static(path.join(__dirname, 'dist')))
 
 
 /*****************      routes     ********************/
