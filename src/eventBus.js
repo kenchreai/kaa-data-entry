@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource'
+import { API_ROOT } from './constants.js'
 
 Vue.use(VueResource)
+
 
 export const bus = new Vue({
   data: {
@@ -12,7 +14,7 @@ export const bus = new Vue({
   },
   methods: {
     loadPredicates () {
-      this.$http.get('/api/descriptors').then((response) => {
+      this.$http.get(`${API_ROOT}/api/descriptors`).then((response) => {
         this.predicates = response.body.results.bindings
         this.$emit('predicates loaded', this.predicates)
       }, (error) => {
@@ -20,7 +22,7 @@ export const bus = new Vue({
       })
     },
     loadUris () {
-      this.$http.get('/api/uris').then((response) => {
+      this.$http.get(`${API_ROOT}/api/uris`).then((response) => {
         this.uris = response.body.results.bindings.map(b => b.s.value)
         this.$emit('uris loaded', this.uris)
       }, (error) => {
@@ -31,7 +33,7 @@ export const bus = new Vue({
       /*
       let searchTerms = ['kcp', 'kth']
       searchTerms.forEach(term  => {
-        const url = `/api/entitylist?domain=${term}`
+        const url = `${baseURL}/api/entitylist?domain=${term}`
         this.$http.get(url).then((response) => {
           this.entities = this.entities.concat(
             response.body.results.bindings.map((result) => {
@@ -46,7 +48,7 @@ export const bus = new Vue({
       */
     },
     loadPredicateURIs () {
-      this.$http.get('/api/uriproperties').then((response) => {
+      this.$http.get(`${API_ROOT}/api/uriproperties`).then((response) => {
         this.uriProperties = response.body.results.bindings.map(b => b.subject.value)
         this.$emit('URI properties loaded', this.uriProperties)
       }, (error) => {

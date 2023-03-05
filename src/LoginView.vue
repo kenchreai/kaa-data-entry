@@ -1,44 +1,50 @@
 <template>
-<section>
-  <form id="login-form" action="">
-    <input type="text"
-           name="username"
-           v-model="username"
-           placeholder="Username"/>
-    <input type="password"
-           name="password"
-           v-model="password"
-           placeholder="Password"/>
-    <button class="button button-primary"
-            :disabled="!username || !password"
-            @click.prevent="login">
-      Login
-    </button>
-  </form>
-</section>
+  <section>
+    <form id="login-form" action="">
+      <input
+        type="text"
+        name="username"
+        v-model="username"
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        name="password"
+        v-model="password"
+        placeholder="Password"
+      />
+      <button
+        class="button button-primary"
+        :disabled="!username || !password"
+        @click.prevent="login"
+      >
+        Login
+      </button>
+    </form>
+  </section>
 </template>
-
-
 
 <script>
 import { bus } from "./eventBus.js";
+
+const baseURL = "http://localhost:8080";
 
 export default {
   data() {
     return {
       username: undefined,
       password: undefined,
-      redirectUrl: undefined
+      redirectUrl: undefined,
     };
   },
   created() {
-    bus.$on("redirected from detail", url => (this.redirectUrl = url));
+    bus.$on("redirected from detail", (url) => (this.redirectUrl = url));
   },
   methods: {
     login() {
       const { username, password } = this;
-      this.$http.post("/api/token", { username, password }).then(
-        response => {
+      this.$http.post(`${baseURL}/api/token`, { username, password }).then(
+        (response) => {
           localStorage.setItem("access-token", response.body);
           bus.$emit("login");
           if (this.redirectUrl) {
@@ -47,13 +53,13 @@ export default {
             this.$router.push("search");
           }
         },
-        error => {
+        (error) => {
           bus.$emit("toast-error", error.bodyText);
           console.log(error);
         }
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

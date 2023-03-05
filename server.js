@@ -26,7 +26,7 @@ const dbService = DbService('http://kenchreai.org:3030/kaa_endpoint/', dbUsernam
 /****************** configure database ****************/
 
 
-mongoose.connect(mongoKey)
+mongoose.connect(mongoKey, { useNewUrlParser: true })
 const db = mongoose.connection
 let User
 
@@ -42,7 +42,6 @@ db.once('open', () => {
 
 /***************** configure middleware ***************/
 
-
 app.use(bodyParser.urlencoded({ extended:true }))
 app.use(bodyParser.json())
 app.use(cors())
@@ -53,21 +52,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization')
   next()
 })
-
-if (process.env.NODE_ENV !== 'production') {
-  const webpack = require('webpack')
-  const webpackConfig = require('./webpack.config.js')
-  const compiler = webpack(webpackConfig)
-
-  app.use(require('webpack-dev-middleware')(compiler, {
-    noInfo: true,
-    publicPath: webpackConfig.output.publicPath
-  }))
-
-  app.use(require('webpack-hot-middleware')(compiler))
-}
-
-app.use(express.static(__dirname))
 
 const validateToken = (req, res, adminOnly, routeFunc) => {
   jwt.verify(req.get('x-access-token'), key, (err, decoded) => {
@@ -83,7 +67,6 @@ const validateToken = (req, res, adminOnly, routeFunc) => {
 
 
 /*****************      routes     ********************/
-
 
 app.post('/api/users', (req, res) => {
   const username = req.body.username.toLowerCase()
@@ -247,14 +230,11 @@ app.get('/api/descriptors', (req, res) => {
 })
 
 app.get('*', (req, res) => {
-  res.sendFile(__dirname + '/index.html')
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
-
 
 
 /******************************************************/
 
-
 const server = http.Server(app)
 server.listen(port, () => console.log(`listening on port ${port}`))
-

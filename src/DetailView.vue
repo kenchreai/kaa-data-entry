@@ -1,95 +1,115 @@
 <template>
-<section>
-  <h1 class="section-heading" id="resource-title">
-    <a :href="`http://kenchreai.org/kaa/${resource}`"
-       id="resource-title"
-       target="_blank">
-      Details - {{resource}}
-    </a>
-  </h1>
-  <section v-if="loadedEntity">
-    <table id="attribute-list">
-      <thead>
-        <tr>
-          <td><h6>Property</h6></td>
-          <td><h6>Value</h6></td>
-        </tr>
-      </thead>
-      <tbody v-if="entity">
-        <predicate-row v-for="(keyValPair, index) in entity.results.bindings"
-                       v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
-                       :key="keyValPair.o.value"
-                       :predicate="findPredicate(keyValPair)"
-                       :predicateType="getType(x => x.s.value === keyValPair.p.value)"
-                       :isURIProperty="isURIProperty(keyValPair.p.value)"
-                       :isLongText="predicateIsLongText(keyValPair)"
-                       :keyValPair="keyValPair"
-                       :awsUrl="awsUrl"
-                       :uris="uris"
-                       :types="types"
-                       :resource="resource"
-                       :validators="validators"
-                       :loggedIn="loggedIn"
-                       @remove="removePredicateValue(index)">
-        </predicate-row>
-      </tbody>
-    </table>
-    <form v-if="loggedIn">
-      <section id="input-wrapper">
-        <section>
-          <select v-model="newPredicate"
-                  @change="checkValidity"
-                  :disabled="entityLoading">
-            <option v-for="predicate in predicates"
-                    :value="predicate.s.value">
-              {{predicate.label.value}}
-            </option>
-          </select>
-          <button :disabled="entityLoading || !isValid"
-                  class="button button-primary"
-                  @click.prevent="addPredicateValue">
-            Add
-          </button>
+  <section>
+    <h1 class="section-heading" id="resource-title">
+      <a
+        :href="`http://kenchreai.org/kaa/${resource}`"
+        id="resource-title"
+        target="_blank"
+      >
+        Details - {{ resource }}
+      </a>
+    </h1>
+    <section v-if="loadedEntity">
+      <table id="attribute-list">
+        <thead>
+          <tr>
+            <td><h6>Property</h6></td>
+            <td><h6>Value</h6></td>
+          </tr>
+        </thead>
+        <tbody v-if="entity">
+          <predicate-row
+            v-for="(keyValPair, index) in entity.results.bindings"
+            v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
+            :key="keyValPair.o.value"
+            :predicate="findPredicate(keyValPair)"
+            :predicateType="getType((x) => x.s.value === keyValPair.p.value)"
+            :isURIProperty="isURIProperty(keyValPair.p.value)"
+            :isLongText="predicateIsLongText(keyValPair)"
+            :keyValPair="keyValPair"
+            :awsUrl="awsUrl"
+            :uris="uris"
+            :types="types"
+            :resource="resource"
+            :validators="validators"
+            :loggedIn="loggedIn"
+            @remove="removePredicateValue(index)"
+          >
+          </predicate-row>
+        </tbody>
+      </table>
+      <form v-if="loggedIn">
+        <section id="input-wrapper">
+          <section>
+            <select
+              v-model="newPredicate"
+              @change="checkValidity"
+              :disabled="entityLoading"
+            >
+              <option
+                v-for="predicate in predicates"
+                :value="predicate.s.value"
+              >
+                {{ predicate.label.value }}
+              </option>
+            </select>
+            <button
+              :disabled="entityLoading || !isValid"
+              class="button button-primary"
+              @click.prevent="addPredicateValue"
+            >
+              Add
+            </button>
+          </section>
+          <textarea
+            v-if="isLongText"
+            :class="{
+              valid: newValue && isValid,
+              invalid: newValue && !isValid,
+            }"
+            :disabled="entityLoading"
+            v-model="newValue"
+            @input="checkValidity"
+            placeholder="Text..."
+          >
+          </textarea>
+          <input
+            type="text"
+            :disabled="entityLoading"
+            :class="{
+              valid: newValue && isValid,
+              invalid: newValue && !isValid,
+            }"
+            v-if="!isLongText && !isURIProperty(newPredicate)"
+            v-model="newValue"
+            @input="checkValidity"
+            placeholder="Value..."
+          />
+          <typeahead
+            :uris="uris"
+            :class="{
+              valid: newValue && isValid,
+              invalid: newValue && !isValid,
+            }"
+            :placeholder="'URI...'"
+            @input="checkValidity"
+            @selection="updateModel($event)"
+            v-if="!isLongText && isURIProperty(newPredicate)"
+          >
+          </typeahead>
+          <p v-if="errorMessage">{{ errorMessage }}</p>
         </section>
-        <textarea v-if="isLongText"
-                  :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-                  :disabled="entityLoading"
-                  v-model="newValue"
-                  @input="checkValidity"
-                  placeholder="Text...">
-        </textarea>
-        <input type="text"
-               :disabled="entityLoading"
-               :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-               v-if="!isLongText && !isURIProperty(newPredicate)"
-               v-model="newValue"
-               @input="checkValidity"
-               placeholder="Value...">
-        <typeahead :uris="uris"
-                   :class="{ valid: newValue && isValid, invalid: newValue && !isValid }"
-                   :placeholder="'URI...'"
-                   @input="checkValidity"
-                   @selection="updateModel($event)"
-                   v-if="!isLongText && isURIProperty(newPredicate)">
-        </typeahead>
-        <p v-if="errorMessage">{{errorMessage}}</p>
-       </section>
-    </form>
+      </form>
+    </section>
+    <section id="map-container">
+      <button v-if="!mapData" @click="mapData = []" id="add-map">
+        Add Map
+      </button>
+      <map-component v-if="mapData" :resource="resource" :mapData="mapData">
+      </map-component>
+    </section>
   </section>
-  <section id="map-container">
-    <button v-if="!mapData"
-            @click="mapData = []"
-            id="add-map">
-      Add Map
-    </button>
-    <map-component v-if="mapData"
-                   :resource="resource"
-                   :mapData="mapData">
-    </map-component>
-  </section>
-</section>
 </template>
-
 
 <script>
 import { bus } from "./eventBus.js";
@@ -98,12 +118,13 @@ import PredicateRow from "./PredicateRow.vue";
 import Typeahead from "./Typeahead.vue";
 import types from "./typeService.js";
 import validators from "./validators.js";
+import { API_ROOT } from "./constants.js";
 
 export default {
   components: {
     "predicate-row": PredicateRow,
     typeahead: Typeahead,
-    "map-component": MapComponent
+    "map-component": MapComponent,
   },
   props: ["collection", "inventoryNum"],
   data() {
@@ -121,7 +142,7 @@ export default {
       types,
       uriProperties: [],
       uris: [],
-      validators
+      validators,
     };
   },
   created() {
@@ -130,13 +151,13 @@ export default {
     this.predicates = bus.predicates;
     this.uris = bus.uris;
     this.uriProperties = bus.uriProperties;
-    bus.$on("uris loaded", data => (this.uris = data));
-    bus.$on("predicates loaded", data => (this.predicates = data));
-    bus.$on("URI properties loaded", data => (this.uriProperties = data));
+    bus.$on("uris loaded", (data) => (this.uris = data));
+    bus.$on("predicates loaded", (data) => (this.predicates = data));
+    bus.$on("URI properties loaded", (data) => (this.uriProperties = data));
   },
   watch: {
     $route: "loadEntity",
-    newValue: "checkValidity"
+    newValue: "checkValidity",
   },
   computed: {
     resource() {
@@ -146,22 +167,24 @@ export default {
       return Boolean(this.entity);
     },
     isLongText() {
-      const pred = this.predicates.find(p => p.s.value === this.newPredicate);
+      const pred = this.predicates.find((p) => p.s.value === this.newPredicate);
       return Boolean(pred && pred.longtext);
     },
     predicateType() {
-      return this.getType(p => p.s.value === this.newPredicate);
+      return this.getType((p) => p.s.value === this.newPredicate);
     },
     isValid() {
       return !this.errorMessage;
-    }
+    },
   },
   methods: {
     isURIProperty(predicate) {
-      return Boolean(this.uriProperties.find(p => p === predicate));
+      return Boolean(this.uriProperties.find((p) => p === predicate));
     },
     predicateIsLongText(keyValPair) {
-      const pred = this.predicates.find(p => p.s.value === keyValPair.p.value);
+      const pred = this.predicates.find(
+        (p) => p.s.value === keyValPair.p.value
+      );
       return Boolean(pred && pred.longtext);
     },
     checkValidity() {
@@ -177,8 +200,8 @@ export default {
     },
     loadEntity(func) {
       this.entityLoading = true;
-      const url = `/api/entities?resourceName=${this.resource}`;
-      this.$http.get(url).then(response => {
+      const url = `${API_ROOT}/api/entities?resourceName=${this.resource}`;
+      this.$http.get(url).then((response) => {
         this.entity = response.body;
         this.entityLoading = false;
         if (func && typeof func === "function") func();
@@ -197,27 +220,29 @@ export default {
     },
     findPredicate(keyVal) {
       const label = keyVal.label.value ? keyVal.label.value : keyVal.p.value;
-      return this.predicates.find(p => p.label.value === label);
+      return this.predicates.find((p) => p.label.value === label);
     },
     addPredicateValue() {
       if (this.isValid) {
-        const url = `/api/entities/${this.resource}`;
+        const url = `${API_ROOT}/api/entities/${this.resource}`;
         const val = this.types[this.predicateType](this.newValue);
-        this.$http.post(url, { key: this.newPredicate, val }).then(response => {
-          if (!!~response.bodyText.indexOf("Success")) {
-            this.loadEntity(() => {
-              this.newValue = undefined;
-              bus.$emit("toast-success", "Added predicate");
-            });
-          }
-        });
+        this.$http
+          .post(url, { key: this.newPredicate, val })
+          .then((response) => {
+            if (!!~response.bodyText.indexOf("Success")) {
+              this.loadEntity(() => {
+                this.newValue = undefined;
+                bus.$emit("toast-success", "Added predicate");
+              });
+            }
+          });
       }
     },
     removePredicateValue(index) {
       const predicateValue = this.entity.results.bindings[index];
-      const url = `/api/entities/${this.resource}`;
+      const url = `${API_ROOT}/api/entities/${this.resource}`;
       let ptype = this.getType(
-        p => p.label.value === predicateValue.label.value
+        (p) => p.label.value === predicateValue.label.value
       );
 
       if (confirm(`Delete ${predicateValue.o.value} from ${this.resource}?`)) {
@@ -230,11 +255,11 @@ export default {
         const query = `?key=${key}&value=${value}`;
 
         this.$http.delete(url + query).then(
-          response => {
+          (response) => {
             this.entity.results.bindings.splice(index, 1);
             bus.$emit("toast-warning", "Removed predicate");
           },
-          error => {
+          (error) => {
             console.log(error.body);
           }
         );
@@ -242,16 +267,15 @@ export default {
     },
     getMapData() {
       const mapProp = this.entity.results.bindings.find(
-        prop => prop.p.value === "kaaont:x-geojson"
+        (prop) => prop.p.value === "kaaont:x-geojson"
       );
       if (mapProp) {
         this.mapData = JSON.parse(mapProp.o.value);
       }
-    }
-  }
+    },
+  },
 };
 </script>
-
 
 <style scoped>
 #map-container {

@@ -1,66 +1,89 @@
 <template>
   <tr>
-    <td>{{key}}</td>
-    <td class="object-value" 
-        v-if="!editorOpened"
-        v-bind:class="{ 'inline-image': isImage }">
+    <td>{{ key }}</td>
+    <td
+      class="object-value"
+      v-if="!editorOpened"
+      v-bind:class="{ 'inline-image': isImage }"
+    >
+      <section>
         <section>
-          <section>
-            <a v-if="isAWSLink"
-               target="_blank"
-               :href="awsUrl + value">
-              <p>{{value}}</p>
-            </a>
-            <a v-else-if="isHyperLink"
-               target="_blank"
-               :href="url">
-              <p>{{value}}</p>
-            </a>
-            <p v-else>{{value}}</p>
-          </section>
-          <button class="button button-remove"
-                  v-if="loggedIn"
-                  @click="$emit('remove')">
-            X
-          </button>
-          <button class="button button-remove"
-                  v-if="loggedIn"
-                  @click="editorOpened = !editorOpened">
-            Edit
-          </button>
+          <a v-if="isAWSLink" target="_blank" :href="awsUrl + value">
+            <p>{{ value }}</p>
+          </a>
+          <a v-else-if="isHyperLink" target="_blank" :href="url">
+            <p>{{ value }}</p>
+          </a>
+          <p v-else>{{ value }}</p>
         </section>
-        <img v-if="isImage"
-             alt="photo from the kenchreai archives"
-             :src="awsUrl + value"/>
+        <button
+          class="button button-remove"
+          v-if="loggedIn"
+          @click="$emit('remove')"
+        >
+          X
+        </button>
+        <button
+          class="button button-remove"
+          v-if="loggedIn"
+          @click="editorOpened = !editorOpened"
+        >
+          Edit
+        </button>
+      </section>
+      <img
+        v-if="isImage"
+        alt="photo from the kenchreai archives"
+        :src="awsUrl + value"
+      />
     </td>
     <td v-if="editorOpened && loggedIn">
       <section class="inline-editor">
         <form>
           <section id="input-wrapper">
-            <textarea v-if="isLongText"
-                      :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
-                      v-model="editorValue"
-                      placeholder="Text...">
+            <textarea
+              v-if="isLongText"
+              :class="{
+                valid: editorValue && isValid,
+                invalid: editorValue && !isValid,
+              }"
+              v-model="editorValue"
+              placeholder="Text..."
+            >
             </textarea>
-            <input type="text"
-                   v-if="!isLongText && !isURIProperty"
-                   :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
-                   v-model="editorValue"
-                   placeholder="Value...">
-            <typeahead :uris="uris"
-                       @selection="updateModel($event)"
-                       :class="{ valid: editorValue && isValid, invalid: editorValue && !isValid }"
-                       :placeholder="'URI...'"
-                       v-if="!isLongText && isURIProperty">
+            <input
+              type="text"
+              v-if="!isLongText && !isURIProperty"
+              :class="{
+                valid: editorValue && isValid,
+                invalid: editorValue && !isValid,
+              }"
+              v-model="editorValue"
+              placeholder="Value..."
+            />
+            <typeahead
+              :uris="uris"
+              @selection="updateModel($event)"
+              :class="{
+                valid: editorValue && isValid,
+                invalid: editorValue && !isValid,
+              }"
+              :placeholder="'URI...'"
+              v-if="!isLongText && isURIProperty"
+            >
             </typeahead>
-            <p class="invalid" v-if="errorMessage">{{errorMessage}}</p>
+            <p class="invalid" v-if="errorMessage">{{ errorMessage }}</p>
           </section>
-          <button class="button button-remove"
-                  @click.prevent="updatePredicateValue">
+          <button
+            class="button button-remove"
+            @click.prevent="updatePredicateValue"
+          >
             Save
           </button>
-          <button class="button button-remove"
-                  @click.prevent="editorOpened = !editorOpened">
+          <button
+            class="button button-remove"
+            @click.prevent="editorOpened = !editorOpened"
+          >
             Cancel
           </button>
         </form>
@@ -69,10 +92,10 @@
   </tr>
 </template>
 
-
 <script>
 import { bus } from "./eventBus.js";
 import Typeahead from "./Typeahead.vue";
+import { API_ROOT } from "./constants.js";
 
 export default {
   props: [
@@ -86,10 +109,10 @@ export default {
     "uris",
     "validators",
     "loggedIn",
-    "isURIProperty"
+    "isURIProperty",
   ],
   components: {
-    typeahead: Typeahead
+    typeahead: Typeahead,
   },
   data() {
     return {
@@ -97,7 +120,7 @@ export default {
       value: "",
       editorValue: undefined,
       editorOpened: false,
-      errorMessage: null
+      errorMessage: null,
     };
   },
   created() {
@@ -118,7 +141,7 @@ export default {
     },
     isAWSLink() {
       return Boolean(
-        ["Photograph", "Drawing", "File"].find(r => r === this.key)
+        ["Photograph", "Drawing", "File"].find((r) => r === this.key)
       );
     },
     url() {
@@ -132,6 +155,7 @@ export default {
     },
     isValid() {
       const validator = this.validators[this.validatorType];
+
       if (validator) {
         this.errorMessage = validator(this.editorValue, this.uris);
         return !Boolean(this.errorMessage);
@@ -139,7 +163,7 @@ export default {
         this.errorMessage = null;
         return true;
       }
-    }
+    },
   },
   methods: {
     renderRow() {
@@ -149,15 +173,15 @@ export default {
     },
     updatePredicateValue() {
       if (this.isValid) {
-        const url = `/api/entities/${this.resource}`;
+        const url = `${API_ROOT}/api/entities/${this.resource}`;
         const oldVal = this.types[this.predicateType](this.value);
         const newVal = this.types[this.predicateType](this.editorValue);
         const data = {
           predicate: this.predicate.s.value,
           oldVal: oldVal,
-          newVal: newVal
+          newVal: newVal,
         };
-        this.$http.put(url, data).then(response => {
+        this.$http.put(url, data).then((response) => {
           if (!!~response.bodyText.indexOf("Success")) {
             this.value = this.editorValue;
             this.editorOpened = false;
@@ -168,11 +192,10 @@ export default {
     },
     updateModel(data) {
       this.editorValue = data;
-    }
-  }
+    },
+  },
 };
 </script>
-
 
 <style scoped>
 .inline-image > img {

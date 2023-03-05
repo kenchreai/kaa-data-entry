@@ -12,10 +12,11 @@ import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
 import ResetPasswordView from './ResetPasswordView.vue'
 
-require('../dist/css/normalize.css')
-require('../dist/css/skeleton.css')
-require('../node_modules/awesomplete/awesomplete.css')
-require('../node_modules/leaflet/dist/leaflet.css')
+// require('../dist/css/skeleton.css')
+
+import 'normalize.css'
+import 'awesomplete/awesomplete.css'
+import 'leaflet/dist/leaflet.css'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
@@ -35,33 +36,32 @@ Vue.http.interceptors.push((request, next) => {
 })
 
 const routes = [{
-  path: '/',
-  component: App,
-  redirect: '/search',
-  children: [{
-    path: 'search',
+    path: '/',
+    redirect: '/search'
+  }, {
+    path: '/search',
     component: ListView
   }, {
-    path: 'detail/:collection/:inventoryNum',
+    path:'/detail/:collection/:inventoryNum',
     component: DetailView,
     props: true
   }, {
-    path: 'login',
+    path: '/login',
     component: LoginView,
     beforeEnter: (to, from, next) => {
       if (from.fullPath.substr(0, 7) === '/detail') {
         setTimeout(() => bus.$emit('redirected from detail', from.fullPath), 500)
       }
       next()
-    },
+    }
   }, {
-    path: 'register',
+    path: '/register',
     component: RegisterView
   }, {
-    path: 'reset-password',
+    path: '/reset-password',
     component: ResetPasswordView
-  }]
-}]
+  }
+]
 
 const router = new VueRouter({ routes, mode: 'history' })
-const app = new Vue({ router }).$mount('#app')
+const app = new Vue({ router, render: h => h(App) }).$mount('#app')
