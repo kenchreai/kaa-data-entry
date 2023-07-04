@@ -21,8 +21,7 @@
       v-model="nextEntityNumber"
     />
     <p v-if="nextEntityNumber && !validationMessage">
-      New entity will exist at http://kencheai.org/kaa/{{ namespace
-      }}{{ nextEntityNumber }}
+      New entity will exist at {{ entityURI }}
     </p>
     <p class="validation-message" v-if="validationMessage">
       {{ validationMessage }}
@@ -37,11 +36,15 @@
     <br />
     <button
       class="button button-primary"
-      :disabled="!nextEntityNumber && !validationMessage"
+      :disabled="!namespace || !nextEntityNumber || !!validationMessage"
       @click.prevent="generateEntity"
     >
       Generate Entity
     </button>
+    {{ !namespace }}
+    {{ !nextEntityNumber }}
+    {{ validationMessage }}
+    {{ !namespace || !nextEntityNumber || !!validationMessage }}
   </section>
 </template>
 
@@ -57,6 +60,11 @@ export default {
       nextEntityNumber: '',
       validationMessage: '',
     }
+  },
+  computed: {
+    entityURI: function () {
+      return `http://kenchreai.org/kaa/${this.namespace}${this.nextEntityNumber}`
+    },
   },
   watch: {
     namespace: function () {
@@ -91,7 +99,16 @@ export default {
         this.nextEntityNumber = ''
       }
     },
-    generateEntity() {},
+    async generateEntity() {
+      const response = await this.$http.post(`${API_ROOT}/api/entities`, {
+        entityURI: this.entityURI,
+        entityType: this.namespace,
+        entityLabel: this.nextEntityNumber,
+      })
+      if (response.ok) {
+        bus.$emit('entityCreated')
+      }
+    },
   },
 }
 </script>

@@ -200,10 +200,36 @@ const DbService = (function () {
       cb(await response.json())
     }
 
-    service.createEntity = async (entityURI, entityType, cb) => {
-      const queryString = ``
+    service.createEntity = async (entityURI, entityType, entityLabel, cb) => {
+      let triples = ''
 
-      const response = await client.query
+      if (entityType === 'ke/co') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaake:inventoried-coins
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaatyp:coin
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "co${entityLabel}"
+          };
+        `
+      }
+
+      const queryString = `
+        ${prefixes}
+        ${triples}
+      `
+
+      const response = await client.query.update(queryString)
+      cb(await response.text())
     }
 
     return service

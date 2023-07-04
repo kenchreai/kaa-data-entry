@@ -246,6 +246,16 @@ app.get('/api/last-namespace-item', (req, res) => {
   dbService.getNextNamespaceItem(namespace, (response) => res.send(response))
 })
 
+app.post('/api/entities', (req, res) => {
+  validateToken(req, res, true, () => {
+    const { entityURI, entityType, entityLabel } = req.body
+
+    dbService.createEntity(entityURI, entityType, entityLabel, (response) =>
+      res.send(response)
+    )
+  })
+})
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
