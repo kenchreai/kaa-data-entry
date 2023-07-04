@@ -2,16 +2,14 @@ const { Connection, query } = require('stardog')
 const sparqlClient = require('sparql-http-client')
 const SimpleClient = require('sparql-http-client/SimpleClient')
 
-const DbService = (function() {
+const DbService = (function () {
   return (baseUrl, username, password) => {
-
     const client = new SimpleClient({
       endpointUrl: `${baseUrl}sparql`,
       updateUrl: `${baseUrl}update`,
       user: username,
-      password: password
+      password: password,
     })
-
 
     /*
     const CONN = new Connection({
@@ -61,16 +59,13 @@ const DbService = (function() {
       cb(await response.json())
     }
 
-
-
     service.getAllUris = async (cb) => {
-      const queryString = 'select distinct ?s where { ?s ?p ?o filter isURI(?s) }'
+      const queryString =
+        'select distinct ?s where { ?s ?p ?o filter isURI(?s) }'
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
-
-
 
     service.getURIProperties = async (cb) => {
       /*
@@ -93,8 +88,6 @@ const DbService = (function() {
       cb(await response.json())
     }
 
-
-
     service.getDetail = async (detailUrl, cb) => {
       const queryString = `
         ${prefixes}
@@ -106,8 +99,6 @@ const DbService = (function() {
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
-
-
 
     service.getDescriptors = async (cb) => {
       const queryString = `
@@ -127,22 +118,20 @@ const DbService = (function() {
       cb(await response.json())
     }
 
-
-
     service.insert = async (re, cb) => {
       if (re.object.replace) {
         re.object = re.object.replace(/\r/g, '\\r')
         re.object = re.object.replace(/\n/g, '\\n')
       }
       const queryString = `
-        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.object} }
+        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
+        re.object
+      } }
       `
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
-
-
 
     service.updateDetail = async (re, cb) => {
       if (re.oldObject.replace) {
@@ -157,38 +146,64 @@ const DbService = (function() {
       `
       */
       const queryString = `
-        delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
-        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
+        delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
+        re.oldObject
+      } };
+        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
+        re.newObject
+      } }
       `
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
-
-
 
     service.updateMap = async (re, cb) => {
       const queryString = `
-        delete where { <${kaaBaseUrl + re.subject}> <${re.predicate}> ?anyObject };
-        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.data} }
+        delete where { <${kaaBaseUrl + re.subject}> <${
+        re.predicate
+      }> ?anyObject };
+        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
+        re.data
+      } }
       `
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
 
-
-
     service.deleteDetail = async (re, cb) => {
       if (re.object.replace) {
-        re.object = re.object.replace(/\n/g, '\\n');
+        re.object = re.object.replace(/\n/g, '\\n')
       }
       const queryString = `
-        delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.object} }
+        delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
+        re.object
+      } }
       `
       // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
+    }
+
+    service.getNextNamespaceItem = async (domain, cb) => {
+      const queryString = `
+        ${prefixes}
+        select ?s where {
+          ?s ?p ?o .filter contains(str(?s), "${domain}")
+        }
+        order by desc(?s)
+        limit 1
+      `
+
+      const response = await client.query.select(queryString)
+      cb(await response.json())
+    }
+
+    service.createEntity = async (entityURI, entityType, cb) => {
+      const queryString = ``
+
+      const response = await client.query
     }
 
     return service
