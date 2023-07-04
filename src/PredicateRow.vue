@@ -4,7 +4,7 @@
     <td
       class="object-value"
       v-if="!editorOpened"
-      v-bind:class="{ 'inline-image': isImage }"
+      v-bind:class="{ 'inline-image': isImage, 'no-mobile': !isMobile }"
     >
       <section>
         <section>
@@ -93,108 +93,111 @@
 </template>
 
 <script>
-import { bus } from "./eventBus.js";
-import Typeahead from "./Typeahead.vue";
-import { API_ROOT } from "./constants.js";
+import { bus } from './eventBus.js'
+import Typeahead from './Typeahead.vue'
+import { API_ROOT } from './constants.js'
+
+const isMobile = !!navigator.userAgent.match(/(iPhone|iPad|Android|BlackBerry)/)
 
 export default {
   props: [
-    "keyValPair",
-    "predicate",
-    "predicateType",
-    "types",
-    "isLongText",
-    "awsUrl",
-    "resource",
-    "uris",
-    "validators",
-    "loggedIn",
-    "isURIProperty",
+    'keyValPair',
+    'predicate',
+    'predicateType',
+    'types',
+    'isLongText',
+    'awsUrl',
+    'resource',
+    'uris',
+    'validators',
+    'loggedIn',
+    'isURIProperty',
   ],
   components: {
     typeahead: Typeahead,
   },
   data() {
     return {
-      key: "",
-      value: "",
+      key: '',
+      value: '',
       editorValue: undefined,
       editorOpened: false,
       errorMessage: null,
-    };
+      isMobile,
+    }
   },
   created() {
-    this.renderRow();
-    this.editorValue = this.value;
+    this.renderRow()
+    this.editorValue = this.value
   },
   computed: {
     validatorType() {
-      return `${this.predicateType}Error`;
+      return `${this.predicateType}Error`
     },
     isImage() {
-      return this.key === "Photograph" || this.key === "Drawing";
+      return this.key === 'Photograph' || this.key === 'Drawing'
     },
     isHyperLink() {
       return (
-        this.predicate && this.predicate.ptype.value.indexOf("Object") !== -1
-      );
+        this.predicate && this.predicate.ptype.value.indexOf('Object') !== -1
+      )
     },
     isAWSLink() {
       return Boolean(
-        ["Photograph", "Drawing", "File"].find((r) => r === this.key)
-      );
+        ['Photograph', 'Drawing', 'File'].find((r) => r === this.key)
+      )
     },
     url() {
       if (this.isHyperLink) {
-        if (this.value.search("kenchreai.org/kaa") === -1) {
-          return `http://kenchreai.org/kaa/${this.value}`;
+        if (this.value.search('kenchreai.org/kaa') === -1) {
+          return `http://kenchreai.org/kaa/${this.value}`
         } else {
-          return this.value;
+          return this.value
         }
       }
     },
     isValid() {
-      const validator = this.validators[this.validatorType];
+      const validator = this.validators[this.validatorType]
 
       if (validator) {
-        this.errorMessage = validator(this.editorValue, this.uris);
-        return !Boolean(this.errorMessage);
+        this.errorMessage = validator(this.editorValue, this.uris)
+        return !Boolean(this.errorMessage)
       } else {
-        this.errorMessage = null;
-        return true;
+        this.errorMessage = null
+        return true
       }
     },
   },
   methods: {
     renderRow() {
-      const kvp = this.keyValPair;
-      this.key = kvp.label.value ? kvp.label.value : kvp.p.value;
-      this.value = kvp.o.value;
+      const kvp = this.keyValPair
+      this.key = kvp.label.value ? kvp.label.value : kvp.p.value
+      this.value = kvp.o.value
     },
     updatePredicateValue() {
       if (this.isValid) {
-        const url = `${API_ROOT}/api/entities/${this.resource}`;
-        const oldVal = this.types[this.predicateType](this.value);
-        const newVal = this.types[this.predicateType](this.editorValue);
+        const url = `${API_ROOT}/api/entities/${this.resource}`
+        const oldVal = this.types[this.predicateType](this.value)
+        const newVal = this.types[this.predicateType](this.editorValue)
         const data = {
           predicate: this.predicate.s.value,
           oldVal: oldVal,
           newVal: newVal,
-        };
+        }
         this.$http.put(url, data).then((response) => {
-          if (!!~response.bodyText.indexOf("Success")) {
-            this.value = this.editorValue;
-            this.editorOpened = false;
-            bus.$emit("toast-success", "Updated predicate");
+          if (!!~response.bodyText.indexOf('Success')) {
+            this.value = this.editorValue
+            this.editorOpened = false
+            bus.$emit('toast-success', 'Updated predicate')
           }
-        });
+        })
       }
     },
     updateModel(data) {
-      this.editorValue = data;
+      this.editorValue = data
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -215,15 +218,15 @@ export default {
   margin-bottom: 0;
 }
 
-.object-value:hover {
+.object-value.no-mobile:hover {
   background: #f6f6f6;
 }
 
-.object-value .button-remove {
+.object-value.no-mobile .button-remove {
   display: none;
 }
 
-.object-value:hover .button-remove {
+.object-value.no-mobile:hover .button-remove {
   display: inherit;
 }
 
