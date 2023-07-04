@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import { bus } from "./eventBus.js";
-import { API_ROOT } from "./constants.js";
+import { bus } from './eventBus.js'
+import { API_ROOT } from './constants.js'
 
 export default {
   data() {
@@ -34,32 +34,32 @@ export default {
       username: undefined,
       password: undefined,
       redirectUrl: undefined,
-    };
+    }
   },
   created() {
-    bus.$on("redirected from detail", (url) => (this.redirectUrl = url));
+    bus.$on('redirected from detail', (url) => (this.redirectUrl = url))
   },
   methods: {
     login() {
-      const { username, password } = this;
+      const { username, password } = this
       this.$http.post(`${API_ROOT}/api/token`, { username, password }).then(
         (response) => {
-          localStorage.setItem("access-token", response.body);
-          bus.$emit("login");
+          localStorage.setItem('access-token', response.body)
+          bus.$emit('login')
           if (this.redirectUrl) {
-            this.$router.push(this.redirectUrl);
+            this.$router.push(this.redirectUrl)
           } else {
-            this.$router.push("search");
+            this.$router.push('search')
           }
         },
         (error) => {
-          bus.$emit("toast-error", error.bodyText);
-          console.log(error);
+          bus.$emit('toast-error', error.bodyText)
+          console.log(error)
         }
-      );
+      )
     },
   },
-};
+}
 </script>
 
 <style scoped>

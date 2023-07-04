@@ -18,42 +18,43 @@
 </template>
 
 <script>
-import Toastr from "vue-toastr";
-import "vue-toastr/src/vue-toastr.scss";
+import Toastr from 'vue-toastr'
+import 'vue-toastr/src/vue-toastr.scss'
 
-import { bus } from "./eventBus.js";
+import { bus } from './eventBus.js'
 
 export default {
-  name: "app",
+  name: 'app',
   components: {
-    "vue-toastr": Toastr,
+    'vue-toastr': Toastr,
   },
   data() {
-    return { loggedIn: false };
+    return { loggedIn: false }
   },
   created() {
-    this.loggedIn = Boolean(localStorage.getItem("access-token"));
-    bus.$on("login", () => {
-      this.loggedIn = true;
-      this.$refs.toastr.s("Logged in");
-    });
-    bus.$on("logout", () => (this.loggedIn = false));
-    bus.$on("toast-success", (mes) => this.$refs.toastr.s(mes));
-    bus.$on("toast-error", (mes) => this.$refs.toastr.e(mes));
-    bus.$on("toast-warning", (mes) => this.$refs.toastr.w(mes));
+    this.loggedIn = Boolean(localStorage.getItem('access-token'))
+    bus.$on('login', () => {
+      this.loggedIn = true
+      this.$refs.toastr.s('Logged in')
+    })
+    bus.$on('entityCreated', () => this.$refs.toastr.s('Created entity'))
+    bus.$on('logout', () => (this.loggedIn = false))
+    bus.$on('toast-success', (mes) => this.$refs.toastr.s(mes))
+    bus.$on('toast-error', (mes) => this.$refs.toastr.e(mes))
+    bus.$on('toast-warning', (mes) => this.$refs.toastr.w(mes))
   },
   methods: {
     logout() {
-      localStorage.setItem("access-token", "");
-      this.loggedIn = false;
+      localStorage.setItem('access-token', '')
+      this.loggedIn = false
     },
   },
-};
+}
 </script>
 
 <style>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
