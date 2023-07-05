@@ -223,6 +223,21 @@ const DbService = (function () {
         `
       }
 
+      if (entityType === 'ke/ke') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaake:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "ke${entityLabel}"
+          };
+        `
+      }
+
       const queryString = `
         ${prefixes}
         ${triples}

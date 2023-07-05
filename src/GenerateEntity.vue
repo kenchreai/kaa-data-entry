@@ -4,14 +4,15 @@
     <label for="namespace">Namespace</label>
     <select id="namespace" v-model="namespace">
       <option value="">Select</option>
-      <option value="kth/kth">KTH entity</option>
       <option value="ke/co">KE Coin</option>
+      <option value="ke/ke">KE Inventoried Object</option>
       <option value="kcp/ka">KCP Architecture</option>
       <option value="kcp/ki">KCP Inscription</option>
       <option value="kcp/kl">KCP Lamp</option>
       <option value="kcp/km">KCP Material</option>
       <option value="kcp/kp">KCP Pottery</option>
       <option value="kcp/ks">KCP Sculpture</option>
+      <option value="kth/kth">KTH entity</option>
     </select>
     <label for="entityNumber">Entity Number</label>
     <input
@@ -64,6 +65,8 @@ export default {
   },
   watch: {
     namespace: function () {
+      this.seriesNumber = ''
+      this.nextEntityNumber = ''
       this.getNextItemInNamespace()
     },
     nextEntityNumber: function () {
@@ -71,6 +74,16 @@ export default {
         if (!this.nextEntityNumber.match(/^\d{4}$/)) {
           return (this.validationMessage =
             'Entity number must be four digits (e.g. 0031, 0208)')
+        }
+      }
+
+      if (this.namespace === 'ke/ke') {
+        if (
+          !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
+          this.nextEntityNumber.match(/[A-Z]/)
+        ) {
+          return (this.validationMessage =
+            'Entity label must be four digits and optional text (e.g. 0021, 2942bis, 9428-a2)')
         }
       }
       this.validationMessage = ''
