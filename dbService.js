@@ -212,8 +212,13 @@ const DbService = (function () {
           };
           insert data {
             <${entityURI}>
-            rdf:type
+            kaaont:typological-identification
             kaatyp:coin
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-coin
           };
           insert data {
             <${entityURI}>
@@ -229,6 +234,11 @@ const DbService = (function () {
             <${entityURI}>
             kaaont:is-logical-part-of
             kaake:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
           };
           insert data {
             <${entityURI}>
