@@ -21,11 +21,15 @@
       name="entityNumber"
       v-model="nextEntityNumber"
     />
-    <p v-if="nextEntityNumber && !validationMessage">
+    <p v-if="nextEntityNumber && !validationMessage && !entityExistsMessage">
       New entity will exist at {{ entityURI }}
     </p>
-    <p class="validation-message" v-if="validationMessage">
+    <p
+      class="validation-message"
+      v-if="validationMessage || entityExistsMessage"
+    >
       {{ validationMessage }}
+      {{ entityExistsMessage }}
     </p>
     <br />
     <button
@@ -37,7 +41,9 @@
     <br />
     <button
       class="button button-primary"
-      :disabled="!namespace || !nextEntityNumber || !!validationMessage"
+      :disabled="
+        !namespace || !nextEntityNumber || !!validationMessage || entityExists
+      "
       @click.prevent="generateEntity"
     >
       Generate Entity
@@ -56,6 +62,8 @@ export default {
       seriesNumber: '',
       nextEntityNumber: '',
       validationMessage: '',
+      entityExists: true,
+      entityExistsMessage: '',
     }
   },
   computed: {
@@ -68,25 +76,24 @@ export default {
       this.seriesNumber = ''
       this.nextEntityNumber = ''
       this.getNextItemInNamespace()
+      this.checkEntityDoesNotExist()
     },
     nextEntityNumber: function () {
       if (this.namespace === 'ke/co') {
         if (!this.nextEntityNumber.match(/^\d{4}$/)) {
-          return (this.validationMessage =
-            'Entity number must be four digits (e.g. 0031, 0208)')
-        }
-      }
-
-      if (this.namespace === 'ke/ke') {
+          this.validationMessage =
+            'Entity number must be four digits (e.g. 0031, 0208)'
+        } else this.validationMessage = ''
+      } else if (this.namespace === 'ke/ke') {
         if (
           !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
           this.nextEntityNumber.match(/[A-Z]/)
         ) {
-          return (this.validationMessage =
-            'Entity label must be four digits and optional text (e.g. 0021, 2942bis, 9428-a2)')
-        }
+          this.validationMessage =
+            'Entity label must be four digits and optional text (e.g. 0021, 2942bis, 9428-a2)'
+        } else this.validationMessage = ''
       }
-      this.validationMessage = ''
+      this.checkEntityDoesNotExist()
     },
   },
   methods: {
@@ -106,6 +113,22 @@ export default {
         this.nextEntityNumber = (+this.seriesNumber + 1).toString()
       } else {
         this.nextEntityNumber = ''
+      }
+    },
+    async checkEntityDoesNotExist() {
+      this.entityExists = true
+      this.entityExistsMessage = ''
+      if (!this.namespace || !this.nextEntityNumber || this.validationMessage)
+        return
+      const response = await this.$http.get(
+        `${API_ROOT}/api/entities?resourceName=${
+          this.namespace + this.nextEntityNumber
+        }`
+      )
+      if (response.ok && !!response.body.results.bindings.length) {
+        this.entityExistsMessage = 'Entity already exists'
+      } else {
+        this.entityExists = false
       }
     },
     async generateEntity() {
