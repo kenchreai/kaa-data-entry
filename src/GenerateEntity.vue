@@ -48,6 +48,10 @@
     >
       Generate Entity
     </button>
+    <p v-if="createdEntities.length">Recently Created</p>
+    <div v-for="link of createdEntities">
+      <a :href="link" target="_blank">{{ link }}</a>
+    </div>
   </section>
 </template>
 
@@ -64,6 +68,7 @@ export default {
       validationMessage: '',
       entityExists: true,
       entityExistsMessage: '',
+      createdEntities: [],
     }
   },
   computed: {
@@ -138,6 +143,7 @@ export default {
         entityLabel: this.nextEntityNumber,
       })
       if (response.ok) {
+        this.createdEntities.push(this.entityURI)
         bus.$emit('entityCreated')
       }
     },
