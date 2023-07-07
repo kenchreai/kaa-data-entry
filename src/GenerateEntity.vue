@@ -6,13 +6,13 @@
       <option value="">Select</option>
       <option value="ke/co">KE Coin</option>
       <option value="ke/ke">KE Inventoried Object</option>
+      <option value="kth/kth">KTH Inventoried Object</option>
       <option value="kcp/ka">KCP Architecture</option>
       <option value="kcp/ki">KCP Inscription</option>
       <option value="kcp/kl">KCP Lamp</option>
       <option value="kcp/km">KCP Material</option>
       <option value="kcp/kp">KCP Pottery</option>
       <option value="kcp/ks">KCP Sculpture</option>
-      <option value="kth/kth">KTH entity</option>
     </select>
     <label for="entityNumber">Entity Number</label>
     <input
@@ -82,14 +82,17 @@ export default {
       this.nextEntityNumber = ''
       this.getNextItemInNamespace()
       this.checkEntityDoesNotExist()
+      this.validationMessage = ''
+      this.entityExistsMessage = ''
     },
     nextEntityNumber: function () {
+      if (!this.nextEntityNumber) return (this.validationMessage = '')
       if (this.namespace === 'ke/co') {
         if (!this.nextEntityNumber.match(/^\d{4}$/)) {
           this.validationMessage =
             'Entity number must be four digits (e.g. 0031, 0208)'
         } else this.validationMessage = ''
-      } else if (this.namespace === 'ke/ke') {
+      } else if (this.namespace === 'ke/ke' || this.namespace === 'kth/kth') {
         if (
           !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
           this.nextEntityNumber.match(/[A-Z]/)

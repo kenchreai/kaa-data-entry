@@ -248,6 +248,26 @@ const DbService = (function () {
         `
       }
 
+      if (entityType === 'kth/kth') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakth:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "kth${entityLabel}"
+          };
+        `
+      }
+
       const queryString = `
         ${prefixes}
         ${triples}
