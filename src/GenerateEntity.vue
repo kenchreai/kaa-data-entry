@@ -55,9 +55,17 @@
     >
       Generate Entity
     </button>
+    <p></p>
+    <br />
     <p v-if="createdEntities.length">Recently Created</p>
-    <div v-for="link of createdEntities">
-      <a :href="link" target="_blank">{{ link }}</a>
+    <div v-for="linkSet of createdEntities">
+      <div>
+        <a :href="linkSet.kaa" target="_blank">{{ linkSet.kaa }}</a>
+      </div>
+      <div>
+        <a :href="linkSet.editor" target="_blank">{{ linkSet.editor }}</a>
+      </div>
+      <br />
     </div>
   </section>
 </template>
@@ -81,6 +89,9 @@ export default {
   computed: {
     entityURI: function () {
       return `http://kenchreai.org/kaa/${this.namespace}${this.nextEntityNumber}`
+    },
+    editorURI: function () {
+      return `/detail/${this.namespace}${this.nextEntityNumber}`
     },
   },
   watch: {
@@ -155,7 +166,10 @@ export default {
         entityLabel: this.nextEntityNumber,
       })
       if (response.ok) {
-        this.createdEntities.push(this.entityURI)
+        this.createdEntities.push({
+          kaa: this.entityURI,
+          editor: this.editorURI,
+        })
         bus.$emit('entityCreated')
       }
     },
