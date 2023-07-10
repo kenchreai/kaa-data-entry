@@ -21,7 +21,14 @@
       name="entityNumber"
       v-model="nextEntityNumber"
     />
-    <p v-if="nextEntityNumber && !validationMessage && !entityExistsMessage">
+    <p
+      v-if="
+        namespace &&
+        nextEntityNumber &&
+        !validationMessage &&
+        !entityExistsMessage
+      "
+    >
       New entity will exist at {{ entityURI }}
     </p>
     <p
@@ -86,7 +93,8 @@ export default {
       this.entityExistsMessage = ''
     },
     nextEntityNumber: function () {
-      if (!this.nextEntityNumber) return (this.validationMessage = '')
+      if (!this.namespace || !this.nextEntityNumber)
+        return (this.validationMessage = '')
       if ('ke/co ke/ke kth/kth'.includes(this.namespace)) {
         if (
           !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
