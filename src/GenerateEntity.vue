@@ -87,18 +87,19 @@ export default {
     },
     nextEntityNumber: function () {
       if (!this.nextEntityNumber) return (this.validationMessage = '')
-      if (this.namespace === 'ke/co') {
-        if (!this.nextEntityNumber.match(/^\d{4}$/)) {
-          this.validationMessage =
-            'Entity number must be four digits (e.g. 0031, 0208)'
-        } else this.validationMessage = ''
-      } else if (this.namespace === 'ke/ke' || this.namespace === 'kth/kth') {
+      if ('ke/co ke/ke kth/kth'.includes(this.namespace)) {
         if (
           !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
           this.nextEntityNumber.match(/[A-Z]/)
         ) {
           this.validationMessage =
             'Entity label must be four digits and optional text (e.g. 0021, 2942bis, 9428-a2)'
+          /* } else if (this.namespace === 'ke/co') {
+            if (!this.nextEntityNumber.match(/^\d{4}$/)) {
+              this.validationMessage =
+                'Entity number must be four digits (e.g. 0031, 0208)'
+            }
+        */
         } else this.validationMessage = ''
       }
       this.checkEntityDoesNotExist()
