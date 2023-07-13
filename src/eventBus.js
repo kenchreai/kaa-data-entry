@@ -4,32 +4,40 @@ import { API_ROOT } from './constants.js'
 
 Vue.use(VueResource)
 
-
 export const bus = new Vue({
   data: {
     uris: [],
     predicates: [],
     entities: [],
-    uriProperties: [] // properties which are 'uri' type
+    uriProperties: [], // properties which are 'uri' type
   },
   methods: {
-    loadPredicates () {
-      this.$http.get(`${API_ROOT}/api/descriptors`).then((response) => {
-        this.predicates = response.body.results.bindings
-        this.$emit('predicates loaded', this.predicates)
-      }, (error) => {
-        this.$emit('toast-error', `Loading Predicates Failed: ${error.statusText}`)
-      })
+    loadPredicates() {
+      this.$http.get(`${API_ROOT}/api/descriptors`).then(
+        (response) => {
+          this.predicates = response.body.results.bindings
+          this.$emit('predicates loaded', this.predicates)
+        },
+        (error) => {
+          this.$emit(
+            'toast-error',
+            `Loading Predicates Failed: ${error.statusText}`
+          )
+        }
+      )
     },
-    loadUris () {
-      this.$http.get(`${API_ROOT}/api/uris`).then((response) => {
-        this.uris = response.body.results.bindings.map(b => b.s.value)
-        this.$emit('uris loaded', this.uris)
-      }, (error) => {
-        this.$emit('toast-error', `Loading URIs Failed: ${error.statusText}`)
-      })
+    loadUris() {
+      this.$http.get(`${API_ROOT}/api/uris`).then(
+        (response) => {
+          this.uris = response.body.results.bindings.map((b) => b.s.value)
+          this.$emit('uris loaded', this.uris)
+        },
+        (error) => {
+          this.$emit('toast-error', `Loading URIs Failed: ${error.statusText}`)
+        }
+      )
     },
-    loadEntities () {
+    loadEntities() {
       /*
       let searchTerms = ['kcp', 'kth']
       searchTerms.forEach(term  => {
@@ -47,20 +55,27 @@ export const bus = new Vue({
       })
       */
     },
-    loadPredicateURIs () {
-      this.$http.get(`${API_ROOT}/api/uriproperties`).then((response) => {
-        this.uriProperties = response.body.results.bindings.map(b => b.subject.value)
-        this.$emit('URI properties loaded', this.uriProperties)
-      }, (error) => {
-          this.$emit('toast-error', `Loading URI properties failed: ${error.statusText}`)
-      })
-    }
+    loadPredicateURIs() {
+      this.$http.get(`${API_ROOT}/api/uriproperties`).then(
+        (response) => {
+          this.uriProperties = response.body.results.bindings.map(
+            (b) => b.subject.value
+          )
+          this.$emit('URI properties loaded', this.uriProperties)
+        },
+        (error) => {
+          this.$emit(
+            'toast-error',
+            `Loading URI properties failed: ${error.statusText}`
+          )
+        }
+      )
+    },
   },
-  created () {
+  created() {
     this.loadPredicates()
     this.loadUris()
     this.loadEntities()
     this.loadPredicateURIs()
-  }
+  },
 })
-

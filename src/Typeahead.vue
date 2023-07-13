@@ -11,76 +11,77 @@
 </template>
 
 <script>
-let awesomplete;
-import Awesomplete from "awesomplete/awesomplete.min.js";
-import { bus } from "./eventBus.js";
-import { API_ROOT } from "./constants.js";
+let awesomplete
+import Awesomplete from 'awesomplete/awesomplete.min.js'
+import { bus } from './eventBus.js'
+import { API_ROOT } from './constants.js'
 
 export default {
-  props: ["uris", "placeholder"],
+  props: ['uris', 'placeholder'],
   data() {
     return {
       valid: false,
       selectedUri: undefined,
-    };
+    }
   },
   watch: {
     uris: function (value) {
       if (awesomplete) {
-        awesomplete.list = this.uris;
+        awesomplete.list = this.uris
       } else {
-        awesomplete = null;
-        this.initialize();
+        awesomplete = null
+        this.initialize()
       }
     },
   },
   methods: {
     initialize() {
-      awesomplete = new Awesomplete(document.querySelector("#typeahead"), {
+      awesomplete = new Awesomplete(document.querySelector('#typeahead'), {
         list: this.uris,
         maxItems: 25,
-      });
+      })
     },
     validate(ev) {
-      this.valid = Boolean(this.uris.find((x) => x === ev.text.value));
+      this.valid = Boolean(this.uris.find((x) => x === ev.text.value))
       if (this.valid) {
-        this.$emit("selection", ev.text.value);
+        this.$emit('selection', ev.text.value)
       }
     },
     searchTerm(ev) {
-      const searchTerm = ev.currentTarget.value;
+      const searchTerm = ev.currentTarget.value
       this.$http.get(`${API_ROOT}/api/entitylist?domain=${searchTerm}`).then(
         (response) => {
-          const entities = new Set();
+          const entities = new Set()
           response.body.results.bindings.forEach((result) => {
             Object.values(result).forEach((entity) =>
               entities.add(entity.value)
-            );
-          });
-          bus.$emit("entities loaded", Array.from(entities));
+            )
+          })
+          bus.$emit('entities loaded', Array.from(entities))
         },
         (error) => {
           bus.$emit(
-            "toast-error",
+            'toast-error',
             `Loading domain ${searchTerm} failed: ${error.statusText}`
-          );
+          )
         }
-      );
+      )
     },
   },
   mounted() {
-    this.initialize();
+    this.initialize()
   },
   destroyed() {
-    awesomplete = null;
+    awesomplete = null
   },
-};
+}
 </script>
 
 <style>
 .awesomplete,
 #typeahead {
   width: 100%;
+  z-index: 5000;
 }
 
 .valid.awesomplete .awesomplete input#typeahead,
