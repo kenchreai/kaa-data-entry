@@ -8,12 +8,27 @@
       <option value="ke/ke">KE Inventoried Object</option>
       <option value="kth/kth">KTH Inventoried Object</option>
       <option value="kcp/ka">KCP Architecture</option>
+      <option value="kcp/ka-anno">KCP Architecture (By Year)</option>
       <option value="kcp/ki">KCP Inscription</option>
+      <option value="kcp/ki-anno">KCP Inscription (By Year)</option>
       <option value="kcp/kl">KCP Lamp</option>
-      <option value="kcp/km">KCP Material</option>
+      <option value="kcp/kl-anno">KCP Lamp (By Year)</option>
+      <option value="kcp/km">KCP Miscellaneous</option>
+      <option value="kcp/km-anno">KCP Miscellaneous (By Year)</option>
       <option value="kcp/kp">KCP Pottery</option>
+      <option value="kcp/kp-anno">KCP Pottery (By Year)</option>
       <option value="kcp/ks">KCP Sculpture</option>
+      <option value="kcp/ks-anno">KCP Sculpture (By Year)</option>
     </select>
+    <div v-if="isByYear">
+      <label for="entityYear">Entity Year</label>
+      <input
+        type="number"
+        id="entityYear"
+        name="entityYear"
+        v-model="entityYear"
+      />
+    </div>
     <label for="entityNumber">Entity Number</label>
     <input
       type="text"
@@ -79,6 +94,8 @@ export default {
     return {
       namespace: '',
       seriesNumber: '',
+      isByYear: false,
+      entityYear: '',
       nextEntityNumber: '',
       validationMessage: '',
       entityExists: true,
@@ -88,14 +105,26 @@ export default {
   },
   computed: {
     entityURI: function () {
-      return `http://kenchreai.org/kaa/${this.namespace}${this.nextEntityNumber}`
+      if (!this.isByYear) {
+        return `http://kenchreai.org/kaa/${this.namespace}${this.nextEntityNumber}`
+      }
+      return `http://kenchreai.org/kaa/${this.namespace.replace('-anno', '')}${
+        this.entityYear
+      }-${this.nextEntityNumber}`
     },
     editorURI: function () {
-      return `/detail/${this.namespace}${this.nextEntityNumber}`
+      if (!this.isByYear) {
+        return `/detail/${this.namespace}${this.nextEntityNumber}`
+      }
+      return `/detail/${this.namespace.replace('-anno', '')}${
+        this.entityYear
+      }-${this.nextEntityNumber}`
     },
   },
   watch: {
-    namespace: function () {
+    namespace: function (namespace) {
+      this.isByYear = namespace.includes('anno')
+      this.entityYear = ''
       this.seriesNumber = ''
       this.nextEntityNumber = ''
       this.getNextItemInNamespace()
@@ -103,13 +132,17 @@ export default {
       this.validationMessage = ''
       this.entityExistsMessage = ''
     },
-    nextEntityNumber: function () {
-      if (!this.namespace || !this.nextEntityNumber)
-        return (this.validationMessage = '')
+    entityYear: function (year) {
+      if (year.match(/^\d{4}$/)) {
+        this.getNextItemInNamespace()
+      }
+    },
+    nextEntityNumber: function (entityNumber) {
+      if (!this.namespace || !entityNumber) return (this.validationMessage = '')
       if ('ke/co ke/ke kth/kth'.includes(this.namespace)) {
         if (
-          !this.nextEntityNumber.match(/^\d{4}(?!\d)\S*$/) ||
-          this.nextEntityNumber.match(/[A-Z]/)
+          !entityNumber.match(/^\d{4}(?!\d)\S*$/) ||
+          entityNumber.match(/[A-Z]/)
         ) {
           this.validationMessage =
             'Entity label must be four digits and optional text (e.g. 0021, 2942bis, 9428-a2)'
@@ -121,26 +154,50 @@ export default {
         */
         } else this.validationMessage = ''
       }
+
+      if (this.namespace.includes('kcp')) {
+        if (!entityNumber.match(/^\d{3}(?!\d)\S*$/)) {
+          this.validationMessage =
+            'Entity label must be three digits and optional text (e.g. 001, 201bis, 042-b)'
+        } else this.validationMessage = ''
+      }
+
       this.checkEntityDoesNotExist()
     },
   },
   methods: {
     async getNextItemInNamespace() {
-      const { namespace } = this
+      if (this.namespace.includes('anno') && !this.entityYear) {
+        return
+      }
+      const namespace = this.namespace.replace('-anno', '')
       const response = await this.$http.get(
-        `${API_ROOT}/api/last-namespace-item?namespace=${namespace}`
+        `${API_ROOT}/api/last-namespace-item?namespace=${namespace}${this.entityYear}`
       )
       if (response.ok) {
         const entity = response.body.results.bindings[0]
-        const [_, number] = entity.s.value.split(this.namespace)
+        if (!entity) return
+        const [_, number] = entity.s.value.split(namespace)
         this.seriesNumber = number
       }
     },
     useNextSeriesNumber() {
       if (!this.seriesNumber.includes('-')) {
         this.nextEntityNumber = (+this.seriesNumber + 1).toString()
+      } else if (this.isByYear) {
+        this.nextEntityNumber = (
+          +this.seriesNumber.split('-')[1] + 1
+        ).toString()
       } else {
         this.nextEntityNumber = ''
+      }
+      if (this.namespace.includes('kcp')) {
+        if (this.nextEntityNumber.length === 1) {
+          this.nextEntityNumber = `00${this.nextEntityNumber}`
+        }
+        if (this.nextEntityNumber.length === 2) {
+          this.nextEntityNumber = `0${this.nextEntityNumber}`
+        }
       }
     },
     async checkEntityDoesNotExist() {
@@ -148,10 +205,20 @@ export default {
       this.entityExistsMessage = ''
       if (!this.namespace || !this.nextEntityNumber || this.validationMessage)
         return
+
+      let query = ''
+      if (!this.isByYear) {
+        query = this.namespace + this.nextEntityNumber
+      } else {
+        query =
+          this.namespace.replace('-anno', '') +
+          this.entityYear +
+          '-' +
+          this.nextEntityNumber
+      }
+
       const response = await this.$http.get(
-        `${API_ROOT}/api/entities?resourceName=${
-          this.namespace + this.nextEntityNumber
-        }`
+        `${API_ROOT}/api/entities?resourceName=${query}`
       )
       if (response.ok && !!response.body.results.bindings.length) {
         this.entityExistsMessage = 'Entity already exists'

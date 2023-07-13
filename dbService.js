@@ -187,7 +187,9 @@ const DbService = (function () {
     }
 
     service.getNextNamespaceItem = async (domain, cb) => {
-      const queryString = `
+      let queryString = ''
+
+      queryString = `
         ${prefixes}
         select ?s where {
           ?s ?p ?o .filter contains(str(?s), "${domain}")
@@ -195,6 +197,17 @@ const DbService = (function () {
         order by desc(?s)
         limit 1
       `
+
+      if (domain.includes('kcp')) {
+        queryString = `
+          ${prefixes}
+          select ?s where {
+            ?s ?p ?o .filter (contains(str(?s), "${domain}") && regex(str(?s), "${domain}(?!.*[0-9]{4}).*$"))
+          }
+          order by desc(?s)
+          limit 1
+        `
+      }
 
       const response = await client.query.select(queryString)
       cb(await response.json())
@@ -264,6 +277,126 @@ const DbService = (function () {
             <${entityURI}>
             rdfs:label
             "kth${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/ka') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "ka${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/ki') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "ki${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/kl') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "kl${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/km') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "km${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/kp') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "kp${entityLabel}"
+          };
+        `
+      }
+
+      if (entityType === 'kcp/ks') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            kaaont:is-logical-part-of
+            kaakcp:inventoried-objects
+          };
+          insert data {
+            <${entityURI}>
+            rdf:type
+            kaaont:inventoried-object
+          };
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "ks${entityLabel}"
           };
         `
       }
