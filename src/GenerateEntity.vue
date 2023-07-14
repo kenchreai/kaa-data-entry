@@ -2,7 +2,11 @@
   <section class="wrapper">
     <h1>Generate New Entity</h1>
     <label for="namespace">Namespace</label>
-    <select id="namespace" v-model="namespace">
+    <select
+      id="namespace"
+      v-model="namespace"
+      @contextmenu="handleContextClick"
+    >
       <option value="">Select</option>
       <option value="ke/co">KE Coin</option>
       <option value="ke/ke">KE Inventoried Object</option>
@@ -61,6 +65,7 @@
       Generate next number
     </button>
     <br />
+    <p v-if="namespace === 'any'">I hope you know what you're doing</p>
     <button
       class="button button-primary"
       :disabled="
@@ -105,6 +110,9 @@ export default {
   },
   computed: {
     entityURI: function () {
+      if (this.namespace === 'any') {
+        return `http://kenchreai.org/kaa/${this.nextEntityNumber}`
+      }
       if (!this.isByYear) {
         return `http://kenchreai.org/kaa/${this.namespace}${this.nextEntityNumber}`
       }
@@ -113,6 +121,9 @@ export default {
       }-${this.nextEntityNumber}`
     },
     editorURI: function () {
+      if (this.namespace === 'any') {
+        return `/detail/${this.nextEntityNumber}`
+      }
       if (!this.isByYear) {
         return `/detail/${this.namespace}${this.nextEntityNumber}`
       }
@@ -166,8 +177,14 @@ export default {
     },
   },
   methods: {
+    handleContextClick() {
+      this.namespace = 'any'
+    },
     async getNextItemInNamespace() {
-      if (this.namespace.includes('anno') && !this.entityYear) {
+      if (
+        (this.namespace.includes('anno') && !this.entityYear) ||
+        this.namespace === 'any'
+      ) {
         return
       }
       const namespace = this.namespace.replace('-anno', '')
@@ -215,6 +232,9 @@ export default {
           this.entityYear +
           '-' +
           this.nextEntityNumber
+      }
+      if (this.namespace === 'any') {
+        query = this.nextEntityNumber
       }
 
       const response = await this.$http.get(

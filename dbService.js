@@ -401,6 +401,16 @@ const DbService = (function () {
         `
       }
 
+      if (entityType === 'any') {
+        triples = `
+          insert data {
+            <${entityURI}>
+            rdfs:label
+            "${entityLabel}"
+          }
+        `
+      }
+
       const queryString = `
         ${prefixes}
         ${triples}
