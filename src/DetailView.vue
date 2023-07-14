@@ -23,7 +23,12 @@
             v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
             :key="keyValPair.label.value + keyValPair.o.value"
             :predicate="findPredicate(keyValPair)"
-            :predicateType="getType((x) => x.s.value === keyValPair.p.value)"
+            :predicateType="
+              getType(
+                (x) => x.s.value === keyValPair.p.value,
+                keyValPair.p.value
+              )
+            "
             :isURIProperty="isURIProperty(keyValPair.p.value)"
             :isLongText="predicateIsLongText(keyValPair)"
             :keyValPair="keyValPair"
@@ -162,6 +167,7 @@ export default {
   },
   computed: {
     resource() {
+      if (!this.collection) return this.inventoryNum
       return `${this.collection}/${this.inventoryNum}`
     },
     loadedEntity() {
@@ -221,14 +227,20 @@ export default {
         this.getMapData()
       })
     },
-    getType(findExpression) {
+    log(x) {
+      console.log(x)
+    },
+    getType(findExpression, value) {
       const pred = this.predicates.find(findExpression)
       if (pred) {
+        console.log('found ' + value)
         if (pred.ptype.value.indexOf('Object') !== -1) {
           return 'uri'
         } else {
           return pred.range.value.slice(pred.range.value.indexOf('#') + 1)
         }
+      } else {
+        console.log('did not find ' + value)
       }
     },
     findPredicate(keyVal) {

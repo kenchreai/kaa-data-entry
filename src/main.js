@@ -51,6 +51,11 @@ const routes = [
     props: true,
   },
   {
+    path: '/detail/:inventoryNum',
+    component: DetailView,
+    props: true,
+  },
+  {
     path: '/generate-entity',
     component: GenerateEntityView,
   },

@@ -198,21 +198,31 @@ app.get('/api/entities', (req, res) => {
   dbService.getDetail(req.query.resourceName, (response) => res.send(response))
 })
 
-app.post('/api/entities/:collection/:entity', (req, res) => {
+const handlePost = (subject, predicate, object, req, res) => {
   validateToken(req, res, true, () => {
-    const resource = {
-      subject: `${req.params.collection}/${req.params.entity}`,
-      predicate: req.body.key,
-      object: req.body.val,
-    }
+    const resource = { subject, predicate, object }
     dbService.insert(resource, (response) => res.send(response))
   })
+}
+
+app.post('/api/entities/:collection/:entity', (req, res) => {
+  return handlePost(
+    `${req.params.collection}/${req.params.entity}`,
+    req.body.key,
+    req.body.val,
+    req,
+    res
+  )
 })
 
-app.put('/api/entities/:collection/:entity', (req, res) => {
+app.post('/api/entities/:entity', (req, res) => {
+  return handlePost(req.params.entity, req.body.key, req.body.val, req, res)
+})
+
+const handlePut = (subject, req, res) => {
   validateToken(req, res, true, () => {
     const resource = {
-      subject: `${req.params.collection}/${req.params.entity}`,
+      subject,
       predicate: req.body.predicate,
       oldObject: req.body.oldVal,
       newObject: req.body.newVal,
@@ -224,17 +234,33 @@ app.put('/api/entities/:collection/:entity', (req, res) => {
       dbService.updateDetail(resource, (response) => res.send(response))
     }
   })
+}
+
+app.put('/api/entities/:collection/:entity', (req, res) => {
+  return handlePut(`${req.params.collection}/${req.params.entity}`, req, res)
 })
 
-app.delete('/api/entities/:collection/:entity', (req, res) => {
+app.put('/api/entities/:entity', (req, res) => {
+  return handlePut(req.params.entity, req, res)
+})
+
+const handleDelete = (subject, req, res) => {
   validateToken(req, res, true, () => {
     const triple = {
-      subject: `${req.params.collection}/${req.params.entity}`,
+      subject,
       predicate: req.query.key,
       object: req.query.value,
     }
     dbService.deleteDetail(triple, (response) => res.send(response))
   })
+}
+
+app.delete('/api/entities/:collection/:entity', (req, res) => {
+  return handleDelete(`${req.params.collection}/${req.params.entity}`, req, res)
+})
+
+app.delete('/api/entities/:entity', (req, res) => {
+  return handleDelete(req.params.entity, req, res)
 })
 
 app.get('/api/descriptors', (req, res) => {
