@@ -1,4 +1,3 @@
-const { Connection, query } = require('stardog')
 const sparqlClient = require('sparql-http-client')
 const SimpleClient = require('sparql-http-client/SimpleClient')
 
@@ -95,8 +94,20 @@ const DbService = (function () {
           <${kaaBaseUrl + detailUrl}> ?p ?o . 
           optional { ?p rdfs:label ?label }
         }`
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)
+      cb(await response.json())
+    }
+
+    service.getTypologies = async (cb) => {
+      const query = `
+      ${prefixes}
+      select distinct ?typology ?label ?parent where {
+        ?typology a kaaont:typology-item .
+        optional { ?typology kaaont:broader ?parent . } 
+        { ?typology rdfs:label ?label }
+      } order by ?s
+      `
+      const response = await client.query.select(query)
       cb(await response.json())
     }
 

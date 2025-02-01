@@ -180,6 +180,10 @@ app.post('/api/token', (req, res) => {
   })
 })
 
+app.get('/api/typologies', (req, res) => {
+  dbService.getTypologies((typologies) => res.send(typologies))
+})
+
 app.get('/api/entitylist', (req, res) => {
   dbService.queryByDomain(req.query.domain, (response) => {
     res.send(response)

@@ -8,3 +8,7 @@ public/js/*.js
 public/js/*.map
 npm-debug.log
 yarn-error.log
+dist/
+node_modules/
+db.json
+.github_token

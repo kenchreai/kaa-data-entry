@@ -5,6 +5,7 @@
     <header>
       <section class="header--nav-links">
         <router-link to="/search">Search</router-link>
+        <router-link to="/typologies">Typologies</router-link>
         <router-link to="/login" v-if="!loggedIn">Login</router-link>
         <a href="/login" @click="logout" v-if="loggedIn"> Logout </a>
         <router-link to="/reset-password" v-if="loggedIn">

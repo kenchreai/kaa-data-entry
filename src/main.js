@@ -12,6 +12,7 @@ import ListView from './ListView.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
 import ResetPasswordView from './ResetPasswordView.vue'
+import TypologiesView from './TypologiesView.vue'
 
 // require('../dist/css/skeleton.css')
 
@@ -40,6 +41,10 @@ const routes = [
   {
     path: '/',
     redirect: '/search',
+  },
+  {
+    path: '/typologies',
+    component: TypologiesView,
   },
   {
     path: '/search',
