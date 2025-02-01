@@ -92,7 +92,7 @@
             placeholder="Value..."
           />
           <typeahead
-            :uris="uris"
+            :items="uris"
             :class="{
               valid: newValue && isValid,
               invalid: newValue && !isValid,

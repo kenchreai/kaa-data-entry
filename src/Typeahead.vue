@@ -5,7 +5,8 @@
       id="typeahead"
       :placeholder="placeholder"
       @change="searchTerm($event)"
-      @awesomplete-selectcomplete="validate($event)"
+      @keypress="handleKeypress($event)"
+      @awesomplete-selectcomplete="selectItem($event)"
     />
   </div>
 </template>
@@ -17,7 +18,7 @@ import { bus } from './eventBus.js'
 import { API_ROOT } from './constants.js'
 
 export default {
-  props: ['uris', 'placeholder'],
+  props: ['items', 'placeholder'],
   data() {
     return {
       valid: false,
@@ -37,27 +38,32 @@ export default {
   methods: {
     initialize() {
       awesomplete = new Awesomplete(document.querySelector('#typeahead'), {
-        list: this.uris,
+        list: this.items,
         maxItems: 25,
+        filter: (text, input) => true,
       })
     },
-    validate(ev) {
-      this.valid = Boolean(this.uris.find((x) => x === ev.text.value))
-      if (this.valid) {
-        this.$emit('selection', ev.text.value)
+    handleKeypress(ev) {
+      if (ev.key === 'Enter') {
+        ev.preventDefault()
+        this.searchTerm(ev)
       }
+    },
+    selectItem(ev) {
+      this.$emit('selection', ev.text.value)
     },
     searchTerm(ev) {
       const searchTerm = ev.currentTarget.value
-      this.$http.get(`${API_ROOT}/api/entitylist?domain=${searchTerm}`).then(
+      this.$http.get(`${API_ROOT}/api/search?terms=${searchTerm}`).then(
         (response) => {
-          const entities = new Set()
-          response.body.results.bindings.forEach((result) => {
-            Object.values(result).forEach((entity) =>
-              entities.add(entity.value)
-            )
-          })
-          bus.$emit('entities loaded', Array.from(entities))
+          const searchResults = response.body.results.bindings.map(
+            ({ entity, label }) => ({
+              value: entity.value,
+              label: `${label.value}<div><small>${entity.value}</small></div>`,
+            })
+          )
+          bus.$emit('search results loaded', searchResults)
+          awesomplete.list = searchResults
         },
         (error) => {
           bus.$emit(

@@ -1,4 +1,3 @@
-const sparqlClient = require('sparql-http-client')
 const SimpleClient = require('sparql-http-client/SimpleClient')
 
 const DbService = (function () {
@@ -10,14 +9,6 @@ const DbService = (function () {
       password: password,
     })
 
-    /*
-    const CONN = new Connection({
-      endpoint: 'http://kenchreai.org:5820/',
-      username,
-      password
-    })
-    */
-    const DATABASE = 'kenchreai'
     const kaaBaseUrl = 'http://kenchreai.org/kaa/'
 
     const prefixes = `
@@ -36,24 +27,18 @@ const DbService = (function () {
 
     const service = {}
 
-    service.queryByDomain = async (domain, cb) => {
-      /*
+    service.queryByString = async (searchTerm, cb) => {
+      const searchTerms = searchTerm.split(' ')
+
       const queryString = `
-        ${kaaontPrefix}
-        select ?s ?p where {
-          ?s a kaaont:inventory-number .
-          ?s kaaont:is-logical-part-of <${kaaBaseUrl + domain}/inventoried-objects> 
-        } order by ?s
+      ${prefixes}
+      select distinct ?entity ?label where {
+        ?entity ?p ?o .filter(${searchTerms
+          .map((q) => `contains(lcase(str(?entity)), '${q}')`)
+          .join(' && ')}) .
+        ?entity rdfs:label ?label
+      } order by ?label
       `
-      */
-      const queryString = `
-        ${prefixes}
-        select ?s where {
-          ?s ?p ?o .filter contains(str(?s), "${domain}")
-        }
-        order by ?s
-      `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
@@ -61,7 +46,6 @@ const DbService = (function () {
     service.getAllUris = async (cb) => {
       const queryString =
         'select distinct ?s where { ?s ?p ?o filter isURI(?s) }'
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
@@ -82,7 +66,6 @@ const DbService = (function () {
           ?subject rdf:type owl:ObjectProperty .
         }
       `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
@@ -123,8 +106,8 @@ const DbService = (function () {
           OPTIONAL { ?s kaaont:x-long-text ?longtext . }
           ?s <http://kenchreai.org/kaa/ontology/x-display-in-editor> true .
           FILTER ( ?ptype = owl:ObjectProperty || ?ptype = owl:DatatypeProperty )
-        } ORDER BY ?label`
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
+        } ORDER BY ?label
+      `
       const response = await client.query.select(queryString)
       cb(await response.json())
     }
@@ -139,7 +122,6 @@ const DbService = (function () {
         re.object
       } }
       `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
@@ -164,7 +146,6 @@ const DbService = (function () {
         re.newObject
       } }
       `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
@@ -178,7 +159,6 @@ const DbService = (function () {
         re.data
       } }
       `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }
@@ -192,7 +172,6 @@ const DbService = (function () {
         re.object
       } }
       `
-      // query.execute(CONN, DATABASE, queryString).then(response => cb(response.body))
       const response = await client.query.update(queryString)
       cb(await response.text())
     }

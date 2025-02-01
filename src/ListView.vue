@@ -3,8 +3,8 @@
     <h1 class="section-heading">Kenchreai Data Editor</h1>
     <typeahead
       class="typeahead"
-      :uris="entities"
-      :placeholder="'Search for KAA entity...'"
+      :items="searchResults"
+      :placeholder="'Search by keywords'"
       @selection="viewEntity($event)"
     >
     </typeahead>
@@ -20,7 +20,7 @@ import { bus } from './eventBus.js'
 export default {
   data() {
     return {
-      entities: bus.entities,
+      searchResults: [],
     }
   },
   components: {
@@ -28,7 +28,7 @@ export default {
   },
   created() {
     this.loggedIn = Boolean(localStorage.getItem('access-token'))
-    bus.$on('entities loaded', (val) => (this.entities = val))
+    bus.$on('search results loaded', (val) => (this.searchResults = val))
   },
   methods: {
     viewEntity(url) {
