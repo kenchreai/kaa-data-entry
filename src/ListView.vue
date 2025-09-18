@@ -1,13 +1,16 @@
 <template>
-<section id="wrapper">
-  <h1 class="section-heading">Kenchreai Data Editor</h1>
-  <typeahead :uris="entities"
-             :placeholder="'KAA entity...'"
-             @selection="viewEntity($event)">
-  </typeahead>
-</section>
+  <section id="wrapper">
+    <h1 class="section-heading">Kenchreai Data Editor</h1>
+    <typeahead
+      class="typeahead"
+      :items="searchResults"
+      :placeholder="'Search by keywords'"
+      @selection="viewEntity($event)"
+    >
+    </typeahead>
+    <a href="/generate-entity" v-if="loggedIn">Generate New Entity</a>
+  </section>
 </template>
-
 
 <script>
 import Typeahead from './Typeahead.vue'
@@ -15,28 +18,28 @@ import Typeahead from './Typeahead.vue'
 import { bus } from './eventBus.js'
 
 export default {
-  data () {
+  data() {
     return {
-      entities: bus.entities,
+      searchResults: [],
     }
   },
   components: {
-    'typeahead': Typeahead
+    typeahead: Typeahead,
   },
-  created () {
-    bus.$on('entities loaded', val => this.entities = val)
+  created() {
+    this.loggedIn = Boolean(localStorage.getItem('access-token'))
+    bus.$on('search results loaded', (val) => (this.searchResults = val))
   },
   methods: {
-    viewEntity (url) {
+    viewEntity(url) {
       const shortUrl = url.replace('http://kenchreai.org/kaa/', '')
       this.$router.push(`/detail/${shortUrl}`)
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style scoped>
-
 #wrapper {
   clear: both;
   margin: auto;
@@ -47,4 +50,7 @@ h1 {
   font-size: 4rem;
 }
 
+.typeahead {
+  margin-bottom: 4rem;
+}
 </style>

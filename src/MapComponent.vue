@@ -4,43 +4,62 @@
   </section>
 </template>
 
-
 <script>
-import { bus }from './eventBus.js'
-const L = require('../node_modules/leaflet/dist/leaflet.js')
-require('../node_modules/leaflet-draw/dist/leaflet.draw.js')
-require('../node_modules/leaflet-draw/dist/leaflet.draw.css')
+import { API_ROOT } from './constants.js'
+import { bus } from './eventBus.js'
+// const L = require("../node_modules/leaflet/dist/leaflet.js");
+import L from 'leaflet/dist/leaflet'
+// require("../node_modules/leaflet-draw/dist/leaflet.draw.js");
+import 'leaflet-draw/dist/leaflet.draw.js'
+// require("../node_modules/leaflet-draw/dist/leaflet.draw.css");
+import 'leaflet-draw/dist/leaflet.draw.css'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 
+/*
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('../node_modules/leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('../node_modules/leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('../node_modules/leaflet/dist/images/marker-shadow.png'),
+  iconRetinaUrl: _require(
+    "../node_modules/leaflet/dist/images/marker-icon-2x.png"
+  ),
+  iconUrl: _require("../node_modules/leaflet/dist/images/marker-icon.png"),
+  shadowUrl: _require("../node_modules/leaflet/dist/images/marker-shadow.png"),
 });
+ */
 
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+})
 
 const tileLayer = L.tileLayer(
   'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
   {
     maxZoom: 18,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
   }
 )
 
 export default {
   props: ['mapData', 'resource'],
-  data () {
+  data() {
     return {
       map: null,
       geoJSONFeatures: [],
-      featureGroup: null
+      featureGroup: null,
     }
   },
   methods: {
-    initialize () {
-      const map = L.map('map')
-                  .setView([37.8829530184844, 22.994623691774912], 17)
+    initialize() {
+      const map = L.map('map').setView(
+        [37.8829530184844, 22.994623691774912],
+        17
+      )
 
       tileLayer.addTo(map)
 
@@ -49,7 +68,7 @@ export default {
 
       if (true) {
         const drawControls = new L.Control.Draw({
-          edit: { featureGroup }
+          edit: { featureGroup },
         })
         map.addControl(drawControls)
         map.on('draw:created', this.updateGeoJSON)
@@ -57,42 +76,44 @@ export default {
         map.on('draw:deleted', this.updateGeoJSON)
       }
     },
-    updateGeoJSON (event) {
+    updateGeoJSON(event) {
       if (event.type === 'draw:created') {
         this.featureGroup.addLayer(event.layer)
       }
 
       if (event.type === 'draw:deleted') {
-        event.layers.eachLayer(layer => this.featureGroup.removeLayer(layer))
+        event.layers.eachLayer((layer) => this.featureGroup.removeLayer(layer))
       }
 
-      const geoJSONLayers = this.featureGroup.getLayers().map(l => l.toGeoJSON())
+      const geoJSONLayers = this.featureGroup
+        .getLayers()
+        .map((l) => l.toGeoJSON())
       const updatedGeoJSON = `'${JSON.stringify(geoJSONLayers)}'`
       const predicateType = 'kaaont:x-geojson'
-      const url = `/api/entities/${this.resource}`
+      const url = `${API_ROOT}/api/entities/${this.resource}`
       const payload = {
         predicate: predicateType,
-        data: updatedGeoJSON
+        data: updatedGeoJSON,
       }
 
-      this.$http.put(url, payload).then(() => {
-        bus.$emit('toast-success', 'Updated Map')
-      }, (error) => {
-        bus.$emit('toast-error', `Error Saving Map: ${error.statusText}`)
-      })
-    }
+      this.$http.put(url, payload).then(
+        () => {
+          bus.$emit('toast-success', 'Updated Map')
+        },
+        (error) => {
+          bus.$emit('toast-error', `Error Saving Map: ${error.statusText}`)
+        }
+      )
+    },
   },
-  mounted () { this.initialize() }
+  mounted() {
+    this.initialize()
+  },
 }
-
-
 </script>
 
-
 <style scoped>
-
 #map {
   height: 600px;
 }
-
 </style>

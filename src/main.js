@@ -7,57 +7,87 @@ import VueResourceProgressBarInterceptor from 'vue-resource-progressbar-intercep
 import App from './App.vue'
 import { bus } from './eventBus.js'
 import DetailView from './DetailView.vue'
+import GenerateEntityView from './GenerateEntity.vue'
 import ListView from './ListView.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
+import ResetPasswordView from './ResetPasswordView.vue'
+import TypologiesView from './TypologiesView.vue'
 
-require('../dist/css/normalize.css')
-require('../dist/css/skeleton.css')
-require('../node_modules/awesomplete/awesomplete.css')
-require('../node_modules/leaflet/dist/leaflet.css')
+// require('../dist/css/skeleton.css')
+
+import 'normalize.css'
+import 'awesomplete/awesomplete.css'
+import 'leaflet/dist/leaflet.css'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(VueProgressBar)
 Vue.use(VueResourceProgressBarInterceptor)
 
-Vue.http.interceptors.push((request, next) => {
+const routes = [
+  {
+    path: '/',
+    redirect: '/search',
+  },
+  {
+    path: '/typologies',
+    component: TypologiesView,
+  },
+  {
+    path: '/search',
+    component: ListView,
+  },
+  {
+    path: '/detail/:collection/:inventoryNum',
+    component: DetailView,
+    props: true,
+  },
+  {
+    path: '/detail/:inventoryNum',
+    component: DetailView,
+    props: true,
+  },
+  {
+    path: '/generate-entity',
+    component: GenerateEntityView,
+  },
+  {
+    path: '/login',
+    component: LoginView,
+    beforeEnter: (to, from, next) => {
+      if (from.fullPath.substr(0, 7) === '/detail') {
+        setTimeout(
+          () => bus.$emit('redirected from detail', from.fullPath),
+          500
+        )
+      }
+      next()
+    },
+  },
+  {
+    path: '/register',
+    component: RegisterView,
+  },
+  {
+    path: '/reset-password',
+    component: ResetPasswordView,
+  },
+]
+
+const router = new VueRouter({ routes, mode: 'history' })
+
+const app = new Vue({ router, render: (h) => h(App) }).$mount('#app')
+
+Vue.http.interceptors.push((request, next, ...rest) => {
   request.headers.set('x-access-token', localStorage.getItem('access-token'))
+
   next((response) => {
     if (response.status === 403) {
       localStorage.setItem('access-token', '')
       bus.$emit('logout')
       bus.$emit('toast-error', 'Login needed')
-      this.$router.push('/login')
+      app.$router.push('/login')
     }
   })
 })
-
-const routes = [{
-  path: '/',
-  component: App,
-  redirect: '/search',
-  children: [{
-    path: 'search',
-    component: ListView
-  }, {
-    path: 'detail/:collection/:inventoryNum',
-    component: DetailView,
-    props: true
-  }, {
-    path: 'login',
-    component: LoginView,
-    beforeEnter: (to, from, next) => {
-      if (from.fullPath.substr(0, 7) === '/detail') {
-        setTimeout(() => bus.$emit('redirected from detail', from.fullPath), 500)
-      }
-      next()
-    },
-  }, {
-    path: 'register',
-    component: RegisterView
-  }]
-}]
-
-const router = new VueRouter({ routes, mode: 'history' })
-const app = new Vue({ router }).$mount('#app')

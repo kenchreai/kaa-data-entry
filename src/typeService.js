@@ -8,6 +8,8 @@ const types = {
     return num
   },
   'integer': val => parseInt(val),
+  'positiveInteger': val => parseInt(val),
+  'nonNegativeInteger': val => parseInt(val),
   'boolean': val => val.toLowerCase(),
   'uri': val => `<${val}>`
 }
