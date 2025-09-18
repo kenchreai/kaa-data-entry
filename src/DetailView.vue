@@ -135,8 +135,7 @@ export default {
   props: ['collection', 'inventoryNum'],
   data() {
     return {
-      awsUrl:
-        'http://kenchreai-archaeological-archive-files.s3-website-us-west-2.amazonaws.com/',
+      awsUrl: 'http://kaa-images.s3.us-east-2.amazonaws.com/',
       entityLoading: false,
       entity: null,
       errorMessage: null,

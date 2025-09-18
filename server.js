@@ -10,19 +10,28 @@ const jwt = require('jsonwebtoken')
 const key = process.env.SIGNING_KEY
 const mongoKey = process.env.MONGODB_URI
 const mongoose = require('mongoose')
-const dbPassword = process.env.KENCHREAI_PASSWORD
 const path = require('path')
 const port = process.env.PORT || 8080
+const apiBaseUrl = process.env.API_BASE_URL
 const dbUsername = process.env.KENCHREAI_USER
+const dbPassword = process.env.KENCHREAI_PASSWORD
+const apiFrontDoorKey = process.env.FRONT_DOOR_KEY
+const region = process.env.AWS_REGION
+const accessKeyId = process.env.ACCESS_KEY_ID
+const secretAccessKey = process.env.SECRET_ACCESS_KEY
+const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda')
 
 /****************** initialise app ********************/
 
 const app = express()
-const dbService = DbService(
-  'http://kenchreai.org:3030/kaa_endpoint/',
-  dbUsername,
-  dbPassword
-)
+const dbService = DbService(apiBaseUrl, dbUsername, dbPassword, apiFrontDoorKey)
+const lambdaClient = new LambdaClient({
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
+})
 
 /****************** configure database ****************/
 
@@ -155,6 +164,23 @@ app.delete('/api/users/:id', (req, res) => {
   validateToken(req, res, true, () => {
     User.find({ _id: req.params.id }, (err, users) => {
       users[0].remove((err) => res.send('User deleted'))
+    })
+  })
+})
+
+app.post('/api/thumbs/regenerate', (req, res) => {
+  validateToken(req, res, false, () => {
+    const image = req.body.imageUrl
+    const isDrawing = req.body.isDrawing
+
+    const command = new InvokeCommand({
+      FunctionName: 'process_uploaded_image',
+      InvocationType: 'Event',
+      LogType: 'None',
+      Payload: JSON.stringify({ action: 'REGENERATE', image, isDrawing }),
+    })
+    lambdaClient.send(command).then((response) => {
+      res.send({ statusCode: response.StatusCode })
     })
   })
 })

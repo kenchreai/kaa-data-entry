@@ -31,11 +31,16 @@
           Edit
         </button>
       </section>
-      <img
-        v-if="isImage"
-        alt="photo from the kenchreai archives"
-        :src="awsUrl + value"
-      />
+      <section v-if="isImage">
+        <img alt="photo from the kenchreai archives" :src="awsUrl + value" />
+        <button
+          v-if="loggedIn"
+          class="button"
+          @click.prevent="regenerateThumbnail"
+        >
+          Regenerate thumbnail
+        </button>
+      </section>
     </td>
     <td v-if="editorOpened && loggedIn">
       <section class="inline-editor">
@@ -174,6 +179,18 @@ export default {
       this.key = kvp.label.value ? kvp.label.value : kvp.p.value
       this.value = kvp.o.value
     },
+    regenerateThumbnail() {
+      const url = `${API_ROOT}/api/thumbs/regenerate`
+      this.$http
+        .post(url, { imageUrl: this.value, isDrawing: this.key === 'Drawing' })
+        .then((response) => {
+          if (response.ok) {
+            bus.$emit('toast-success', 'Enqueued task')
+          } else {
+            bus.$emit('Failed to enqueue task')
+          }
+        })
+    },
     updatePredicateValue() {
       if (this.isValid) {
         const url = `${API_ROOT}/api/entities/${this.resource}`
@@ -185,7 +202,7 @@ export default {
           newVal: newVal,
         }
         this.$http.put(url, data).then((response) => {
-          if (!!~response.bodyText.indexOf('Success')) {
+          if (response.ok) {
             this.value = this.editorValue
             this.editorOpened = false
             bus.$emit('toast-success', 'Updated predicate')
@@ -201,7 +218,7 @@ export default {
 </script>
 
 <style scoped>
-.inline-image > img {
+.inline-image > section > img {
   max-width: 300px;
   display: block;
 }

@@ -1,12 +1,15 @@
 const SimpleClient = require('sparql-http-client/SimpleClient')
 
 const DbService = (function () {
-  return (baseUrl, username, password) => {
+  return (baseUrl, username, password, frontDoorKey) => {
     const client = new SimpleClient({
-      endpointUrl: `${baseUrl}sparql`,
-      updateUrl: `${baseUrl}update`,
+      endpointUrl: `${baseUrl}/sparql`,
+      updateUrl: `${baseUrl}/update`,
       user: username,
       password: password,
+      headers: {
+        'x-front-door-key': frontDoorKey,
+      },
     })
 
     const kaaBaseUrl = 'http://kenchreai.org/kaa/'
@@ -40,7 +43,12 @@ const DbService = (function () {
       } order by ?label
       `
       const response = await client.query.select(queryString)
-      cb(await response.json())
+      try {
+        cb(await response.json())
+      } catch (e) {
+        console.log(e)
+        cb(e.message)
+      }
     }
 
     service.getAllUris = async (cb) => {
@@ -123,7 +131,7 @@ const DbService = (function () {
       } }
       `
       const response = await client.query.update(queryString)
-      cb(await response.text())
+      cb(await response.json())
     }
 
     service.updateDetail = async (re, cb) => {
@@ -147,7 +155,7 @@ const DbService = (function () {
       } }
       `
       const response = await client.query.update(queryString)
-      cb(await response.text())
+      cb(await response.json())
     }
 
     service.updateMap = async (re, cb) => {
@@ -160,7 +168,7 @@ const DbService = (function () {
       } }
       `
       const response = await client.query.update(queryString)
-      cb(await response.text())
+      cb(await response.json())
     }
 
     service.deleteDetail = async (re, cb) => {
@@ -173,7 +181,7 @@ const DbService = (function () {
       } }
       `
       const response = await client.query.update(queryString)
-      cb(await response.text())
+      cb(await response.json())
     }
 
     service.getNextNamespaceItem = async (domain, cb) => {
@@ -407,7 +415,7 @@ const DbService = (function () {
       `
 
       const response = await client.query.update(queryString)
-      cb(await response.text())
+      cb(await response.json())
     }
 
     return service

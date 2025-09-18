@@ -25,18 +25,6 @@ Vue.use(VueResource)
 Vue.use(VueProgressBar)
 Vue.use(VueResourceProgressBarInterceptor)
 
-Vue.http.interceptors.push((request, next) => {
-  request.headers.set('x-access-token', localStorage.getItem('access-token'))
-  next((response) => {
-    if (response.status === 403) {
-      localStorage.setItem('access-token', '')
-      bus.$emit('logout')
-      bus.$emit('toast-error', 'Login needed')
-      this.$router.push('/login')
-    }
-  })
-})
-
 const routes = [
   {
     path: '/',
@@ -88,4 +76,18 @@ const routes = [
 ]
 
 const router = new VueRouter({ routes, mode: 'history' })
+
 const app = new Vue({ router, render: (h) => h(App) }).$mount('#app')
+
+Vue.http.interceptors.push((request, next, ...rest) => {
+  request.headers.set('x-access-token', localStorage.getItem('access-token'))
+
+  next((response) => {
+    if (response.status === 403) {
+      localStorage.setItem('access-token', '')
+      bus.$emit('logout')
+      bus.$emit('toast-error', 'Login needed')
+      app.$router.push('/login')
+    }
+  })
+})
