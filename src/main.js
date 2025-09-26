@@ -4,6 +4,7 @@ import VueResource from 'vue-resource'
 import VueProgressBar from 'vue-progressbar'
 import VueResourceProgressBarInterceptor from 'vue-resource-progressbar-interceptor'
 
+import AdminView from './Admin.vue'
 import App from './App.vue'
 import { bus } from './eventBus.js'
 import DetailView from './DetailView.vue'
@@ -51,6 +52,10 @@ const routes = [
   {
     path: '/generate-entity',
     component: GenerateEntityView,
+  },
+  {
+    path: '/admin',
+    component: AdminView,
   },
   {
     path: '/login',

@@ -6,6 +6,7 @@
       <section class="header--nav-links">
         <router-link to="/search">Search</router-link>
         <router-link to="/typologies">Typologies</router-link>
+        <router-link v-if="isAdmin" to="/admin">Admin</router-link>
         <router-link to="/login" v-if="!loggedIn">Login</router-link>
         <a href="/login" @click="logout" v-if="loggedIn"> Logout </a>
         <router-link to="/reset-password" v-if="loggedIn">
@@ -30,11 +31,23 @@ export default {
     'vue-toastr': Toastr,
   },
   data() {
-    return { loggedIn: false }
+    return { loggedIn: false, isAdmin: false }
   },
   created() {
-    this.loggedIn = Boolean(localStorage.getItem('access-token'))
-    bus.$on('login', () => {
+    const token = localStorage.getItem('access-token')
+
+    if (token) {
+      const userInfo = JSON.parse(atob(token.split('.')[1]))
+      const expiredToken = (Date.now() - userInfo.iat) / 1000 > 86000
+
+      if (!expiredToken) {
+        this.loggedIn = true
+        this.isAdmin = userInfo.isAdmin
+      }
+    }
+
+    bus.$on('login', (isAdmin) => {
+      this.isAdmin = isAdmin
       this.loggedIn = true
       this.$refs.toastr.s('Logged in')
     })
@@ -48,6 +61,7 @@ export default {
     logout() {
       localStorage.setItem('access-token', '')
       this.loggedIn = false
+      this.isAdmin = false
     },
   },
 }

@@ -45,7 +45,8 @@ export default {
       this.$http.post(`${API_ROOT}/api/token`, { username, password }).then(
         (response) => {
           localStorage.setItem('access-token', response.body)
-          bus.$emit('login')
+          const { isAdmin } = JSON.parse(atob(response.body.split('.')[1]))
+          bus.$emit('login', isAdmin)
           if (this.redirectUrl) {
             this.$router.push(this.redirectUrl)
           } else {

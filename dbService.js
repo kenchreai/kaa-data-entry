@@ -154,6 +154,7 @@ const DbService = (function () {
         re.newObject
       } }
       `
+
       const response = await client.query.update(queryString)
       cb(await response.json())
     }

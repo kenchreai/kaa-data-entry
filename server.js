@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 const validateToken = (req, res, adminOnly, routeFunc) => {
   jwt.verify(req.get('x-access-token'), key, (err, decoded) => {
     if (err || (!decoded.isAdmin && adminOnly)) {
-      res.status(403).send('Unauthorized to modify this resource')
+      res.status(403).send('Unauthorized')
     } else if ((Date.now() - decoded.iat) / 1000 > 86000) {
       res.status(403).send('Token expired')
     } else {
@@ -179,6 +179,21 @@ app.post('/api/thumbs/regenerate', (req, res) => {
       LogType: 'None',
       Payload: JSON.stringify({ action: 'REGENERATE', image, isDrawing }),
     })
+
+    lambdaClient.send(command).then((response) => {
+      res.send({ statusCode: response.StatusCode })
+    })
+  })
+})
+
+app.post('/api/zotero/refresh', (req, res) => {
+  validateToken(req, res, true, () => {
+    const command = new InvokeCommand({
+      FunctionName: 'sync_zotero_items',
+      InvocationType: 'Event',
+      LogType: 'None',
+    })
+
     lambdaClient.send(command).then((response) => {
       res.send({ statusCode: response.StatusCode })
     })
