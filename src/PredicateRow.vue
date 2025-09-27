@@ -176,7 +176,7 @@ export default {
   methods: {
     renderRow() {
       const kvp = this.keyValPair
-      this.key = kvp.label.value ? kvp.label.value : kvp.p.value
+      this.key = kvp.label?.value ? kvp.label.value : kvp.p.value
       this.value = kvp.o.value
     },
     regenerateThumbnail() {

@@ -21,7 +21,7 @@
           <predicate-row
             v-for="(keyValPair, index) in entity.results.bindings"
             v-if="keyValPair.p.value !== 'kaaont:x-geojson'"
-            :key="keyValPair.label.value + keyValPair.o.value"
+            :key="keyValPair.label?.value + keyValPair.o.value"
             :predicate="findPredicate(keyValPair)"
             :predicateType="
               getType(
@@ -56,7 +56,7 @@
                 v-for="predicate in predicates"
                 :value="predicate.s.value"
               >
-                {{ predicate.label.value }}
+                {{ predicate.label?.value }}
               </option>
             </select>
             <button
@@ -232,18 +232,15 @@ export default {
     getType(findExpression, value) {
       const pred = this.predicates.find(findExpression)
       if (pred) {
-        console.log('found ' + value)
         if (pred.ptype.value.indexOf('Object') !== -1) {
           return 'uri'
         } else {
           return pred.range.value.slice(pred.range.value.indexOf('#') + 1)
         }
-      } else {
-        console.log('did not find ' + value)
       }
     },
     findPredicate(keyVal) {
-      const label = keyVal.label.value ? keyVal.label.value : keyVal.p.value
+      const label = keyVal.label?.value ? keyVal.label.value : keyVal.p.value
       return this.predicates.find((p) => p.label.value === label)
     },
     addPredicateValue() {
