@@ -140,12 +140,6 @@ const DbService = (function () {
         re.newObject = re.newObject.replace(/\n/g, '\\n')
         re.newObject = re.newObject.replace(/\r/g, '\\r')
       }
-      /*
-      const queryString = `
-        delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.oldObject} };
-        insert data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${re.newObject} }
-      `
-      */
       const queryString = `
         delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
         re.oldObject
@@ -176,11 +170,13 @@ const DbService = (function () {
       if (re.object.replace) {
         re.object = re.object.replace(/\n/g, '\\n')
       }
+
       const queryString = `
         delete data { <${kaaBaseUrl + re.subject}> <${re.predicate}> ${
         re.object
-      } }
+      } };
       `
+
       const response = await client.query.update(queryString)
       cb(await response.json())
     }
