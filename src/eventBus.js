@@ -58,9 +58,11 @@ export const bus = new Vue({
     loadPredicateURIs() {
       this.$http.get(`${API_ROOT}/api/uriproperties`).then(
         (response) => {
-          this.uriProperties = response.body.results.bindings.map(
-            (b) => b.subject.value
-          )
+          this.uriProperties = [
+            'http://www.w3.org/2000/01/rdf-schema#seeAlso',
+            'http://kenchreai.org/kaa/ontology/model',
+            ...response.body.results.bindings.map((b) => b.subject.value),
+          ]
           this.$emit('URI properties loaded', this.uriProperties)
         },
         (error) => {

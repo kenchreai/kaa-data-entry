@@ -30,6 +30,7 @@
               )
             "
             :isURIProperty="isURIProperty(keyValPair.p.value)"
+            :isFreeformURI="isFreeformURI(keyValPair.p.value)"
             :isLongText="predicateIsLongText(keyValPair)"
             :keyValPair="keyValPair"
             :awsUrl="awsUrl"
@@ -86,7 +87,10 @@
               valid: newValue && isValid,
               invalid: newValue && !isValid,
             }"
-            v-if="!isLongText && !isURIProperty(newPredicate)"
+            v-if="
+              !isLongText &&
+              (!isURIProperty(newPredicate) || isFreeformURI(newPredicate))
+            "
             v-model="newValue"
             @input="checkValidity"
             placeholder="Value..."
@@ -100,7 +104,11 @@
             :placeholder="'URI...'"
             @input="checkValidity"
             @selection="updateModel($event)"
-            v-if="!isLongText && isURIProperty(newPredicate)"
+            v-if="
+              !isLongText &&
+              isURIProperty(newPredicate) &&
+              !isFreeformURI(newPredicate)
+            "
           >
           </typeahead>
           <p v-if="errorMessage">{{ errorMessage }}</p>
@@ -135,7 +143,7 @@ export default {
   props: ['collection', 'inventoryNum'],
   data() {
     return {
-      awsUrl: 'http://kaa-images.s3.us-east-2.amazonaws.com/',
+      awsUrl: 'https://kaa-images.s3.us-east-2.amazonaws.com/',
       entityLoading: false,
       entity: null,
       errorMessage: null,
@@ -205,6 +213,12 @@ export default {
       const pred = this.predicates.find((p) => p.s.value === keyValPair.p.value)
       return Boolean(pred && pred.longtext)
     },
+    isFreeformURI(predicate) {
+      return (
+        predicate.includes('rdf-schema#seeAlso') ||
+        predicate.includes('ontology/model')
+      )
+    },
     checkValidity() {
       const validator = this.validators[this.predicateType + 'Error']
       if (validator && this.newValue) {
@@ -231,6 +245,13 @@ export default {
     },
     getType(findExpression, value) {
       const pred = this.predicates.find(findExpression)
+      if (!pred && value?.includes('ontology/model')) {
+        return 'uriString'
+      }
+      if (pred?.s.value.includes('rdf-schema#seeAlso')) {
+        return 'uriString'
+      }
+
       if (pred) {
         if (pred.ptype.value.indexOf('Object') !== -1) {
           return 'uri'
@@ -241,12 +262,28 @@ export default {
     },
     findPredicate(keyVal) {
       const label = keyVal.label?.value ? keyVal.label.value : keyVal.p.value
-      return this.predicates.find((p) => p.label.value === label)
+      let found = this.predicates.find((p) => p.label.value === label)
+      if (!found && keyVal.p.value.includes('ontology/model')) {
+        return {
+          label: {
+            value: '3D Model',
+          },
+          s: {
+            value: 'http://kenchreai.org/kaa/ontology/model',
+          },
+          ptype: {
+            value: 'Object',
+          },
+        }
+      }
+
+      return found
     },
     addPredicateValue() {
       if (this.isValid) {
         const url = `${API_ROOT}/api/entities/${this.resource}`
         const val = this.types[this.predicateType](this.newValue)
+
         this.$http
           .post(url, { key: this.newPredicate, val })
           .then((response) => {
@@ -265,7 +302,9 @@ export default {
       let ptype = this.getType(
         (p) => p.label.value === predicateValue.label.value
       )
-
+      if (!ptype && predicateValue.p.value.includes('ontology/model')) {
+        ptype = 'uriString'
+      }
       if (confirm(`Delete ${predicateValue.o.value} from ${this.resource}?`)) {
         // removing this for time being as it was wrapping with < and >, messing up deletes
         // if (predicateValue.label.value === 'File') ptype = 'uri'

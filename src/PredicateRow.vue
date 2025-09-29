@@ -58,7 +58,7 @@
             </textarea>
             <input
               type="text"
-              v-if="!isLongText && !isURIProperty"
+              v-if="!isLongText && (!isURIProperty || isFreeformURI)"
               :class="{
                 valid: editorValue && isValid,
                 invalid: editorValue && !isValid,
@@ -74,7 +74,7 @@
                 invalid: editorValue && !isValid,
               }"
               :placeholder="'URI...'"
-              v-if="!isLongText && isURIProperty"
+              v-if="!isLongText && isURIProperty && !isFreeformURI"
             >
             </typeahead>
             <p class="invalid" v-if="errorMessage">{{ errorMessage }}</p>
@@ -117,6 +117,7 @@ export default {
     'validators',
     'loggedIn',
     'isURIProperty',
+    'isFreeformURI',
   ],
   components: {
     typeahead: Typeahead,
@@ -144,7 +145,10 @@ export default {
     },
     isHyperLink() {
       return (
-        this.predicate && this.predicate.ptype.value.indexOf('Object') !== -1
+        this.predicate &&
+        (this.predicate.ptype.value.indexOf('Object') !== -1 ||
+          this.predicate.s.value.includes('#seeAlso') ||
+          this.predicate.s.value.includes('ontology/model'))
       )
     },
     isAWSLink() {
@@ -154,7 +158,9 @@ export default {
     },
     url() {
       if (this.isHyperLink) {
-        if (this.value.search('kenchreai.org/kaa') === -1) {
+        if (this.isFreeformURI) {
+          return this.value
+        } else if (this.value.search('kenchreai.org/kaa') === -1) {
           return `http://kenchreai.org/kaa/${this.value}`
         } else {
           return this.value
