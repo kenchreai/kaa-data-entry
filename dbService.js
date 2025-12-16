@@ -40,7 +40,7 @@ const DbService = (function () {
           .map((q) => `contains(lcase(str(?entity)), '${q}')`)
           .join(' && ')}) .
         ?entity rdfs:label ?label
-      } order by ?label
+      } order by asc(strlen(str(?entity))) limit 100
       `
       const response = await client.query.select(queryString)
       try {

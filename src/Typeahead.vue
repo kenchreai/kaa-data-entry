@@ -39,8 +39,9 @@ export default {
     initialize() {
       awesomplete = new Awesomplete(document.querySelector('#typeahead'), {
         list: this.items,
-        maxItems: 25,
+        maxItems: 100,
         filter: (text, input) => true,
+        sort: false,
       })
     },
     handleKeypress(ev) {
